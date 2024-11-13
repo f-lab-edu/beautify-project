@@ -1,15 +1,15 @@
-# Shop API
+# 샵(미용 시술소) API
 
-Shop(미용 시술소) 관련 정보를 등록/조회/수정/삭제하는 HTTP API 입니다.
+샵(미용 시술소) 관련 정보를 등록/조회/수정/삭제하는 HTTP API 입니다.
 
 REST API 방식으로 호출하는 방법은 동일하나, OAuth 2.0 인증 기반이므로 Authorization API를 통해 접근 토큰(access token)을 발급받아 HTTP Header에 포함시켜 전송해야 합니다.
 
 
 
 
-## 1. Shop 등록
+## 1. 샵 등록
 
-Shop 등록 API에서는 `@RequestPart` 를 사용하여 multipart/form-data 형식으로 두 형식의 데이터(이미지 바이너리, JSON)를 수신 받습니다.
+샵 등록 API에서는 `@RequestPart` 를 사용하여 multipart/form-data 형식으로 두 형식의 데이터(이미지 바이너리, JSON)를 수신 받습니다.
 
 - Shop 이미지들
   - Content-Type: multipart/form-data
@@ -22,18 +22,18 @@ Shop 등록 API에서는 `@RequestPart` 를 사용하여 multipart/form-data 형
 
 ### 1-1. 기본 정보
 
-| 메서드 | URI       | 출력 포멧 | 설명      |
-| ------ | --------- | --------- | --------- |
-| POST   | /v1/shops | JSON      | Shop 등록 |
+| 메서드 | URI       | 출력 포멧 | 설명    |
+| ------ | --------- | --------- | ------- |
+| POST   | /v1/shops | JSON      | 샵 등록 |
 
 
 
 ### 1-2. 요청 헤더
 
-| 헤더 key      | 필수 여부 | 설명                                                         |
-| ------------- | --------- | ------------------------------------------------------------ |
-| Authorization | O         | Authorization: Bearer ${ACCESS_TOKEN}<br />권한 정보가 포함된 액세스 토큰을 포함하여 요청 |
-| Content-Type  | O         | multipart/form-data                                          |
+| 헤더 key      | 필수 여부 | 설명                                  |
+| ------------- | --------- | ------------------------------------- |
+| Authorization | O         | Authorization: Bearer ${ACCESS_TOKEN} |
+| Content-Type  | O         | multipart/form-data                   |
 
 
 
@@ -143,30 +143,29 @@ Content-Type: application/json
   },
   "categories": [
     {
-      "id": "15108824-d9f9-4c8a-8fd6-a4ee2d1945af",
+      "id": "15108824",
       "name": "머리미용"
     },
     {
-      "id": "940cdea0-ee87-44e9-a696-40329dd417cc",
+      "id": "940cdea0",
       "name": "피부미용"
     }
   ],
   "supportFacilities": [
     {
-      "id": "cbc94211-6b0d-4e19-bb27-63475da31424",
+      "id": "cbc94211",
       "name": "와이파이"
     },
     {
-      "id": "e652bf54-2ecd-4fea-9cb6-fab7bfab56b0",
+      "id": "e652bf54",
       "name": "주차가능"
     },
     {
-      "id": "1671fc08-8c2f-4b26-b92a-d53fe217a9a6,
+      "id": "1671fc08",
       "name": "개인샤워실"
     }
   ]
 }
--- boundary
 ```
 
 
@@ -174,20 +173,27 @@ Content-Type: application/json
 ### 1-5. 응답
 
 ``` http
-HTTP/1.1 201 Created
+HTTP/1.1 200 OK
+
+{
+  "returnValue": {
+    "shopId": "732e934"
+  }
+}
 ```
 
+- shopId: 생성된 샵의 ID
 - 에러 응답은 [8. 에러](#8-에러) 참고
 
 
 
-## 2. Shop 리스트 조회
+## 2. 샵 리스트 조회
 
 ### 2-1. 기본 정보
 
-| 메서드 | 요청 URI  | 출력 포멧 | 설명             |
-| ------ | --------- | --------- | ---------------- |
-| GET    | /v1/shops | JSON      | Shop 리스트 조회 |
+| 메서드 | 요청 URI  | 출력 포멧 | 설명           |
+| ------ | --------- | --------- | -------------- |
+| GET    | /v1/shops | JSON      | 샵 리스트 조회 |
 
 - 파라미터 (Query String)
 
@@ -202,10 +208,10 @@ HTTP/1.1 201 Created
 
 ### 2-2. 요청 헤더
 
-| 헤더 key      | 필수 여부 | 설명                                                         |
-| ------------- | --------- | ------------------------------------------------------------ |
-| Authorization | O         | Authorization: Bearer ${ACCESS_TOKEN}<br />권한 정보가 포함된 액세스 토큰을 포함하여 요청 |
-| Content-Type  | O         | application/x-www-form-urlencoded                            |
+| 헤더 key      | 필수 여부 | 설명                                  |
+| ------------- | --------- | ------------------------------------- |
+| Authorization | O         | Authorization: Bearer ${ACCESS_TOKEN} |
+| Content-Type  | O         | application/x-www-form-urlencoded     |
 
 
 
@@ -225,27 +231,31 @@ Content-Type: application/x-www-form-urlencoded
 HTTP/1.1 200 OK
 Content-Type: application/json
 
-[
-  {
-    "id": "2360c169-b908-4539-8cfd-b4a258d79520",
-    "name": "시술소1",
-    "operations": ["두피문신", "눈썹문신", "입술문신"],
-    "supportFacilities": ["주차가능", "와이파이", "샤워실"],
-    "rate": "4.5",
-    "likes": 132,
-    "thumbnail": "base64 encoded string",
-  },
-  {
-    "id": "f4804d31-9ebb-4218-9c92-4c7a29a7c4d7",
-    "name": "시술소2",
-    "operations": ["타투"],
-    "supportFacilities": ["와이파이"],
-    "rate": "3.0",
-    "likes": 20,
-    "thumbnail": "base64 encoded string"
-  },
-  ...
-]
+{
+  "returnValue": [
+    {
+      "id": "2360c169-b908-4539-8cfd-b4a258d79520",
+      "name": "시술소1",
+      "operations": ["두피문신", "눈썹문신", "입술문신"],
+      "supportFacilities": ["주차가능", "와이파이", "샤워실"],
+      "rate": "4.5",
+      "likes": 132,
+      "likePushed": false,
+      "thumbnail": "base64 encoded string"
+    },
+    {
+      "id": "f4804d31-9ebb-4218-9c92-4c7a29a7c4d7",
+      "name": "시술소2",
+      "operations": ["타투"],
+      "supportFacilities": ["와이파이"],
+      "rate": "3.0",
+      "likes": 20,
+      "likePushed": false
+      "thumbnail": "base64 encoded string"
+    },
+    ...
+  ]
+}
 ```
 
 | 필드명            | 데이터 타입 | 설명                                                         |
@@ -255,23 +265,20 @@ Content-Type: application/json
 | supportFacilities | JSON Array  | 편의시설                                                     |
 | rate              | String      | 평점                                                         |
 | likes             | int         | 좋아요 수                                                    |
+| likePushed        | boolean     | 좋아요 클릭 여부                                             |
 | thumbnail         | String      | Base64로 인코딩된 이미지 파일 (이미지 태그에 바로 넣을 수 있는 형태) |
 
 - 에러 응답은 [8. 에러](#8-에러) 참고
 
 
 
-
-
-
-
-## 3. Shop 상세 조회
+## 3. 샵 상세 조회
 
 ### 3-1. 기본 정보
 
-| 메서드 | 요청 URI                | 출력 포멧 | 설명           |
-| ------ | ----------------------- | --------- | -------------- |
-| GET    | /v1/shops/details/${id} | json      | Shop 상세 조회 |
+| 메서드 | 요청 URI                | 출력 포멧 | 설명         |
+| ------ | ----------------------- | --------- | ------------ |
+| GET    | /v1/shops/details/${id} | json      | 샵 상세 조회 |
 
 - 경로 변수 (Path Variable)
 
@@ -283,17 +290,17 @@ Content-Type: application/json
 
 ### 3-2. 요청 헤더
 
-| 헤더 key      | 필수 여부 | 설명                                                         |
-| ------------- | --------- | ------------------------------------------------------------ |
-| Authorization | O         | Authorization: Bearer ${ACCESS_TOKEN}<br />권한 정보가 포함된 액세스 토큰을 포함하여 요청 |
-| Content-Type  | O         | application/x-www-form-urlencoded                            |
+| 헤더 key      | 필수 여부 | 설명                                  |
+| ------------- | --------- | ------------------------------------- |
+| Authorization | O         | Authorization: Bearer ${ACCESS_TOKEN} |
+| Content-Type  | O         | application/x-www-form-urlencoded     |
 
 
 
 ### 3-3. 요청 예시
 
 ``` http
-GET /v1/shops/details/2360c169-b908-4539-8cfd-b4a258d79520 HTTP/1.1
+GET /v1/shops/details/2360c169 HTTP/1.1
 Authorization: Bearer ${ACCESS_TOKEN}
 Content-Type: application/x-www-form-urlencoded
 ```
@@ -307,41 +314,44 @@ HTTP/1.1 200 OK
 Content-Type: application/json
 
 {
-  "id": "2360c169-b908-4539-8cfd-b4a258d79520",
-  "name": "시술소1",
-  "contact": "010-1234-5678",
-  "url": "www.naver.com",
-  "introduction": "안녕하세요 시술소1 입니다. 두피문신, 눈썹문신, 입술문신 전문입니다.",
-  "operations": ["두피문신", "눈썹문신", "입술문신"],
-  "businessTime": {
-    "openTime": "09:00",
-    "closeTime": "18:00",
-    "breakBeginTime": "12:00",
-    "breanEndTime": "13:00",
-    "offDayOfWeek": ["sunday", "monday"]
-  },
-  "address": {
-    "siDoName": "서울특별시",
-    "siGoonGooName": "마포구",
-    "eubMyunDongName": "상암동",
-    "roadName": "월드컵북로",
-    "roadMainNum": "481",
-    "siGoonGooBuildingName": "상암 오벨리스크 2차",
-    "zipCode": "03902",
-    "latitude": "", 
-    "longitude": ""
-  },
-  "categories": ["머리미용", "피부미용"],
-  "supportFacilites": ["와이파이", "주차가능", "개인샤워실"],
-  "rate": 4.5,
-  "likes": 132,
-  "images": [
-    "",
-    "",
-    "",
-    "",
-    ""
-  ]
+  "returnValue": {
+    "id": "2360c169-b908-4539-8cfd-b4a258d79520",
+    "name": "시술소1",
+    "contact": "010-1234-5678",
+    "url": "www.naver.com",
+    "introduction": "안녕하세요 시술소1 입니다. 두피문신, 눈썹문신, 입술문신 전문입니다.",
+    "likePushed": false,
+    "operations": ["두피문신", "눈썹문신", "입술문신"],
+    "businessTime": {
+      "openTime": "09:00",
+      "closeTime": "18:00",
+      "breakBeginTime": "12:00",
+      "breanEndTime": "13:00",
+      "offDayOfWeek": ["sunday", "monday"]
+    },
+    "address": {
+      "siDoName": "서울특별시",
+      "siGoonGooName": "마포구",
+      "eubMyunDongName": "상암동",
+      "roadName": "월드컵북로",
+      "roadMainNum": "481",
+      "siGoonGooBuildingName": "상암 오벨리스크 2차",
+      "zipCode": "03902",
+      "latitude": "", 
+      "longitude": ""
+    },
+    "categories": ["머리미용", "피부미용"],
+    "supportFacilites": ["와이파이", "주차가능", "개인샤워실"],
+    "rate": 4.5,
+    "likes": 132,
+    "images": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  }
 }
 ```
 
@@ -351,6 +361,7 @@ Content-Type: application/json
 | contact                     | String      | 연락처                                                       |
 | url                         | String      | 대표 SNS 주소                                                |
 | introduction                | String      | 소개글                                                       |
+| likePushed                  | boolean     | 좋아요 버튼 여부                                             |
 | operations                  | JSON Array  | 지원 시술 목록                                               |
 | businessTime                | JSON Object | 영업 시간                                                    |
 | businessTime.openTime       | String      | 영업 시작 시간                                               |
@@ -380,14 +391,14 @@ Content-Type: application/json
 
 
 
-## 4. Shop 수정
+## 4. 샵 수정
 
-Shop 수정 API에서는 `@RequestPart` 를 사용하여 multipart/form-data 형식으로 두 형식의 데이터(이미지 바이너리, JSNO)를 수신 받습니다.
+샵 수정 API에서는 `@RequestPart` 를 사용하여 multipart/form-data 형식으로 두 형식의 데이터(이미지 바이너리, JSNO)를 수신 받습니다.
 
-- Shop 이미지들
+- 샵 이미지들
   - Content-Type: multipart/form-data
   - 요소 이름: images
-- Shop 등록 정보
+- 샵 등록 정보
   - Content-Type: application/json
   - 요소 이름: shopRegistrationInfo
 
@@ -395,24 +406,24 @@ Shop 수정 API에서는 `@RequestPart` 를 사용하여 multipart/form-data 형
 
 ### 4-1. 기본정보
 
-| 메서드 | 요청 URI        | 출력 포멧 | 설명      |
-| ------ | --------------- | --------- | --------- |
-| PATCH  | /v1/shops/${id} | json      | Shop 수정 |
+| 메서드 | 요청 URI        | 출력 포멧 | 설명    |
+| ------ | --------------- | --------- | ------- |
+| PATCH  | /v1/shops/${id} | json      | 샵 수정 |
 
 - 경로 변수 (Path Variable)
 
-  | 변수명 | 필수 여부 | 설명                |
-    | ------ | --------- | ------------------- |
-  | ${id}  | O         | 수정 대상 Shop의 Id |
+  | 변수명 | 필수 여부 | 설명              |
+  | ------ | --------- | ----------------- |
+  | ${id}  | O         | 수정 대상 샵의 Id |
 
 
 
 ### 4-2. 요청 헤더
 
-| 헤더 key      | 필수 여부 | 설명                                                         |
-| ------------- | --------- | ------------------------------------------------------------ |
-| Authorization | O         | Authorization: Bearer ${ACCESS_TOKEN}<br />권한 정보가 포함된 액세스 토큰을 포함하여 요청 |
-| Content-Type  | O         | multipart/form-data                                          |
+| 헤더 key      | 필수 여부 | 설명                                  |
+| ------------- | --------- | ------------------------------------- |
+| Authorization | O         | Authorization: Bearer ${ACCESS_TOKEN} |
+| Content-Type  | O         | multipart/form-data                   |
 
 
 
@@ -429,7 +440,7 @@ Shop 수정 API에서는 `@RequestPart` 를 사용하여 multipart/form-data 형
 - 이미지 파일 수정/삭제가 없는 경우
 
   ``` http
-  PATCH /v1/shops/2360c169-b908-4539-8cfd-b4a258d79520 HTTP/1.1
+  PATCH /v1/shops/2360c169 HTTP/1.1
   Authorization: Bearer ${ACCESS_TOKEN}
   Content-Type: multipart/form-data
   
@@ -452,7 +463,7 @@ Shop 수정 API에서는 `@RequestPart` 를 사용하여 multipart/form-data 형
 - 이미지 파일 수정/삭제가 있는 경우 (기존 2개에서 1개에서 줄인 경우)
 
   ``` http
-  PATCH /v1/shops/2360c169-b908-4539-8cfd-b4a258d79520 HTTP/1.1
+  PATCH /v1/shops/2360c169 HTTP/1.1
   Authorization: Bearer ${ACCESS_TOKEN}
   Content-Type: multipart/form-data
   
@@ -488,6 +499,12 @@ Shop 수정 API에서는 `@RequestPart` 를 사용하여 multipart/form-data 형
 
 ``` http
 HTTP/1.1 200 OK
+
+{
+  "returnValue": {
+    "shopId": "2360c169"
+  }
+}
 ```
 
 - 에러 응답은 [8. 에러](#8-에러) 참고
@@ -496,35 +513,35 @@ HTTP/1.1 200 OK
 
 
 
-## 5. Shop 삭제
+## 5. 샵 삭제
 
 ### 5-1. 기본 정보
 
-| 메서드 | 요청 URI        | 출력 포멧 | 설명      |
-| ------ | --------------- | --------- | --------- |
-| DELETE | /v1/shops/${id} | JSON      | Shop 삭제 |
+| 메서드 | 요청 URI        | 출력 포멧 | 설명    |
+| ------ | --------------- | --------- | ------- |
+| DELETE | /v1/shops/${id} | JSON      | 샵 삭제 |
 
 - 경로 변수 (Path Variable)
 
-  | 변수명 | 필수 여부 | 설명                |
-    | ------ | --------- | ------------------- |
-  | ${id}  | O         | 삭제 대상 Shop의 Id |
+  | 변수명 | 필수 여부 | 설명              |
+  | ------ | --------- | ----------------- |
+  | ${id}  | O         | 삭제 대상 샵의 Id |
 
 
 
 ### 5-2. 요청 헤더
 
-| 헤더 key      | 필수 여부 | 설명                                                         |
-| ------------- | --------- | ------------------------------------------------------------ |
-| Authorization | O         | Authorization: Bearer ${ACCESS_TOKEN}<br />권한 정보가 포함된 액세스 토큰을 포함하여 요청 |
-| Content-Type  | O         | application/x-www-form-urlencoded                            |
+| 헤더 key      | 필수 여부 | 설명                                  |
+| ------------- | --------- | ------------------------------------- |
+| Authorization | O         | Authorization: Bearer ${ACCESS_TOKEN} |
+| Content-Type  | O         | application/x-www-form-urlencoded     |
 
 
 
 ### 5-3. 요청 예시
 
 ``` http
-DELETE /v1/shops/2360c169-b908-4539-8cfd-b4a258d79520 HTTP/1.1
+DELETE /v1/shops/2360c169 HTTP/1.1
 Authorization: Bearer ${ACCESS_TOKEN}
 Content-Type: application/x-www-form-urlencoded
 ```
@@ -543,19 +560,19 @@ HTTP/1.1 204 No Content
 
 
 
-## 6. Shop 좋아요
+## 6. 샵 좋아요
 
 ### 6-1. 기본 정보
 
-| 메서드 | 요청 URI              | 출력 포멧 | 설명        |
-| ------ | --------------------- | --------- | ----------- |
-| POST   | /v1/shops/likes/${id} | JSON      | Shop 좋아요 |
+| 메서드 | 요청 URI              | 출력 포멧 | 설명      |
+| ------ | --------------------- | --------- | --------- |
+| POST   | /v1/shops/likes/${id} | JSON      | 샵 좋아요 |
 
 - 경로 변수 (Path Variable)
 
-  | 변수명 | 필수 여부 | 설명                |
-    | ------ | --------- | ------------------- |
-  | ${id}  | O         | 삭제 대상 Shop의 Id |
+  | 변수명 | 필수 여부 | 설명                   |
+  | ------ | --------- | ---------------------- |
+  | ${id}  | O         | 좋아요 할 대상 샵의 Id |
 
 
 
@@ -571,7 +588,7 @@ HTTP/1.1 204 No Content
 ### 6-3. 요청 예시
 
 ``` http
-POST /v1/shops/likes/2360c169-b908-4539-8cfd-b4a258d79520 HTTP/1.1
+POST /v1/shops/likes/2360c169 HTTP/1.1
 Authorization: Bearer ${ACCESS_TOKEN}
 Content-Type: application/x-www-form-urlencoded
 ```
@@ -582,6 +599,12 @@ Content-Type: application/x-www-form-urlencoded
 
 ``` http
 HTTP/1.1 200 OK
+
+{
+  "returnValue": {
+    "shopId": "2360c169"
+  }
+}
 ```
 
 - 에러 응답은 [8. 에러](#8-에러) 참고
@@ -590,35 +613,35 @@ HTTP/1.1 200 OK
 
 
 
-## 7. Shop 좋아요 취소
+## 7. 샵 좋아요 취소
 
 ### 7-1. 기본 정보
 
-| 메서드 | 요청 URI              | 출력 포멧 | 설명             |
-| ------ | --------------------- | --------- | ---------------- |
-| DELETE | /v1/shops/likes/${id} | json      | Shop 좋아요 취소 |
+| 메서드 | 요청 URI              | 출력 포멧 | 설명           |
+| ------ | --------------------- | --------- | -------------- |
+| DELETE | /v1/shops/likes/${id} | json      | 샵 좋아요 취소 |
 
 - 경로 변수 (Path Variable)
 
-  | 변수명 | 필수 여부 | 설명                |
-    | ------ | --------- | ------------------- |
-  | ${id}  | O         | 삭제 대상 Shop의 Id |
+  | 변수명 | 필수 여부 | 설명                       |
+  | ------ | --------- | -------------------------- |
+  | ${id}  | O         | 좋아요 취소할 대상 샵의 Id |
 
 
 
 ### 7-2. 요청 헤더
 
-| 헤더 key      | 필수 여부 | 설명                                                         |
-| ------------- | --------- | ------------------------------------------------------------ |
-| Authorization | O         | Authorization: Bearer ${ACCESS_TOKEN}<br />권한 정보가 포함된 액세스 토큰을 포함하여 요청 |
-| Content-Type  | O         | application/x-www-form-urlencoded                            |
+| 헤더 key      | 필수 여부 | 설명                                  |
+| ------------- | --------- | ------------------------------------- |
+| Authorization | O         | Authorization: Bearer ${ACCESS_TOKEN} |
+| Content-Type  | O         | application/x-www-form-urlencoded     |
 
 
 
 ### 7-3. 요청 예시
 
 ``` http
-DELETE /v1/shops/likes/2360c169-b908-4539-8cfd-b4a258d79520 HTTP/1.1
+DELETE /v1/shops/likes/2360c169 HTTP/1.1
 Authorization: Bearer ${ACCESS_TOKEN}
 Content-Type: application/x-www-form-urlencoded
 ```

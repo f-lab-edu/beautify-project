@@ -1,27 +1,27 @@
-# Category API
+# 카테고리 API
 
-Category(카테고리) 관련 정보를 등록/조회/수정/삭제하는 HTTP API 입니다.
+카테고리 관련 정보를 등록/조회/수정/삭제하는 HTTP API 입니다.
 
 REST API 방식으로 호출하는 방법은 동일하나, OAuth 2.0 인증 기반이므로 Authorization API를 통해 접근 토큰(access token)을 발급받아 HTTP Header에 포함시켜 전송해야 합니다.
 
 
 
-## 1. Category 등록
+## 1. 카테고리 등록
 
 ### 1-1. 기본 정보
 
 | 메서드 | URI            | 출력 포멧 | 설명          |
 | ------ | -------------- | --------- | ------------- |
-| POST   | /v1/categories | JSON      | Category 등록 |
+| POST   | /v1/categories | JSON      | 카테고리 등록 |
 
 
 
 ### 1-2. 요청 헤더
 
-| 헤더 key      | 필수 여부 | 설명                                                         |
-| ------------- | --------- | ------------------------------------------------------------ |
-| Authorization | O         | Authorization: Bearer ${ACCESS_TOKEN}<br/>권한 정보가 포함된 액세스 토큰을 포함하여 요청 |
-| Content-Type  | O         | application/json                                             |
+| 헤더 key      | 필수 여부 | 설명                                  |
+| ------------- | --------- | ------------------------------------- |
+| Authorization | O         | Authorization: Bearer ${ACCESS_TOKEN} |
+| Content-Type  | O         | application/json                      |
 
 
 
@@ -49,19 +49,19 @@ Content-Type: application/json
   "description": "헤어라인모발이식, 머리모발이식, 이마축소, 두피문신 등의 시술이 포함된 카테고리 입니다.",
   "operations": [
     {
-      "id": "ace52d35-9ee8-49fb-93af-27195c1e0519",
+      "id": "ace52d35",
       "name": "헤어라인모발이식"
     },
     {
-      "id": "6a473a23-b9fb-4397-b8f2-08b32e38977f",
+      "id": "6a473a23",
       "name": "머리모발이식"
     },
     {
-      "id": "a422f3f0-242e-43cd-ba26-ebcfd1fb8fef",
+      "id": "a422f3f0",
       "name": "이마축소"
     },
     {
-      "id": "53adfcce-c763-4acf-8d64-50234560e894",
+      "id": "53adfcce",
       "name": "두피문신"
     }
   ]
@@ -73,22 +73,29 @@ Content-Type: application/json
 ### 1-5. 응답
 
 ``` http
-HTTP/1.1 201 Created
+HTTP/1.1 200 OK
+
+{
+  "returnValue": {
+    "categoryId": "3f799cde"
+  }
+}
 ```
 
+- categoryId: 생성된 카테고리 건의 ID
 - 에러 응답은 [7. 에러](#7-에러) 참고
 
 
 
 
 
-## 2. Category 리스트 조회
+## 2. 카테고리 리스트 조회
 
 ### 2-1. 기본 정보
 
 | 메서드 | URI            | 출력 포멧 | 설명                 |
 | ------ | -------------- | --------- | -------------------- |
-| GET    | /v1/categories | JSON      | Category 리스트 조회 |
+| GET    | /v1/categories | JSON      | 카테고리 리스트 조회 |
 
 - 파라미터(Query String)
 
@@ -102,10 +109,10 @@ HTTP/1.1 201 Created
 
 ### 2-2. 요청 헤더
 
-| 헤더 key      | 필수 여부 | 설명                                                         |
-| ------------- | --------- | ------------------------------------------------------------ |
-| Authorization | O         | Authorization: Bearer ${ACCESS_TOKEN}<br />권한 정보가 포함된 액세스 토큰을 포함하여 요청 |
-| Content-Type  | O         | application/x-www-form-urlencoded                            |
+| 헤더 key      | 필수 여부 | 설명                                  |
+| ------------- | --------- | ------------------------------------- |
+| Authorization | O         | Authorization: Bearer ${ACCESS_TOKEN} |
+| Content-Type  | O         | application/x-www-form-urlencoded     |
 
 
 
@@ -125,14 +132,16 @@ Content-Type: application/x-www-form-urlencoded
 HTTP/1.1 200 OK
 Content-Type: application/json
 
-[
-  {
-    "id": "788948b2-ce2c-4d8c-97d0-04658ab4bc84",
-    "name": "머리미용",
-    "description": "헤어라인모발이식, 머리모발이식, 이마축소, 두피문신 등의 시술이 포함된 카테고리 입니다."
-  },
-  ...
-]
+{
+  "returnValue": [
+    {
+      "id": "788948b2",
+      "name": "머리미용",
+      "description": "헤어라인모발이식, 머리모발이식, 이마축소, 두피문신 등의 시술이 포함된 카테고리 입니다."
+    },
+    ...
+  ]
+}
 ```
 
 | 필드명      | 데이터 타입 | 설명            |
@@ -145,35 +154,35 @@ Content-Type: application/json
 
 
 
-## 3. Category 상세 조회
+## 3. 카테고리 상세 조회
 
 ### 3-1. 기본 정보
 
 | 메서드 | URI                          | 출력 포멧 | 설명               |
 | ------ | ---------------------------- | --------- | ------------------ |
-| GET    | /v1/categories/details/${id} | JSON      | Category 상세 조회 |
+| GET    | /v1/categories/details/${id} | JSON      | 카테고리 상세 조회 |
 
 - 경로 변수
 
   | 변수명 | 필수 여부 | 설명                  |
-    | ------ | --------- | --------------------- |
-  | ${id}  | O         | 조회 대상 Category id |
+  | ------ | --------- | --------------------- |
+  | ${id}  | O         | 조회 대상 카테고리 id |
 
 
 
 ### 3-2. 요청 헤더
 
-| 헤더 key      | 필수 여부 | 설명                                                         |
-| ------------- | --------- | ------------------------------------------------------------ |
-| Authorization | O         | Authorization: Bearer ${ACCESS_TOKEN}<br />권한 정보가 포함된 액세스 토큰을 포함하여 요청 |
-| Content-Type  | O         | application/x-www-form-urlencoded                            |
+| 헤더 key      | 필수 여부 | 설명                                  |
+| ------------- | --------- | ------------------------------------- |
+| Authorization | O         | Authorization: Bearer ${ACCESS_TOKEN} |
+| Content-Type  | O         | application/x-www-form-urlencoded     |
 
 
 
 ### 3-3. 요청 예시
 
 ```http
-GET /v1/categories/details/788948b2-ce2c-4d8c-97d0-04658ab4bc84 HTTP/1.1
+GET /v1/categories/details/788948b2 HTTP/1.1
 Authorization: Bearer ${ACCESS_TOKEN}
 Content-Type: application/x-www-form-urlencoded
 ```
@@ -184,32 +193,34 @@ Content-Type: application/x-www-form-urlencoded
 HTTP/1.1 200 OK
 Content-Type: application/json
 
-[
-  {
-    "id": "788948b2-ce2c-4d8c-97d0-04658ab4bc84",
-    "name": "머리미용",
-    "description": "헤어라인모발이식, 머리모발이식, 이마축소, 두피문신 등의 시술이 포함된 카테고리 입니다.",
-    "operations": [
-      {
-        "id": "ace52d35-9ee8-49fb-93af-27195c1e0519",
-        "name": "헤어라인모발이식"
-      },
-      {
-        "id": "6a473a23-b9fb-4397-b8f2-08b32e38977f",
-        "name": "머리모발이식"
-      },
-      {
-        "id": "a422f3f0-242e-43cd-ba26-ebcfd1fb8fef",
-        "name": "이마축소"
-      },
-      {
-        "id": "53adfcce-c763-4acf-8d64-50234560e894",
-        "name": "두피문신"
-      }
-    ]
-  },
-  ...
-]
+{
+  "returnValue": [
+    {
+      "id": "788948b2",
+      "name": "머리미용",
+      "description": "헤어라인모발이식, 머리모발이식, 이마축소, 두피문신 등의 시술이 포함된 카테고리 입니다.",
+      "operations": [
+        {
+          "id": "ace52d35",
+          "name": "헤어라인모발이식"
+        },
+        {
+          "id": "6a473a23",
+          "name": "머리모발이식"
+        },
+        {
+          "id": "a422f3f0",
+          "name": "이마축소"
+        },
+        {
+          "id": "53adfcce",
+          "name": "두피문신"
+        }
+      ]
+    },
+    ...
+  ]
+}
 ```
 
 | 필드명          | 데이터 타입 | 설명                          |
@@ -225,19 +236,19 @@ Content-Type: application/json
 
 
 
-## 4. 카테고리 기반 Shop 리스트 검색
+## 4. 카테고리 기반 샵 리스트 검색
 
 ### 4-1. 기본 정보
 
-| 메서드 | URI                        | 출력 포멧 | 설명               |
-| ------ | -------------------------- | --------- | ------------------ |
-| GET    | /v1/categories/${id}/shops | JSON      | Category 상세 조회 |
+| 메서드 | URI                        | 출력 포멧 | 설명                         |
+| ------ | -------------------------- | --------- | ---------------------------- |
+| GET    | /v1/categories/${id}/shops | JSON      | 카테고리 기반 샵 리스트 검색 |
 
 - 경로 변수(Path Variable)
 
   | 변수명 | 필수 여부 | 설명                  |
-    | ------ | --------- | --------------------- |
-  | ${id}  | O         | 조회 대상 Category id |
+  | ------ | --------- | --------------------- |
+  | ${id}  | O         | 조회 대상 카테고리 id |
 
 - 파라미터(Query String)
 
@@ -252,17 +263,17 @@ Content-Type: application/json
 
 ### 4-2. 요청 헤더
 
-| 헤더 key      | 필수 여부 | 설명                                                         |
-| ------------- | --------- | ------------------------------------------------------------ |
-| Authorization | O         | Authorization: Bearer ${ACCESS_TOKEN}<br />권한 정보가 포함된 액세스 토큰을 포함하여 요청 |
-| Content-Type  | O         | application/x-www-form-urlencoded                            |
+| 헤더 key      | 필수 여부 | 설명                                  |
+| ------------- | --------- | ------------------------------------- |
+| Authorization | O         | Authorization: Bearer ${ACCESS_TOKEN} |
+| Content-Type  | O         | application/x-www-form-urlencoded     |
 
 
 
 ### 4-3. 요청 예시
 
 ``` http
-GET /v1/categories/788948b2-ce2c-4d8c-97d0-04658ab4bc84/shops?keyword=머리미용&page=0&count=10&order=asc HTTP/1.1
+GET /v1/categories/788948b2/shops?keyword=머리미용&page=0&count=10&order=asc HTTP/1.1
 Authorization: Bearer ${ACCESS_TOKEN}
 Content-Type: application/x-www-form-urlencoded
 ```
@@ -275,18 +286,21 @@ Content-Type: application/x-www-form-urlencoded
 HTTP/1.1 200 OK
 Content-Type: application/json
 
-[
-  {
-    "shopId": "2360c169-b908-4539-8cfd-b4a258d79520",
-    "name": "시술소1",
-    "operations": ["두피문신", "눈썹문신", "입술문신"],
-    "supportFacilities": ["주차가능", "와이파이", "샤워실"],
-    "rate": "4.5",
-    "likes": 132,
-    "thumbnail": "base64 encoded string",
-  },
-  ...
-]
+
+{
+  "returnValue": [
+    {
+      "shopId": "2360c169",
+      "name": "시술소1",
+      "operations": ["두피문신", "눈썹문신", "입술문신"],
+      "supportFacilities": ["주차가능", "와이파이", "샤워실"],
+      "rate": "4.5",
+      "likes": 132,
+      "thumbnail": "base64 encoded string"
+    },
+    ...
+  ]
+}
 ```
 
 | 필드명            | 데이터 타입 | 설명                                                         |
@@ -303,28 +317,28 @@ Content-Type: application/json
 
 
 
-## 5. Category 수정
+## 5. 카테고리 수정
 
 ### 5-1. 기본 정보
 
 | 메서드 | 요청 URI             | 출력 포멧 | 설명          |
 | ------ | -------------------- | --------- | ------------- |
-| PATCH  | /v1/categories/${id} | JSON      | Category 수정 |
+| PATCH  | /v1/categories/${id} | JSON      | 카테고리 수정 |
 
 - 경로 변수 (Path Variable)
 
   | 변수명 | 필수 여부 | 설명                    |
-    | ------ | --------- | ----------------------- |
-  | ${id}  | O         | 수정 대상 Category의 Id |
+  | ------ | --------- | ----------------------- |
+  | ${id}  | O         | 수정 대상 카테고리의 Id |
 
 
 
 ### 5-2. 요청 헤더
 
-| 헤더 key      | 필수 여부 | 설명                                                         |
-| ------------- | --------- | ------------------------------------------------------------ |
-| Authorization | O         | Authorization: Bearer ${ACCESS_TOKEN} <br />권한 정보가 포함된 액세스 토큰을 포함하여 요청 |
-| Content-Type  | O         | application/json                                             |
+| 헤더 key      | 필수 여부 | 설명                                  |
+| ------------- | --------- | ------------------------------------- |
+| Authorization | O         | Authorization: Bearer ${ACCESS_TOKEN} |
+| Content-Type  | O         | application/json                      |
 
 
 
@@ -337,7 +351,7 @@ Content-Type: application/json
 ### 5-4. 요청 예시
 
 ``` http
-PATCH /v1/categories/788948b2-ce2c-4d8c-97d0-04658ab4bc84 HTTP/1.1
+PATCH /v1/categories/788948b2 HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer ${ACCESS_TOKEN}
 
@@ -346,11 +360,11 @@ Authorization: Bearer ${ACCESS_TOKEN}
   "description": "피부보톡스, 아쿠아필링 등의 시술이 포함된 카테고리 입니다.",
   "operations": [
     {
-      "id": "b0bcd81a-a5a2-4cff-8549-1af8b62462c9",
+      "id": "b0bcd81a",
       "name": "피부보톡스"
     },
     {
-      "id": "20fa0fc1-6f82-4c27-9f99-9fe7dcb5aaf3",
+      "id": "20fa0fc1",
       "name": "아쿠아필링"
     }
   ]
@@ -361,41 +375,51 @@ Authorization: Bearer ${ACCESS_TOKEN}
 
 ### 5-5. 응답
 
+``` http
+HTTP/1.1 200 OK
+
+{
+  "returnValue": {
+    "categoryId": "788948b2"
+  }
+}
+```
+
 - 에러 응답은 [7. 에러](#7-에러) 참고
 
 
 
-## 6. Category 삭제
+## 6. 카테고리 삭제
 
 ### 6-1. 기본 정보
 
 | 메서드 | 요청 URI             | 출력 포멧 | 설명          |
 | ------ | -------------------- | --------- | ------------- |
-| DELETE | /v1/categories/${id} | JSON      | Category 삭제 |
+| DELETE | /v1/categories/${id} | JSON      | 카테고리 삭제 |
 
 - 경로 변수 (Path Variable)
 
   | 변수명 | 필수 여부 | 설명                    |
-    | ------ | --------- | ----------------------- |
-  | ${id}  | O         | 삭제 대상 Category의 Id |
+  | ------ | --------- | ----------------------- |
+  | ${id}  | O         | 삭제 대상 카테고리의 Id |
 
 
 
 ### 6-2. 요청 헤더
 
-| 헤더 key      | 필수 여부 | 설명                                                         |
-| ------------- | --------- | ------------------------------------------------------------ |
-| Authorization | O         | Authorization: Bearer ${ACCESS_TOKEN} <br />권한 정보가 포함된 액세스 토큰을 포함하여 요청 |
-| Content-Type  | O         | application/x-www-form-urlencoded                            |
+| 헤더 key      | 필수 여부 | 설명                                  |
+| ------------- | --------- | ------------------------------------- |
+| Authorization | O         | Authorization: Bearer ${ACCESS_TOKEN} |
+| Content-Type  | O         | application/x-www-form-urlencoded     |
 
 
 
 ### 6-3. 요청 예시
 
 ``` http
-DELETE /v1/categories/788948b2-ce2c-4d8c-97d0-04658ab4bc84 HTTP/1.1
+DELETE /v1/categories/788948b2 HTTP/1.1
 Authorization: Bearer ${ACCESS_TOKEN}
-Content-Type: application/json
+Content-Type: application/x-www-form-urlencoded
 ```
 
 
