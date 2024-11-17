@@ -32,7 +32,7 @@ REST API 방식으로 호출하는 방법은 동일하나, OAuth 2.0 인증 기�
 
 | 헤더 key      | 필수 여부 | 설명                                  |
 | ------------- | --------- | ------------------------------------- |
-| Authorization | O         | Authorization: Bearer ${ACCESS_TOKEN} |
+| Authorization | O         | Bearer ${ACCESS_TOKEN} |
 | Content-Type  | O         | multipart/form-data                   |
 
 
@@ -210,7 +210,7 @@ HTTP/1.1 200 OK
 
 | 헤더 key      | 필수 여부 | 설명                                  |
 | ------------- | --------- | ------------------------------------- |
-| Authorization | O         | Authorization: Bearer ${ACCESS_TOKEN} |
+| Authorization | O         | Bearer ${ACCESS_TOKEN} |
 | Content-Type  | O         | application/x-www-form-urlencoded     |
 
 
@@ -234,7 +234,7 @@ Content-Type: application/json
 {
   "returnValue": [
     {
-      "id": "2360c169-b908-4539-8cfd-b4a258d79520",
+      "id": "2360c169",
       "name": "시술소1",
       "operations": ["두피문신", "눈썹문신", "입술문신"],
       "supportFacilities": ["주차가능", "와이파이", "샤워실"],
@@ -244,7 +244,7 @@ Content-Type: application/json
       "thumbnail": "base64 encoded string"
     },
     {
-      "id": "f4804d31-9ebb-4218-9c92-4c7a29a7c4d7",
+      "id": "f4804d31",
       "name": "시술소2",
       "operations": ["타투"],
       "supportFacilities": ["와이파이"],
@@ -292,7 +292,7 @@ Content-Type: application/json
 
 | 헤더 key      | 필수 여부 | 설명                                  |
 | ------------- | --------- | ------------------------------------- |
-| Authorization | O         | Authorization: Bearer ${ACCESS_TOKEN} |
+| Authorization | O         | Bearer ${ACCESS_TOKEN} |
 | Content-Type  | O         | application/x-www-form-urlencoded     |
 
 
@@ -422,7 +422,7 @@ Content-Type: application/json
 
 | 헤더 key      | 필수 여부 | 설명                                  |
 | ------------- | --------- | ------------------------------------- |
-| Authorization | O         | Authorization: Bearer ${ACCESS_TOKEN} |
+| Authorization | O         | Bearer ${ACCESS_TOKEN} |
 | Content-Type  | O         | multipart/form-data                   |
 
 
@@ -533,7 +533,7 @@ HTTP/1.1 200 OK
 
 | 헤더 key      | 필수 여부 | 설명                                  |
 | ------------- | --------- | ------------------------------------- |
-| Authorization | O         | Authorization: Bearer ${ACCESS_TOKEN} |
+| Authorization | O         | Bearer ${ACCESS_TOKEN} |
 | Content-Type  | O         | application/x-www-form-urlencoded     |
 
 
@@ -580,7 +580,7 @@ HTTP/1.1 204 No Content
 
 | 헤더 key      | 필수 여부 | 설명                                                         |
 | ------------- | --------- | ------------------------------------------------------------ |
-| Authorization | O         | Authorization: Bearer ${ACCESS_TOKEN}<br />권한 정보가 포함된 액세스 토큰을 포함하여 요청 |
+| Authorization | O         | Bearer ${ACCESS_TOKEN}<br />권한 정보가 포함된 액세스 토큰을 포함하여 요청 |
 | Content-Type  | O         | application/x-www-form-urlencoded                            |
 
 
@@ -633,7 +633,7 @@ HTTP/1.1 200 OK
 
 | 헤더 key      | 필수 여부 | 설명                                  |
 | ------------- | --------- | ------------------------------------- |
-| Authorization | O         | Authorization: Bearer ${ACCESS_TOKEN} |
+| Authorization | O         | Bearer ${ACCESS_TOKEN} |
 | Content-Type  | O         | application/x-www-form-urlencoded     |
 
 

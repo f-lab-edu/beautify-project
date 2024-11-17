@@ -20,7 +20,7 @@ REST API 방식으로 호출하는 방법은 동일하나, OAuth 2.0 인증 기�
 
 | 헤더 key      | 필수 여부 | 설명                                  |
 | ------------- | --------- | ------------------------------------- |
-| Authorization | O         | Authorization: Bearer ${ACCESS_TOKEN} |
+| Authorization | O         | Bearer ${ACCESS_TOKEN} |
 | Content-Type  | O         | application/json                      |
 
 
@@ -113,7 +113,7 @@ HTTP/1.1 200 OK
 
 | 헤더 key      | 필수 여부 | 설명                                  |
 | ------------- | --------- | ------------------------------------- |
-| Authorization | O         | Authorization: Bearer ${ACCESS_TOKEN} |
+| Authorization | O         | Bearer ${ACCESS_TOKEN} |
 | Content-Type  | O         | application/x-www-form-urlencoded     |
 
 
@@ -176,7 +176,7 @@ Content-Type: application/json
 
 | 헤더 key      | 필수 여부 | 설명                                  |
 | ------------- | --------- | ------------------------------------- |
-| Authorization | O         | Authorization: Bearer ${ACCESS_TOKEN} |
+| Authorization | O         | Bearer ${ACCESS_TOKEN} |
 | Content-Type  | O         | application/x-www-form-urlencoded     |
 
 
@@ -252,7 +252,7 @@ Content-Type: application/json
 
 | 헤더 key      | 필수 여부 | 설명                                  |
 | ------------- | --------- | ------------------------------------- |
-| Authorization | O         | Authorization: Bearer ${ACCESS_TOKEN} |
+| Authorization | O         | Bearer ${ACCESS_TOKEN} |
 | Content-Type  | O         | application/json                      |
 
 
@@ -315,7 +315,7 @@ HTTP/1.1 200 OK
 
 | 헤더 key      | 필수 여부 | 설명                                  |
 | ------------- | --------- | ------------------------------------- |
-| Authorization | O         | Authorization: Bearer ${ACCESS_TOKEN} |
+| Authorization | O         | Bearer ${ACCESS_TOKEN} |
 | Content-Type  | O         | application/x-www-form-urlencoded     |
 
 
