@@ -4,3 +4,7 @@ dependencies {
 	implementation project(':bp-utils')
 	implementation project(':bp-domain-rdb')
 }
+
+bootJar {
+	enabled = true
+}
