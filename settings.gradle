@@ -1,0 +1,3 @@
+rootProject.name = 'beautify-project'
+include ':bp-app-api', ':bp-app-batch', ':bp-core-web', ':bp-dto', ':bp-dto',
+        ':bp-kafka-event-publisher', ':bp-utils', ':bp-domain-rdb'
