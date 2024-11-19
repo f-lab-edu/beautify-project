@@ -10,6 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 @RestControllerAdvice
@@ -17,6 +18,7 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 public class GlobalExceptionHandler {
 
     private static final String MSG_FORMAT_PARAMETER_INVALID = "파라미터 '%s' 가 잘못되었습니다.";
+    private static final String MSG_FORMAT_PARAMETER_TYPE_MISMATCH = "파라미터 '%s' 의 데이터 타입이 잘못되었습니다.";
     private static final String MSG_FORMAT_MISSING_PARAMETER = "본문 내 '%s' 은 필수값입니다.";
 
     /**
@@ -81,6 +83,18 @@ public class GlobalExceptionHandler {
 
         ErrorResponseMessage errorResponseMessage = createErrorResponseMessage(
             MSG_FORMAT_PARAMETER_INVALID, exception.getValue(), ErrorCode.BR001);
+
+        return new ResponseEntity<>(errorResponseMessage, errorResponseMessage.getHttpStatus());
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    private ResponseEntity<ErrorResponseMessage> handleMethodArgumentTypeMismatchException(
+        final MethodArgumentTypeMismatchException exception) {
+        log.error("", exception);
+
+        ErrorResponseMessage errorResponseMessage = createErrorResponseMessage(
+            MSG_FORMAT_PARAMETER_TYPE_MISMATCH, exception.getPropertyName(), ErrorCode.BR001
+        );
 
         return new ResponseEntity<>(errorResponseMessage, errorResponseMessage.getHttpStatus());
     }

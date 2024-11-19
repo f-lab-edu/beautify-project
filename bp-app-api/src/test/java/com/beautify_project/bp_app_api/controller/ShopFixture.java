@@ -241,7 +241,9 @@ public class ShopFixture {
         return Stream.of(
             Arguments.of(null, "0", "10", "asc"),
             Arguments.of("shopnname", "1", "10", "asc"),
-            Arguments.of("location", "1", "10", "asccc")
+            Arguments.of("location", "1", "10", "asccc"),
+            Arguments.of("like", "alphabet", "alphabet", "desc"),
+            Arguments.of("rate", "1", "10", "3")
         );
     }
 
