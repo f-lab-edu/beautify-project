@@ -1,4 +1,4 @@
-package com.beautify_project.bp_dto.response;
+package com.beautify_project.bp_dto.common.response;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

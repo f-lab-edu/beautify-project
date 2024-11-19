@@ -1,7 +1,6 @@
-package com.beautify_project.bp_app_api.records;
+package com.beautify_project.bp_dto.shop;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
