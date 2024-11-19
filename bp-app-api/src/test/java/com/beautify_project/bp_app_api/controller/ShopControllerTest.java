@@ -7,49 +7,27 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.beautify_project.bp_app_api.records.ImageFiles;
 import com.beautify_project.bp_app_api.service.ShopService;
-import com.beautify_project.bp_dto.response.ResponseMessage;
+import com.beautify_project.bp_dto.shop.ImageFiles;
+import com.beautify_project.bp_dto.shop.ShopFindListRequestParameters;
 import com.beautify_project.bp_dto.shop.ShopRegistrationRequest;
-import com.beautify_project.bp_dto.shop.ShopRegistrationRequest.Address;
-import com.beautify_project.bp_dto.shop.ShopRegistrationRequest.BusinessTime;
-import com.beautify_project.bp_dto.shop.ShopRegistrationRequest.IdName;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.time.LocalTime;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Stream;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 @WebMvcTest(controllers = ShopController.class)
-class ShopControllerTest {
-
-    static final String MOCKED_SUCCESS_RETURNED_SHOP_ID = "732e934";
-    static final String TEST_IMAGE_FILE_DIRECTORY_PATH = "src/test/resources/files";
-
-    static List<MockMultipartFile> MOCKED_IMAGE_FILES;
-    static ResponseMessage MOCKED_SUCCESS_RESPONSE_MESSAGE;
-    static ObjectMapper OBJECT_MAPPER;
+class ShopControllerTest extends ShopFixture {
 
     @Autowired
     private MockMvc mockMvc;
@@ -59,28 +37,21 @@ class ShopControllerTest {
 
     @BeforeAll
     public static void setUp() throws Exception {
-        Map<String, String> responseSample = new HashMap<>();
-        responseSample.put("shopId", MOCKED_SUCCESS_RETURNED_SHOP_ID);
-        MOCKED_SUCCESS_RESPONSE_MESSAGE = ResponseMessage.createResponseMessage(HttpStatus.OK, responseSample);
-
-        MOCKED_IMAGE_FILES = Arrays.asList(
-            new MockMultipartFile("images", "image1.png", "image/png",
-                Files.readAllBytes(Path.of(TEST_IMAGE_FILE_DIRECTORY_PATH + "/1.png"))),
-            new MockMultipartFile("images", "image2.png", "image/png",
-                Files.readAllBytes(Path.of(TEST_IMAGE_FILE_DIRECTORY_PATH + "/2.png")
-                )));
-
-        OBJECT_MAPPER = new ObjectMapper().registerModule(new JavaTimeModule());
+        loadMockedImageFiles();
+        createMockedRegisterSuccessResponseMessage();
+        loadBase64EncodedThumbnail();
+        createMockedFindListSuccessResponseMessage();
     }
-
 
     @Test
     @DisplayName("Shop 등록 validation 성공 테스트")
     void validTest_WhenResponseBodyIsValid() throws Exception {
         // given
-        final String requestBody = OBJECT_MAPPER.writeValueAsString(generateValidShopRegistrationRequest());
+        final String requestBody = OBJECT_MAPPER.writeValueAsString(
+            createValidShopRegistrationRequest());
         when(shopService.registerShop(any(ImageFiles.class),
-            any(ShopRegistrationRequest.class))).thenReturn(MOCKED_SUCCESS_RESPONSE_MESSAGE);
+            any(ShopRegistrationRequest.class))).thenReturn(
+            MOCKED_REGISTER_SUCCESS_RESPONSE_MESSAGE);
 
         // when
         ResultActions resultActions = mockMvc.perform(
@@ -93,16 +64,18 @@ class ShopControllerTest {
         );
 
         // then
-        assertSuccessResponse(resultActions);
+        assertRegisterSuccessResponse(resultActions);
     }
 
     @Test
     @DisplayName("이미지 파일 없이 Shop 등록 테스트")
     void nullTest_WhenFileNotExist() throws Exception {
         // given
-        final String requestBody = OBJECT_MAPPER.writeValueAsString(generateValidShopRegistrationRequest());
+        final String requestBody = OBJECT_MAPPER.writeValueAsString(
+            createValidShopRegistrationRequest());
         when(shopService.registerShop(any(ImageFiles.class),
-            any(ShopRegistrationRequest.class))).thenReturn(MOCKED_SUCCESS_RESPONSE_MESSAGE);
+            any(ShopRegistrationRequest.class))).thenReturn(
+            MOCKED_REGISTER_SUCCESS_RESPONSE_MESSAGE);
 
         // when
         ResultActions resultActions = mockMvc.perform(
@@ -113,7 +86,7 @@ class ShopControllerTest {
         );
 
         // then
-        assertSuccessResponse(resultActions);
+        assertRegisterSuccessResponse(resultActions);
     }
 
     @Test
@@ -160,162 +133,72 @@ class ShopControllerTest {
             .andDo(print());
     }
 
-    private ShopRegistrationRequest generateValidShopRegistrationRequest() {
-        return new ShopRegistrationRequest(
-            "미용시술소1",
-            "010-1234-5678",
-            "안녕하세요 미용시술소1입니다.",
-            Arrays.asList(
-                new IdName("4541403a", "시술1"),
-                new IdName("0ced03cc", "시술2")),
-            List.of(new IdName("f9a1aa26", "카테고리1")),
-            List.of(new IdName("239a8cb9", "지원시설1")),
-            new BusinessTime(
-                LocalTime.of(9, 0),
-                LocalTime.of(18, 0),
-                LocalTime.of(12, 0),
-                LocalTime.of(13, 0),
-                Arrays.asList("monday", "tuesday")),
-            new Address(
-                "111",
-                "서울시",
-                "마포구",
-                "상암동",
-                "481",
-                "월드컵북로",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "")
+    @ParameterizedTest
+    @DisplayName("Shop 리스트 조회 validation 실패 테스트")
+    @MethodSource("invalidFindShopListParameterProvider")
+    void validTest_WhenFindShopListRequestNotInvalid(final String type, final String page,
+        final String count, final String order) throws Exception {
+
+        // when
+        ResultActions resultActions = mockMvc.perform(
+            MockMvcRequestBuilders
+                .get("/v1/shops")
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .param("type", type)
+                .param("page", page)
+                .param("count", count)
+                .param("order", order)
         );
+
+        // then
+        resultActions
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.errorCode").value("BR001"))
+            .andExpect(jsonPath("$.errorCode").exists())
+            .andDo(print());
     }
 
-    private static Stream<Arguments> invalidShopRegistrationRequestProvider() {
-        return Stream.of(
-            Arguments.of(generateInvalidNameRequest()),
-            Arguments.of(generateInvalidIntroduction()),
-            Arguments.of(generateInvalidContactRequest())
+    @ParameterizedTest
+    @DisplayName("Shop 조회 validation 성공 및 응답 메세지 테스트")
+    @MethodSource("validFindShopListParameterProvider")
+    void validTest_WhenFindShopRequestValid(final String type, final String page,
+        final String count, final String order) throws Exception {
+
+        // given
+        when(shopService.findShopList(any(ShopFindListRequestParameters.class))).thenReturn(
+            MOCKED_FIND_LIST_SUCCESS_RESPONSE_MESSAGE);
+
+        // when
+        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders
+            .get("/v1/shops")
+            .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+            .param("type", type)
+            .param("page", page)
+            .param("count", count)
+            .param("order", order)
         );
+
+        // then
+        resultActions
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.returnValue[0].id").value(MOCKED_FIND_LIST_SUCCESS_RETURNED_SHOP_IDS[0]))
+            .andExpect(jsonPath("$.returnValue[0].name").value("시술소1"))
+            .andExpect(jsonPath("$.returnValue[0].operations").isArray())
+            .andExpect(jsonPath("$.returnValue[0].supportFacilities").isArray())
+            .andExpect(jsonPath("$.returnValue[0].rate").value("4.5"))
+            .andExpect(jsonPath("$.returnValue[0].likes").value(132))
+            .andExpect(jsonPath("$.returnValue[0].likePushed").value(false))
+            .andExpect(jsonPath("$.returnValue[0].thumbnail").exists())
+            .andDo(print());
     }
 
-    private static ShopRegistrationRequest generateInvalidNameRequest() {
-        return new ShopRegistrationRequest(
-            RandomStringUtils.randomAlphabetic(130),
-            "010-1234-5678",
-            "안녕하세요 미용시술소1입니다.",
-            Arrays.asList(
-                new IdName("4541403a", "시술1"),
-                new IdName("0ced03cc", "시술2")),
-            List.of(new IdName("f9a1aa26", "카테고리1")),
-            List.of(new IdName("239a8cb9", "지원시설1")),
-            new BusinessTime(
-                LocalTime.of(9, 0),
-                LocalTime.of(18, 0),
-                LocalTime.of(12, 0),
-                LocalTime.of(13, 0),
-                Arrays.asList("monday", "tuesday")),
-            new Address(
-                "111",
-                "서울시",
-                "마포구",
-                "상암동",
-                "481",
-                "월드컵북로",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "")
-        );
-    }
-
-    private static ShopRegistrationRequest generateInvalidContactRequest() {
-        return new ShopRegistrationRequest(
-            "미용시술소1",
-            RandomStringUtils.randomAlphabetic(14),
-            "안녕하세요 미용시술소1입니다.",
-            Arrays.asList(
-                new IdName("4541403a", "시술1"),
-                new IdName("0ced03cc", "시술2")),
-            List.of(new IdName("f9a1aa26", "카테고리1")),
-            List.of(new IdName("239a8cb9", "지원시설1")),
-            new BusinessTime(
-                LocalTime.of(9, 0),
-                LocalTime.of(18, 0),
-                LocalTime.of(12, 0),
-                LocalTime.of(13, 0),
-                Arrays.asList("monday", "tuesday")),
-            new Address(
-                "111",
-                "서울시",
-                "마포구",
-                "상암동",
-                "481",
-                "월드컵북로",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "")
-        );
-    }
-
-    private static ShopRegistrationRequest generateInvalidIntroduction() {
-        return new ShopRegistrationRequest(
-            "미용시술소1",
-            "010-1234-5678",
-            RandomStringUtils.randomAlphabetic(2050),
-            Arrays.asList(
-                new IdName("4541403a", "시술1"),
-                new IdName("0ced03cc", "시술2")),
-            List.of(new IdName("f9a1aa26", "카테고리1")),
-            List.of(new IdName("239a8cb9", "지원시설1")),
-            new BusinessTime(
-                LocalTime.of(9, 0),
-                LocalTime.of(18, 0),
-                LocalTime.of(12, 0),
-                LocalTime.of(13, 0),
-                Arrays.asList("monday", "tuesday")),
-            new Address(
-                "111",
-                "서울시",
-                "마포구",
-                "상암동",
-                "481",
-                "월드컵북로",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "")
-        );
-    }
-
-
-
-    private void assertSuccessResponse(final ResultActions resultActions) throws Exception {
+    private void assertRegisterSuccessResponse(final ResultActions resultActions) throws Exception {
         resultActions
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.returnValue").exists())
             .andExpect(jsonPath("$.returnValue.shopId").exists())
-            .andExpect(jsonPath("$.returnValue.shopId").value(MOCKED_SUCCESS_RETURNED_SHOP_ID))
+            .andExpect(jsonPath("$.returnValue.shopId").value(
+                MOCKED_REGISTER_SUCCESS_RETURNED_SHOP_ID))
             .andDo(print());
     }
 }
