@@ -7,10 +7,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.beautify_project.ShopTestFixture;
 import com.beautify_project.bp_app_api.service.ShopService;
 import com.beautify_project.bp_dto.shop.ImageFiles;
 import com.beautify_project.bp_dto.shop.ShopFindListRequestParameters;
 import com.beautify_project.bp_dto.shop.ShopRegistrationRequest;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -27,7 +30,10 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 @WebMvcTest(controllers = ShopController.class)
-class ShopControllerTest extends ShopFixture {
+class ShopControllerTest {
+
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().registerModule(
+        new JavaTimeModule());
 
     @Autowired
     private MockMvc mockMvc;
@@ -37,10 +43,10 @@ class ShopControllerTest extends ShopFixture {
 
     @BeforeAll
     public static void setUp() throws Exception {
-        loadMockedImageFiles();
-        createMockedRegisterSuccessResponseMessage();
-        loadBase64EncodedThumbnail();
-        createMockedFindListSuccessResponseMessage();
+        ShopTestFixture.loadMockedImageFiles();
+        ShopTestFixture.createMockedRegisterSuccessResponseMessage();
+        ShopTestFixture.loadBase64EncodedThumbnail();
+        ShopTestFixture.createMockedFindListSuccessResponseMessage();
     }
 
     @Test
@@ -48,16 +54,16 @@ class ShopControllerTest extends ShopFixture {
     void validTest_WhenResponseBodyIsValid() throws Exception {
         // given
         final String requestBody = OBJECT_MAPPER.writeValueAsString(
-            createValidShopRegistrationRequest());
+            ShopTestFixture.createValidShopRegistrationRequest());
         when(shopService.registerShop(any(ImageFiles.class),
             any(ShopRegistrationRequest.class))).thenReturn(
-            MOCKED_REGISTER_SUCCESS_RESPONSE_MESSAGE);
+            ShopTestFixture.MOCKED_REGISTER_SUCCESS_RESPONSE_MESSAGE);
 
         // when
         ResultActions resultActions = mockMvc.perform(
             multipart("/v1/shops")
-                .file(MOCKED_IMAGE_FILES.get(0))
-                .file(MOCKED_IMAGE_FILES.get(1))
+                .file(ShopTestFixture.MOCKED_IMAGE_FILES.get(0))
+                .file(ShopTestFixture.MOCKED_IMAGE_FILES.get(1))
                 .file(new MockMultipartFile("shopRegistrationInfo", "", "application/json",
                     requestBody.getBytes(StandardCharsets.UTF_8)))
                 .contentType(MediaType.MULTIPART_FORM_DATA)
@@ -72,10 +78,10 @@ class ShopControllerTest extends ShopFixture {
     void nullTest_WhenFileNotExist() throws Exception {
         // given
         final String requestBody = OBJECT_MAPPER.writeValueAsString(
-            createValidShopRegistrationRequest());
+            ShopTestFixture.createValidShopRegistrationRequest());
         when(shopService.registerShop(any(ImageFiles.class),
             any(ShopRegistrationRequest.class))).thenReturn(
-            MOCKED_REGISTER_SUCCESS_RESPONSE_MESSAGE);
+            ShopTestFixture.MOCKED_REGISTER_SUCCESS_RESPONSE_MESSAGE);
 
         // when
         ResultActions resultActions = mockMvc.perform(
@@ -95,8 +101,8 @@ class ShopControllerTest extends ShopFixture {
         // when
         ResultActions resultActions = mockMvc.perform(
             multipart("/v1/shops")
-                .file(MOCKED_IMAGE_FILES.get(0))
-                .file(MOCKED_IMAGE_FILES.get(1))
+                .file(ShopTestFixture.MOCKED_IMAGE_FILES.get(0))
+                .file(ShopTestFixture.MOCKED_IMAGE_FILES.get(1))
                 .contentType(MediaType.MULTIPART_FORM_DATA)
         );
 
@@ -110,15 +116,15 @@ class ShopControllerTest extends ShopFixture {
 
     @ParameterizedTest
     @DisplayName("Shop 등록 validation 실패 테스트")
-    @MethodSource("invalidShopRegistrationRequestProvider")
+    @MethodSource("com.beautify_project.ShopTestFixture#invalidShopRegistrationRequestProvider")
     void validTest_WhenFieldInRequestBodyIsInvalid(ShopRegistrationRequest invalidShopRegistrationRequest)
         throws Exception {
 
         // when
         ResultActions resultActions = mockMvc.perform(
             multipart("/v1/shops")
-                .file(MOCKED_IMAGE_FILES.get(0))
-                .file(MOCKED_IMAGE_FILES.get(1))
+                .file(ShopTestFixture.MOCKED_IMAGE_FILES.get(0))
+                .file(ShopTestFixture.MOCKED_IMAGE_FILES.get(1))
                 .file(new MockMultipartFile("shopRegistrationInfo", "", "application/json",
                     OBJECT_MAPPER.writeValueAsString(invalidShopRegistrationRequest).getBytes(
                         StandardCharsets.UTF_8)))
@@ -135,7 +141,7 @@ class ShopControllerTest extends ShopFixture {
 
     @ParameterizedTest
     @DisplayName("Shop 리스트 조회 validation 실패 테스트")
-    @MethodSource("invalidFindShopListParameterProvider")
+    @MethodSource("com.beautify_project.ShopTestFixture#invalidFindShopListParameterProvider")
     void validTest_WhenFindShopListRequestNotInvalid(final String type, final String page,
         final String count, final String order) throws Exception {
 
@@ -160,13 +166,13 @@ class ShopControllerTest extends ShopFixture {
 
     @ParameterizedTest
     @DisplayName("Shop 조회 validation 성공 및 응답 메세지 테스트")
-    @MethodSource("validFindShopListParameterProvider")
+    @MethodSource("com.beautify_project.ShopTestFixture#validFindShopListParameterProvider")
     void validTest_WhenFindShopRequestValid(final String type, final String page,
         final String count, final String order) throws Exception {
 
         // given
         when(shopService.findShopList(any(ShopFindListRequestParameters.class))).thenReturn(
-            MOCKED_FIND_LIST_SUCCESS_RESPONSE_MESSAGE);
+            ShopTestFixture.MOCKED_FIND_LIST_SUCCESS_RESPONSE_MESSAGE);
 
         // when
         ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders
@@ -181,7 +187,7 @@ class ShopControllerTest extends ShopFixture {
         // then
         resultActions
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.returnValue[0].id").value(MOCKED_FIND_LIST_SUCCESS_RETURNED_SHOP_IDS[0]))
+            .andExpect(jsonPath("$.returnValue[0].id").value(ShopTestFixture.MOCKED_FIND_LIST_SUCCESS_RETURNED_SHOP_IDS[0]))
             .andExpect(jsonPath("$.returnValue[0].name").value("시술소1"))
             .andExpect(jsonPath("$.returnValue[0].operations").isArray())
             .andExpect(jsonPath("$.returnValue[0].supportFacilities").isArray())
@@ -198,7 +204,7 @@ class ShopControllerTest extends ShopFixture {
             .andExpect(jsonPath("$.returnValue").exists())
             .andExpect(jsonPath("$.returnValue.shopId").exists())
             .andExpect(jsonPath("$.returnValue.shopId").value(
-                MOCKED_REGISTER_SUCCESS_RETURNED_SHOP_ID))
+                ShopTestFixture.MOCKED_REGISTER_SUCCESS_RETURNED_SHOP_ID))
             .andDo(print());
     }
 }

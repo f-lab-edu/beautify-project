@@ -1,4 +1,4 @@
-package com.beautify_project.bp_app_api.controller;
+package com.beautify_project;
 
 import com.beautify_project.bp_dto.common.response.ResponseMessage;
 import com.beautify_project.bp_dto.shop.ShopRegistrationRequest;
@@ -23,23 +23,22 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockMultipartFile;
 
-public class ShopFixture {
-
-    protected static final String MOCKED_REGISTER_SUCCESS_RETURNED_SHOP_ID = "732e934";
-    protected static final String[] MOCKED_FIND_LIST_SUCCESS_RETURNED_SHOP_IDS =
+public class ShopTestFixture {
+    public static final String MOCKED_REGISTER_SUCCESS_RETURNED_SHOP_ID = "732e934";
+    public static final String[] MOCKED_FIND_LIST_SUCCESS_RETURNED_SHOP_IDS =
         {"2360c169", "f4804d31"};
 
-    protected static final String TEST_IMAGE_FILE_DIRECTORY_PATH = "src/test/resources/files";
+    public static final String TEST_IMAGE_FILE_DIRECTORY_PATH = "src/test/resources/files";
 
-    protected static List<MockMultipartFile> MOCKED_IMAGE_FILES;
-    protected static ResponseMessage MOCKED_REGISTER_SUCCESS_RESPONSE_MESSAGE;
-    protected static ResponseMessage MOCKED_FIND_LIST_SUCCESS_RESPONSE_MESSAGE;
-    protected static String BASE64_ENCODED_THUMBNAIL;
+    public static List<MockMultipartFile> MOCKED_IMAGE_FILES;
+    public static ResponseMessage MOCKED_REGISTER_SUCCESS_RESPONSE_MESSAGE;
+    public static ResponseMessage MOCKED_FIND_LIST_SUCCESS_RESPONSE_MESSAGE;
+    public static String BASE64_ENCODED_THUMBNAIL;
 
-    protected static ObjectMapper OBJECT_MAPPER = new ObjectMapper().registerModule(new JavaTimeModule());;
+    public static ObjectMapper OBJECT_MAPPER = new ObjectMapper().registerModule(new JavaTimeModule());
 
 
-    protected static void loadMockedImageFiles() throws IOException {
+    public static void loadMockedImageFiles() throws IOException {
         MOCKED_IMAGE_FILES = Arrays.asList(
             new MockMultipartFile("images", "image1.png", "image/png",
                 Files.readAllBytes(Path.of(TEST_IMAGE_FILE_DIRECTORY_PATH + "/1.png"))),
@@ -48,19 +47,19 @@ public class ShopFixture {
                 )));
     }
 
-    protected static void createMockedRegisterSuccessResponseMessage() {
+    public static void createMockedRegisterSuccessResponseMessage() {
         Map<String, String> returnValue = new HashMap<>();
         returnValue.put("shopId", MOCKED_REGISTER_SUCCESS_RETURNED_SHOP_ID);
         MOCKED_REGISTER_SUCCESS_RESPONSE_MESSAGE = ResponseMessage.createResponseMessage(HttpStatus.OK, returnValue);
     }
 
-    protected static void loadBase64EncodedThumbnail() throws IOException{
+    public static void loadBase64EncodedThumbnail() throws IOException{
         BASE64_ENCODED_THUMBNAIL = Files.readString(
             Path.of(TEST_IMAGE_FILE_DIRECTORY_PATH + "/thumbnail_base64.txt"),
             StandardCharsets.UTF_8);
     }
 
-    protected static void createMockedFindListSuccessResponseMessage() {
+    public static void createMockedFindListSuccessResponseMessage() {
         List<Map<String, Object>> returnValue = new ArrayList<>();
         Map<String, Object> data1 = new HashMap<>();
         data1.put("id", MOCKED_FIND_LIST_SUCCESS_RETURNED_SHOP_IDS[0]);
@@ -75,8 +74,8 @@ public class ShopFixture {
         Map<String, Object> data2 = new HashMap<>();
         data2.put("id", MOCKED_FIND_LIST_SUCCESS_RETURNED_SHOP_IDS[1]);
         data2.put("name", "시술소2");
-        data2.put("operations", Arrays.asList("타투"));
-        data2.put("supportFacilities", Arrays.asList("와이파이"));
+        data2.put("operations", List.of("타투"));
+        data2.put("supportFacilities", List.of("와이파이"));
         data2.put("rate", "3.0");
         data2.put("likes", 20);
         data2.put("likePushed", true);
@@ -89,7 +88,7 @@ public class ShopFixture {
             HttpStatus.OK, returnValue);
     }
 
-    protected static ShopRegistrationRequest createValidShopRegistrationRequest() {
+    public static ShopRegistrationRequest createValidShopRegistrationRequest() {
         return new ShopRegistrationRequest(
             "미용시술소1",
             "010-1234-5678",
@@ -124,7 +123,7 @@ public class ShopFixture {
         );
     }
 
-    protected static Stream<Arguments> invalidShopRegistrationRequestProvider() {
+    public static Stream<Arguments> invalidShopRegistrationRequestProvider() {
         return Stream.of(
             Arguments.of(createInvalidNameRequest()),
             Arguments.of(createInvalidIntroduction()),
@@ -132,7 +131,7 @@ public class ShopFixture {
         );
     }
 
-    protected static ShopRegistrationRequest createInvalidNameRequest() {
+    public static ShopRegistrationRequest createInvalidNameRequest() {
         return new ShopRegistrationRequest(
             RandomStringUtils.randomAlphabetic(130),
             "010-1234-5678",
@@ -167,7 +166,7 @@ public class ShopFixture {
         );
     }
 
-    protected static ShopRegistrationRequest createInvalidContactRequest() {
+    public static ShopRegistrationRequest createInvalidContactRequest() {
         return new ShopRegistrationRequest(
             "미용시술소1",
             RandomStringUtils.randomAlphabetic(14),
@@ -202,7 +201,7 @@ public class ShopFixture {
         );
     }
 
-    protected static ShopRegistrationRequest createInvalidIntroduction() {
+    public static ShopRegistrationRequest createInvalidIntroduction() {
         return new ShopRegistrationRequest(
             "미용시술소1",
             "010-1234-5678",
@@ -237,7 +236,7 @@ public class ShopFixture {
         );
     }
 
-    protected static Stream<Arguments> invalidFindShopListParameterProvider() {
+    public static Stream<Arguments> invalidFindShopListParameterProvider() {
         return Stream.of(
             Arguments.of(null, "0", "10", "asc"),
             Arguments.of("shopnname", "1", "10", "asc"),
@@ -247,7 +246,7 @@ public class ShopFixture {
         );
     }
 
-    protected static Stream<Arguments> validFindShopListParameterProvider() {
+    public static Stream<Arguments> validFindShopListParameterProvider() {
         return Stream.of(
             Arguments.of("shopName", null, null, null),
             Arguments.of("shopName", null, null, "desc"),

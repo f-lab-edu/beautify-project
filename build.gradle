@@ -25,6 +25,8 @@ subprojects {
 		annotationProcessor 'org.projectlombok:lombok'
 
 		testImplementation 'org.springframework.boot:spring-boot-starter-test'
+		testImplementation 'org.projectlombok:lombok'
+		testAnnotationProcessor 'org.projectlombok:lombok'
 		testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	}
 
@@ -45,4 +47,8 @@ subprojects {
 	bootJar {
 		enabled = false
 	}
+}
+
+jar {
+	enabled = false
 }
