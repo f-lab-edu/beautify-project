@@ -34,10 +34,6 @@ REST API 방식으로 호출하는 방법은 동일하나, OAuth 2.0 인증 기�
 | operation       | JSON Object |          | O        |        | 예약한 시술 정보                |
 | operations.id   | String      |          | O        |        | 시술 아이디                     |
 | operations.name | String      |          | O        |        | 시술명                          |
-| user            | JSON Object |          | O        |        | 예약자 정보                     |
-| user.id         | String      |          | O        |        | 예약자 아이디                   |
-| user.name       | String      |          | O        |        | 예약자 이름                     |
-| user.phone      | String      |          | O        |        | 예약자 연락처                   |
 
 
 
@@ -54,11 +50,6 @@ Content-Type: application/json
   "operation": {
     "id": "ace52d35-9ee8-49fb-93af-27195c1e0519",
     "name": "두피문신"
-  },
-  "user": {
-    "id": "sssukho",
-    "name": "임석호",
-    "phone": "010-1234-5678"
   },
   "shop": {
     "id": "80a490b6",
@@ -113,7 +104,6 @@ HTTP/1.1 200 OK
 
 | 헤더 key      | 필수 여부 | 설명                                  |
 | ------------- | --------- | ------------------------------------- |
-| Authorization | O         | Bearer ${ACCESS_TOKEN} |
 | Content-Type  | O         | application/x-www-form-urlencoded     |
 
 
@@ -122,7 +112,6 @@ HTTP/1.1 200 OK
 
 ``` http
 POST /v1/reservations/shops/2360c169?startDate=1733011200000&endDate=1733043600000 HTTP/1.1
-Authorization: Bearer ${ACCESS_TOKEN}
 Content-Type: application/x-www-form-urlencoded
 ```
 
@@ -155,7 +144,7 @@ Content-Type: application/json
 
 
 
-## 3. 사용자 예약 현황  조회
+## 3. 사용자 예약 현황 조회
 
 ### 3-1. 기본 정보
 

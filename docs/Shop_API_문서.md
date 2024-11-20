@@ -210,7 +210,6 @@ HTTP/1.1 200 OK
 
 | 헤더 key      | 필수 여부 | 설명                                  |
 | ------------- | --------- | ------------------------------------- |
-| Authorization | O         | Bearer ${ACCESS_TOKEN} |
 | Content-Type  | O         | application/x-www-form-urlencoded     |
 
 
@@ -219,7 +218,6 @@ HTTP/1.1 200 OK
 
 ``` http
 GET /v1/shops?type=시술소&page=0&count=10&order=asc HTTP/1.1
-Authorization: Bearer ${ACCESS_TOKEN}
 Content-Type: application/x-www-form-urlencoded
 ```
 
@@ -292,7 +290,6 @@ Content-Type: application/json
 
 | 헤더 key      | 필수 여부 | 설명                                  |
 | ------------- | --------- | ------------------------------------- |
-| Authorization | O         | Bearer ${ACCESS_TOKEN} |
 | Content-Type  | O         | application/x-www-form-urlencoded     |
 
 
@@ -301,7 +298,6 @@ Content-Type: application/json
 
 ``` http
 GET /v1/shops/details/2360c169 HTTP/1.1
-Authorization: Bearer ${ACCESS_TOKEN}
 Content-Type: application/x-www-form-urlencoded
 ```
 
