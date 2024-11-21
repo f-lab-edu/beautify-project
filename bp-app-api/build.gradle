@@ -1,0 +1,8 @@
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation project(':bp-domain-rdb')
+    implementation project(':bp-kafka-event-publisher')
+    implementation project(':bp-dto')
+    implementation project(':bp-utils')
+    implementation project(':bp-core-web')
+}
