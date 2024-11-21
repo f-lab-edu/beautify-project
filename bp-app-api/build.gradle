@@ -1,17 +1,28 @@
+plugins {
+    id 'org.springframework.boot' version '3.3.5'
+    id 'io.spring.dependency-management' version '1.1.6'
+    id 'io.freefair.lombok' version '8.11'
+}
+
 dependencies {
 //    implementation project(':bp-domain-rdb')
+    implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation project(':bp-kafka-event-publisher')
     implementation project(':bp-dto')
     implementation project(':bp-utils')
     implementation project(':bp-core-web')
 
-    implementation 'com.googlecode.json-simple:json-simple:1.1.1'
     implementation 'org.apache.commons:commons-lang3:3.14.0'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
     testImplementation (testFixtures(project(':bp-dto')))
-}
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
 
-bootJar {
-    enabled = true
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    test {
+        useJUnitPlatform()
+    }
 }
