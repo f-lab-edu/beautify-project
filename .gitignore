@@ -1,6 +1,7 @@
 .idea
 .gradle
 build
+out
 
 ### Java ###
 # Compiled class file
