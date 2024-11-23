@@ -1,8 +1,7 @@
 package com.beautify_project.bp_app_api.exception;
 
-import com.beautify_project.bp_dto.common.response.ErrorCode;
-import com.beautify_project.bp_dto.common.response.ErrorResponseMessage;
-import com.beautify_project.bp_dto.exception.EnumMismatchException;
+import com.beautify_project.bp_app_api.dto.common.ErrorCode;
+import com.beautify_project.bp_app_api.dto.common.ErrorResponseMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;

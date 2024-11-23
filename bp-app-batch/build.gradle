@@ -7,5 +7,4 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-batch'
 	implementation 'org.springframework.boot:spring-boot-starter-quartz'
 	implementation project(':bp-utils')
-	implementation project(':bp-domain-rdb')
 }

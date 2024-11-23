@@ -1,6 +1,6 @@
 package com.beautify_project.bp_app_api.controller;
 
-import static com.beautify_project.CommonTestFixture.OBJECT_MAPPER;
+import static com.beautify_project.bp_app_api.fixtures.ShopTestFixture.OBJECT_MAPPER;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
@@ -8,11 +8,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.beautify_project.ShopTestFixture;
+import com.beautify_project.bp_app_api.dto.shop.ImageFiles;
+import com.beautify_project.bp_app_api.dto.shop.ShopFindListRequestParameters;
+import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest;
+import com.beautify_project.bp_app_api.fixtures.ShopTestFixture;
 import com.beautify_project.bp_app_api.service.ShopService;
-import com.beautify_project.bp_dto.shop.ImageFiles;
-import com.beautify_project.bp_dto.shop.ShopFindListRequestParameters;
-import com.beautify_project.bp_dto.shop.ShopRegistrationRequest;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -145,7 +145,7 @@ class ShopControllerTest {
 
     @ParameterizedTest
     @DisplayName("Shop 등록 요청시 validation 에서 실패하고 BR001 로 응답을 받는다.")
-    @MethodSource("com.beautify_project.ShopTestFixture#invalidShopRegistrationRequestProvider")
+    @MethodSource("com.beautify_project.bp_app_api.fixtures.ShopTestFixture#invalidShopRegistrationRequestProvider")
     void given_requestShopRegistration_when_validationFailed_then_getErrorCodeBR001(ShopRegistrationRequest invalidShopRegistrationRequest)
         throws Exception {
 
@@ -170,7 +170,7 @@ class ShopControllerTest {
 
     @ParameterizedTest
     @DisplayName("Shop 리스트 조회 요청시 validation 성공 후 mocking 한 응답 메시지(조회 결과)를 받는다.")
-    @MethodSource("com.beautify_project.ShopTestFixture#validFindShopListParameterProvider")
+    @MethodSource("com.beautify_project.bp_app_api.fixtures.ShopTestFixture#validFindShopListParameterProvider")
     void given_requestFindShopList_when_validationSucceed_then_getMockedFindListSuccessResponseMessage(final String type, final String page,
         final String count, final String order) throws Exception {
 
@@ -205,7 +205,7 @@ class ShopControllerTest {
 
     @ParameterizedTest
     @DisplayName("Shop 리스트 조회 요청시 validation 실패 후 BR001 에러 코드를 포함한 에러 메시지를 받는다.")
-    @MethodSource("com.beautify_project.ShopTestFixture#invalidFindShopListParameterProvider")
+    @MethodSource("com.beautify_project.bp_app_api.fixtures.ShopTestFixture#invalidFindShopListParameterProvider")
     void given_requestFindShopList_when_validationFailed_then_getErrorCodeBR001(final String type, final String page,
         final String count, final String order) throws Exception {
 

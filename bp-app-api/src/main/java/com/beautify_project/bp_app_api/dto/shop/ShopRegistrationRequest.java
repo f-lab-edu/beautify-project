@@ -1,4 +1,4 @@
-package com.beautify_project.bp_dto.shop;
+package com.beautify_project.bp_app_api.dto.shop;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

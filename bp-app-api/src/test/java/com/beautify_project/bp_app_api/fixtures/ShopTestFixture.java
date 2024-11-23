@@ -1,10 +1,10 @@
-package com.beautify_project;
+package com.beautify_project.bp_app_api.fixtures;
 
-import com.beautify_project.bp_dto.common.response.ResponseMessage;
-import com.beautify_project.bp_dto.shop.ShopRegistrationRequest;
-import com.beautify_project.bp_dto.shop.ShopRegistrationRequest.Address;
-import com.beautify_project.bp_dto.shop.ShopRegistrationRequest.BusinessTime;
-import com.beautify_project.bp_dto.shop.ShopRegistrationRequest.IdName;
+import com.beautify_project.bp_app_api.dto.common.ResponseMessage;
+import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest;
+import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest.Address;
+import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest.BusinessTime;
+import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest.IdName;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.IOException;
@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.params.provider.Arguments;
-import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockMultipartFile;
 
 public class ShopTestFixture {

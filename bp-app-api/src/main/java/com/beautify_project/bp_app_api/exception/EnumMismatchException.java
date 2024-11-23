@@ -1,4 +1,4 @@
-package com.beautify_project.bp_dto.exception;
+package com.beautify_project.bp_app_api.exception;
 
 import lombok.Getter;
 

@@ -1,6 +1,7 @@
-package com.beautify_project.bp_dto.shop.enumeration;
+package com.beautify_project.bp_app_api.enumeration;
 
-import com.beautify_project.bp_dto.exception.EnumMismatchException;
+
+import com.beautify_project.bp_app_api.exception.EnumMismatchException;
 
 public enum OrderType {
     ASC,

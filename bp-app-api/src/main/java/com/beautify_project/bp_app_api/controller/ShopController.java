@@ -1,12 +1,12 @@
 package com.beautify_project.bp_app_api.controller;
 
+import com.beautify_project.bp_app_api.dto.common.ResponseMessage;
+import com.beautify_project.bp_app_api.dto.shop.ImageFiles;
+import com.beautify_project.bp_app_api.dto.shop.ShopFindListRequestParameters;
+import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest;
+import com.beautify_project.bp_app_api.enumeration.OrderType;
+import com.beautify_project.bp_app_api.enumeration.ShopSearchType;
 import com.beautify_project.bp_app_api.service.ShopService;
-import com.beautify_project.bp_dto.common.response.ResponseMessage;
-import com.beautify_project.bp_dto.shop.ImageFiles;
-import com.beautify_project.bp_dto.shop.ShopFindListRequestParameters;
-import com.beautify_project.bp_dto.shop.ShopRegistrationRequest;
-import com.beautify_project.bp_dto.shop.enumeration.OrderType;
-import com.beautify_project.bp_dto.shop.enumeration.ShopSearchType;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

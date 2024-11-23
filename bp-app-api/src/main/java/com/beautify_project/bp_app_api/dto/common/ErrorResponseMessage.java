@@ -1,4 +1,4 @@
-package com.beautify_project.bp_dto.common.response;
+package com.beautify_project.bp_app_api.dto.common;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
