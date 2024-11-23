@@ -50,7 +50,7 @@ public class ShopTestFixture {
     public static void createMockedRegisterSuccessResponseMessage() {
         Map<String, String> returnValue = new HashMap<>();
         returnValue.put("shopId", MOCKED_REGISTER_SUCCESS_RETURNED_SHOP_ID);
-        MOCKED_REGISTER_SUCCESS_RESPONSE_MESSAGE = ResponseMessage.createResponseMessage(HttpStatus.OK, returnValue);
+        MOCKED_REGISTER_SUCCESS_RESPONSE_MESSAGE = ResponseMessage.createResponseMessage(returnValue);
     }
 
     public static void loadBase64EncodedThumbnail() throws IOException{
@@ -84,8 +84,7 @@ public class ShopTestFixture {
         returnValue.add(data1);
         returnValue.add(data2);
 
-        MOCKED_FIND_LIST_SUCCESS_RESPONSE_MESSAGE = ResponseMessage.createResponseMessage(
-            HttpStatus.OK, returnValue);
+        MOCKED_FIND_LIST_SUCCESS_RESPONSE_MESSAGE = ResponseMessage.createResponseMessage(returnValue);
     }
 
     public static ShopRegistrationRequest createValidShopRegistrationRequest() {

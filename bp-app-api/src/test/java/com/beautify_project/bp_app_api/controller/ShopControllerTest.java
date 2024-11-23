@@ -1,5 +1,6 @@
 package com.beautify_project.bp_app_api.controller;
 
+import static com.beautify_project.CommonTestFixture.OBJECT_MAPPER;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
@@ -12,8 +13,6 @@ import com.beautify_project.bp_app_api.service.ShopService;
 import com.beautify_project.bp_dto.shop.ImageFiles;
 import com.beautify_project.bp_dto.shop.ShopFindListRequestParameters;
 import com.beautify_project.bp_dto.shop.ShopRegistrationRequest;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -32,9 +31,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 @WebMvcTest(controllers = ShopController.class)
 class ShopControllerTest {
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().registerModule(
-        new JavaTimeModule());
-
     @Autowired
     private MockMvc mockMvc;
 
@@ -50,11 +46,13 @@ class ShopControllerTest {
     }
 
     @Test
-    @DisplayName("Shop 등록 validation 성공 테스트")
-    void validTest_WhenResponseBodyIsValid() throws Exception {
+    @DisplayName("Shop 등록 요청 성공시 ResponseMessage 객체 형태로 응답이 나간다.")
+    void given_shopRegistrationRequest_when_succeed_then_getResponseMessage()
+        throws Exception {
         // given
-        final String requestBody = OBJECT_MAPPER.writeValueAsString(
+        final String shopRegistrationInfo = OBJECT_MAPPER.writeValueAsString(
             ShopTestFixture.createValidShopRegistrationRequest());
+
         when(shopService.registerShop(any(ImageFiles.class),
             any(ShopRegistrationRequest.class))).thenReturn(
             ShopTestFixture.MOCKED_REGISTER_SUCCESS_RESPONSE_MESSAGE);
@@ -65,17 +63,42 @@ class ShopControllerTest {
                 .file(ShopTestFixture.MOCKED_IMAGE_FILES.get(0))
                 .file(ShopTestFixture.MOCKED_IMAGE_FILES.get(1))
                 .file(new MockMultipartFile("shopRegistrationInfo", "", "application/json",
-                    requestBody.getBytes(StandardCharsets.UTF_8)))
+                    shopRegistrationInfo.getBytes(StandardCharsets.UTF_8)))
                 .contentType(MediaType.MULTIPART_FORM_DATA)
         );
 
         // then
-        assertRegisterSuccessResponse(resultActions);
+        resultActions
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.returnValue").exists())
+            .andDo(print());
     }
 
     @Test
-    @DisplayName("이미지 파일 없이 Shop 등록 테스트")
-    void nullTest_WhenFileNotExist() throws Exception {
+    @DisplayName("Shop 등록 요청 실패시 ErrorResponseMessage 객체 형태로 응답이 나간다.")
+    void given_shopRegistrationRequest_when_failed_then_getErrorResponseMessage() throws Exception {
+        // given
+        // shpRegistrationInfo 가 없는 경우
+
+        // when
+        ResultActions resultActions = mockMvc.perform(
+            multipart("/v1/shops")
+                .file(ShopTestFixture.MOCKED_IMAGE_FILES.get(0))
+                .file(ShopTestFixture.MOCKED_IMAGE_FILES.get(1))
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+        );
+
+        // then
+        resultActions
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.errorCode").exists())
+            .andExpect(jsonPath("$.errorMessage").exists())
+            .andDo(print());
+    }
+
+    @Test
+    @DisplayName("이미지 파일 없이 Shop 등록 요청시 성공 후 shopId 를 응답으로 받는다.")
+    void given_shopRegistrationRequestWithoutImageFiles_when_succeed_then_getResponseMessage() throws Exception {
         // given
         final String requestBody = OBJECT_MAPPER.writeValueAsString(
             ShopTestFixture.createValidShopRegistrationRequest());
@@ -92,12 +115,18 @@ class ShopControllerTest {
         );
 
         // then
-        assertRegisterSuccessResponse(resultActions);
+        resultActions
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.returnValue").exists())
+            .andExpect(jsonPath("$.returnValue.shopId").exists())
+            .andExpect(jsonPath("$.returnValue.shopId").value(
+                ShopTestFixture.MOCKED_REGISTER_SUCCESS_RETURNED_SHOP_ID))
+            .andDo(print());
     }
 
     @Test
-    @DisplayName("샵 등록 요청 DTO 없는 경우 테스트")
-    void nullTest_WhenShopRegistrationRequestNotExist() throws Exception {
+    @DisplayName("Shop 등록 요청 DTO(ShopRegistrationInfo) 값이 없는 경우 errorCode BR002 로 응답을 받는다.")
+    void given_shopRegistrationRequestWithoutShopRegistrationInfo_when_failed_then_getErrorCodeBR002() throws Exception {
         // when
         ResultActions resultActions = mockMvc.perform(
             multipart("/v1/shops")
@@ -115,9 +144,9 @@ class ShopControllerTest {
     }
 
     @ParameterizedTest
-    @DisplayName("Shop 등록 validation 실패 테스트")
+    @DisplayName("Shop 등록 요청시 validation 에서 실패하고 BR001 로 응답을 받는다.")
     @MethodSource("com.beautify_project.ShopTestFixture#invalidShopRegistrationRequestProvider")
-    void validTest_WhenFieldInRequestBodyIsInvalid(ShopRegistrationRequest invalidShopRegistrationRequest)
+    void given_requestShopRegistration_when_validationFailed_then_getErrorCodeBR001(ShopRegistrationRequest invalidShopRegistrationRequest)
         throws Exception {
 
         // when
@@ -140,34 +169,9 @@ class ShopControllerTest {
     }
 
     @ParameterizedTest
-    @DisplayName("Shop 리스트 조회 validation 실패 테스트")
-    @MethodSource("com.beautify_project.ShopTestFixture#invalidFindShopListParameterProvider")
-    void validTest_WhenFindShopListRequestNotInvalid(final String type, final String page,
-        final String count, final String order) throws Exception {
-
-        // when
-        ResultActions resultActions = mockMvc.perform(
-            MockMvcRequestBuilders
-                .get("/v1/shops")
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .param("type", type)
-                .param("page", page)
-                .param("count", count)
-                .param("order", order)
-        );
-
-        // then
-        resultActions
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.errorCode").value("BR001"))
-            .andExpect(jsonPath("$.errorCode").exists())
-            .andDo(print());
-    }
-
-    @ParameterizedTest
-    @DisplayName("Shop 조회 validation 성공 및 응답 메세지 테스트")
+    @DisplayName("Shop 리스트 조회 요청시 validation 성공 후 mocking 한 응답 메시지(조회 결과)를 받는다.")
     @MethodSource("com.beautify_project.ShopTestFixture#validFindShopListParameterProvider")
-    void validTest_WhenFindShopRequestValid(final String type, final String page,
+    void given_requestFindShopList_when_validationSucceed_then_getMockedFindListSuccessResponseMessage(final String type, final String page,
         final String count, final String order) throws Exception {
 
         // given
@@ -187,6 +191,7 @@ class ShopControllerTest {
         // then
         resultActions
             .andExpect(status().isOk())
+            .andExpect(jsonPath("$.returnValue").exists())
             .andExpect(jsonPath("$.returnValue[0].id").value(ShopTestFixture.MOCKED_FIND_LIST_SUCCESS_RETURNED_SHOP_IDS[0]))
             .andExpect(jsonPath("$.returnValue[0].name").value("시술소1"))
             .andExpect(jsonPath("$.returnValue[0].operations").isArray())
@@ -198,13 +203,30 @@ class ShopControllerTest {
             .andDo(print());
     }
 
-    private void assertRegisterSuccessResponse(final ResultActions resultActions) throws Exception {
+    @ParameterizedTest
+    @DisplayName("Shop 리스트 조회 요청시 validation 실패 후 BR001 에러 코드를 포함한 에러 메시지를 받는다.")
+    @MethodSource("com.beautify_project.ShopTestFixture#invalidFindShopListParameterProvider")
+    void given_requestFindShopList_when_validationFailed_then_getErrorCodeBR001(final String type, final String page,
+        final String count, final String order) throws Exception {
+
+        // when
+        ResultActions resultActions = mockMvc.perform(
+            MockMvcRequestBuilders
+                .get("/v1/shops")
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .param("type", type)
+                .param("page", page)
+                .param("count", count)
+                .param("order", order)
+        );
+
+
         resultActions
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.returnValue").exists())
-            .andExpect(jsonPath("$.returnValue.shopId").exists())
-            .andExpect(jsonPath("$.returnValue.shopId").value(
-                ShopTestFixture.MOCKED_REGISTER_SUCCESS_RETURNED_SHOP_ID))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.errorCode").value("BR001"))
+            .andExpect(jsonPath("$.errorCode").exists())
             .andDo(print());
     }
+
+
 }
