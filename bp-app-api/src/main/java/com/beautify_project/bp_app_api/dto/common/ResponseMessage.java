@@ -16,17 +16,7 @@ public class ResponseMessage {
         this.returnValue = returnValue;
     }
 
-//    private ResponseMessage(final HttpStatus httpStatus, final Object returnValue) {
-//        this.httpStatus = httpStatus;
-//        this.returnValue = returnValue;
-//    }
-
     public static ResponseMessage createResponseMessage(final Object responseBody) {
         return new ResponseMessage(responseBody);
     }
-
-//    public static ResponseMessage createResponseMessage(final HttpStatus httpStatus,
-//        final Object returnValue) {
-//        return new ResponseMessage(httpStatus, returnValue);
-//    }
 }

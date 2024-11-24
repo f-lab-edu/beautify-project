@@ -5,8 +5,6 @@ import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest;
 import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest.Address;
 import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest.BusinessTime;
 import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest.IdName;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -33,8 +31,6 @@ public class ShopTestFixture {
     public static ResponseMessage MOCKED_REGISTER_SUCCESS_RESPONSE_MESSAGE;
     public static ResponseMessage MOCKED_FIND_LIST_SUCCESS_RESPONSE_MESSAGE;
     public static String BASE64_ENCODED_THUMBNAIL;
-
-    public static ObjectMapper OBJECT_MAPPER = new ObjectMapper().registerModule(new JavaTimeModule());
 
 
     public static void loadMockedImageFiles() throws IOException {
