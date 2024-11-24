@@ -22,6 +22,7 @@ public class GlobalExceptionHandler {
     private static final String MSG_FORMAT_PARAMETER_INVALID = "파라미터 '%s' 가 잘못되었습니다.";
     private static final String MSG_FORMAT_PARAMETER_TYPE_MISMATCH = "파라미터 '%s' 의 데이터 타입이 잘못되었습니다.";
     private static final String MSG_FORMAT_MISSING_PARAMETER = "본문 내 '%s' 은 필수값입니다.";
+    private static final String MSG_FORMAT_PARAMETER_OUT_OF_RANGE = "파라미터 '%s' 의 값이 범위에 벗어났습니다.";
 
     /**
      * 주로 요청 온 데이터에 대해 validation(jakarta.validation) 을 실패하는 경우 발생
@@ -106,6 +107,15 @@ public class GlobalExceptionHandler {
         final HandlerMethodValidationException exception) {
         log.error("", exception);
         return ErrorResponseMessage.createErrorMessage(ErrorCode.BR001);
+    }
+
+    @ExceptionHandler(ParameterOutOfRangeException.class)
+    @ResponseStatus(code = HttpStatus.BAD_REQUEST)
+    private ErrorResponseMessage handleParameterOutOfRangeException(
+        final ParameterOutOfRangeException exception) {
+        log.error("", exception);
+        return createErrorResponseMessage(MSG_FORMAT_PARAMETER_OUT_OF_RANGE,
+            exception.getParameterName(), ErrorCode.BR001);
     }
 
     private static ErrorResponseMessage createErrorResponseMessage(
