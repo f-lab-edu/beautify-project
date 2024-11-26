@@ -6,19 +6,33 @@ import com.beautify_project.bp_app_api.dto.shop.ShopFindListRequestParameters;
 import com.beautify_project.bp_app_api.dto.shop.ShopFindResult;
 import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest;
 import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationResult;
+import com.beautify_project.bp_app_api.entity.Shop;
+import com.beautify_project.bp_app_api.repository.ShopRepository;
 import java.util.Arrays;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ShopService {
 
+    private final ShopRepository shopRepository;
+    private final StorageService storageService;
+
+    @Transactional(rollbackFor = Exception.class)
     public ResponseMessage registerShop(final ImageFiles images,
         final ShopRegistrationRequest shopRegistrationRequest) {
 
-        return ResponseMessage.createResponseMessage(new ShopRegistrationResult("732e934"));
+        final Shop regisertedShop = shopRepository.save(Shop.from(shopRegistrationRequest));
+        storageService.storeImageFiles(images, regisertedShop.getId());
+
+        return ResponseMessage.createResponseMessage(
+            new ShopRegistrationResult(regisertedShop.getId()));
     }
 
     public ResponseMessage findShopList(final ShopFindListRequestParameters parameters) {
