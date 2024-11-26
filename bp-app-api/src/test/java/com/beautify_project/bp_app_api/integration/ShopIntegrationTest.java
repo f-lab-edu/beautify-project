@@ -31,10 +31,10 @@ public class ShopIntegrationTest {
 
     @BeforeAll
     public static void setUp() throws Exception {
-        ShopTestFixture.loadMockedImageFiles();
-        ShopTestFixture.createMockedRegisterSuccessResponseMessage();
-        ShopTestFixture.loadBase64EncodedThumbnail();
-        ShopTestFixture.createMockedFindListSuccessResponseMessage();
+        ShopTestFixture.initMockedImageFiles();
+        ShopTestFixture.initMockedRegisterSuccessResponseMessage();
+        ShopTestFixture.initBase64EncodedThumbnail();
+        ShopTestFixture.initMockedFindListSuccessResponseMessage();
     }
 
     @Test
