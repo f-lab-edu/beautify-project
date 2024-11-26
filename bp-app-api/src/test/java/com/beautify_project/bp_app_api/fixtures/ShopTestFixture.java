@@ -26,6 +26,8 @@ public class ShopTestFixture {
         {"2360c169", "f4804d31"};
 
     public static final String TEST_IMAGE_FILE_DIRECTORY_PATH = "src/test/resources/files";
+    public static final String TEST_FILE_SYSTEM_DATA_PATH =
+        TEST_IMAGE_FILE_DIRECTORY_PATH + "/data";
 
     public static List<MockMultipartFile> MOCKED_IMAGE_FILES;
     public static ResponseMessage MOCKED_REGISTER_SUCCESS_RESPONSE_MESSAGE;
@@ -33,7 +35,7 @@ public class ShopTestFixture {
     public static String BASE64_ENCODED_THUMBNAIL;
 
 
-    public static void loadMockedImageFiles() throws IOException {
+    public static void initMockedImageFiles() throws IOException {
         MOCKED_IMAGE_FILES = Arrays.asList(
             new MockMultipartFile("images", "image1.png", "image/png",
                 Files.readAllBytes(Path.of(TEST_IMAGE_FILE_DIRECTORY_PATH + "/1.png"))),
@@ -42,19 +44,19 @@ public class ShopTestFixture {
                 )));
     }
 
-    public static void createMockedRegisterSuccessResponseMessage() {
+    public static void initMockedRegisterSuccessResponseMessage() {
         Map<String, String> returnValue = new HashMap<>();
         returnValue.put("shopId", MOCKED_REGISTER_SUCCESS_RETURNED_SHOP_ID);
         MOCKED_REGISTER_SUCCESS_RESPONSE_MESSAGE = ResponseMessage.createResponseMessage(returnValue);
     }
 
-    public static void loadBase64EncodedThumbnail() throws IOException{
+    public static void initBase64EncodedThumbnail() throws IOException{
         BASE64_ENCODED_THUMBNAIL = Files.readString(
             Path.of(TEST_IMAGE_FILE_DIRECTORY_PATH + "/thumbnail_base64.txt"),
             StandardCharsets.UTF_8);
     }
 
-    public static void createMockedFindListSuccessResponseMessage() {
+    public static void initMockedFindListSuccessResponseMessage() {
         List<Map<String, Object>> returnValue = new ArrayList<>();
         Map<String, Object> data1 = new HashMap<>();
         data1.put("id", MOCKED_FIND_LIST_SUCCESS_RETURNED_SHOP_IDS[0]);
@@ -86,6 +88,7 @@ public class ShopTestFixture {
         return new ShopRegistrationRequest(
             "미용시술소1",
             "010-1234-5678",
+            "www.naver.com",
             "안녕하세요 미용시술소1입니다.",
             Arrays.asList(
                 new IdName("4541403a", "시술1"),
@@ -129,6 +132,7 @@ public class ShopTestFixture {
         return new ShopRegistrationRequest(
             RandomStringUtils.randomAlphabetic(130),
             "010-1234-5678",
+            "www.naver.com",
             "안녕하세요 미용시술소1입니다.",
             Arrays.asList(
                 new IdName("4541403a", "시술1"),
@@ -164,6 +168,7 @@ public class ShopTestFixture {
         return new ShopRegistrationRequest(
             "미용시술소1",
             RandomStringUtils.randomAlphabetic(14),
+            "www.naver.com",
             "안녕하세요 미용시술소1입니다.",
             Arrays.asList(
                 new IdName("4541403a", "시술1"),
@@ -199,6 +204,7 @@ public class ShopTestFixture {
         return new ShopRegistrationRequest(
             "미용시술소1",
             "010-1234-5678",
+            "www.naver.com",
             RandomStringUtils.randomAlphabetic(2050),
             Arrays.asList(
                 new IdName("4541403a", "시술1"),
