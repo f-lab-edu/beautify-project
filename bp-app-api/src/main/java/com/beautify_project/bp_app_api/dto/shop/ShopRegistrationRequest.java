@@ -9,6 +9,7 @@ import java.util.List;
 public record ShopRegistrationRequest(
     @NotNull @Size(max = 128) String name,
     @NotNull @Size(max = 13) String contact,
+    String url,
     @Size(max = 2048) String introduction,
     List<IdName> operations,
     List<IdName> categories,
