@@ -1,7 +1,5 @@
 spring:
   application:
     name: bp-app-api
-  servlet:
-    multipart:
-      maxFileSize: 10MB
-      maxRequestSize: 50MB
+  profiles:
+    active: local
