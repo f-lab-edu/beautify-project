@@ -15,8 +15,11 @@ public enum ErrorCode {
     FB001(HttpStatus.FORBIDDEN, "FB001", "해당 API 사용 권한이 없습니다."),
 
     NF001(HttpStatus.NOT_FOUND, "NF001", "요청 URL이 잘못되었습니다."),
+    NF002(HttpStatus.NOT_FOUND, "NF002", "등록되지 않은 리소스 입니다."),
 
     SH001(HttpStatus.NOT_FOUND, "SH001", "등록되지 않은 미용 시술소입니다."),
+
+    RV001(HttpStatus.NOT_FOUND, "RV001", "등록되지 않은 리뷰입니다."),
 
     IS001(HttpStatus.INTERNAL_SERVER_ERROR, "IS001", "시스템 에러가 발생하였습니다. 관리자에게 문읜해주세요.")
     ;

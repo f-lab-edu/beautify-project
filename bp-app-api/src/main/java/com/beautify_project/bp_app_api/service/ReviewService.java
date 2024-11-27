@@ -5,14 +5,22 @@ import com.beautify_project.bp_app_api.dto.review.FindReviewResult;
 import com.beautify_project.bp_app_api.dto.review.FindReviewResult.Member;
 import com.beautify_project.bp_app_api.dto.review.FindReviewResult.Operation;
 import com.beautify_project.bp_app_api.dto.review.FindReviewListRequestParameters;
+import com.beautify_project.bp_app_api.exception.NotRegisteredReviewException;
+import com.beautify_project.bp_app_api.repository.ReviewRepository;
 import java.util.Arrays;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class ReviewService {
+
+    private ReviewRepository reviewRepository;
 
     public ResponseMessage findReview(final String reviewId) {
         return ResponseMessage.createResponseMessage(createFindReviewDummySuccessResponseBody());
@@ -23,8 +31,14 @@ public class ReviewService {
             createFindReviewListDummySuccessResponseBody());
     }
 
+    @Transactional
     public void deleteReview(final String reviewId) {
-
+        try {
+            reviewRepository.deleteById(reviewId);
+        } catch (EmptyResultDataAccessException exception) {
+            log.error("", exception);
+            throw new NotRegisteredReviewException("존재하지 않는 리뷰입니다.");
+        }
     }
 
     private FindReviewResult createFindReviewDummySuccessResponseBody() {
