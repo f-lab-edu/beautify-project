@@ -15,33 +15,35 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "shop_operation")
+@Table(name = "operation_category")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ShopOperation {
+public class OperationCategory {
 
     @Id
-    @Column(name = "shop_operation_id")
+    @Column(name = "operation_category_id")
     private String id;
-    private Long registered;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "shop_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-    private Shop shop;
+    private Long registered;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "operation_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
     private Operation operation;
 
-    private ShopOperation(final Long registered, final Shop shop, final Operation operation) {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+    private Category category;
+
+    private OperationCategory(final Operation operation, final Category category,
+        final Long registered) {
         this.id = UUIDGenerator.generate();
         this.registered = registered;
-        this.shop = shop;
         this.operation = operation;
+        this.category = category;
     }
 
-    public static ShopOperation of(final Shop shop, final Operation operation,
+    public static OperationCategory of(final Operation operation, final Category category,
         final Long registered) {
-        return new ShopOperation(registered, shop, operation);
+        return new OperationCategory(operation, category, registered);
     }
 }

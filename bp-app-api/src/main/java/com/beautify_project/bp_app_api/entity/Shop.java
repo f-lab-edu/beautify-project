@@ -25,7 +25,7 @@ import org.springframework.data.domain.Persistable;
 @Entity
 @Table(name = "shop")
 @Getter
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Shop implements Persistable<String> {
 
     @Id
@@ -43,6 +43,12 @@ public class Shop implements Persistable<String> {
 
     @Column(name = "shop_introduction")
     private String introduction;
+
+    @Column(name = "shop_rate")
+    private String rate = "0.0";
+
+    @Column(name = "shop_likes")
+    private Integer likes = 0;
 
     @Column(name = "shop_registered")
     private Long registered;
@@ -84,40 +90,36 @@ public class Shop implements Persistable<String> {
     private BusinessTime businessTime;
 
     @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
-    private final List<ShopFacility> supportFacilities = new ArrayList<>();
+    private final List<ShopFacility> shopFacilities = new ArrayList<>();
 
     @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
-    private final List<ShopCategory> categories = new ArrayList<>();
-
-    @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
-    private final List<ShopOperation> operations = new ArrayList<>();
+    private final List<ShopOperation> shopOperations = new ArrayList<>();
 
     @Builder
-    protected Shop(final String name, final String contact, final String url,
-        final String introduction, final Address shopAddress,
-        final BusinessTime businessTime, final Long registered, final Long updated,
-        final Long objectCreated) {
+    private Shop(final String name, final String contact, final String url,
+        final String introduction, final String rate,
+        final Integer likes, final Long registered, final Long updated, final Address shopAddress,
+        final BusinessTime businessTime) {
         this.id = UUIDGenerator.generate();
         this.name = name;
         this.contact = contact;
         this.url = url;
+        this.introduction = introduction;
+        this.rate = rate;
+        this.likes = likes;
         this.registered = registered;
         this.updated = updated;
-        this.objectCreated = objectCreated;
-        this.introduction = introduction;
         this.shopAddress = shopAddress;
         this.businessTime = businessTime;
     }
 
-    public static Shop from(final ShopRegistrationRequest request) {
-        long currentTime = System.currentTimeMillis();
-
+    private static Shop of(final ShopRegistrationRequest request, long registeredTime) {
         return Shop.builder()
             .name(request.name())
             .contact(request.contact())
             .url(request.url())
-            .registered(currentTime)
-            .updated(currentTime)
+            .registered(registeredTime)
+            .updated(registeredTime)
             .introduction(request.introduction())
             .shopAddress(
                 Address.builder()
@@ -148,6 +150,38 @@ public class Shop implements Persistable<String> {
                     .build()
             )
             .build();
+    }
+
+    public static Shop createShop(ShopRegistrationRequest registrationRequest,
+        List<Operation> operations, List<Facility> facilities, Long registeredTime) {
+        Shop newShop = of(registrationRequest, registeredTime);
+
+        addAllOperationsToShopOperations(operations, newShop, registeredTime);
+        addAllFacilitiesToShopFacilities(facilities, newShop, registeredTime);
+        return newShop;
+    }
+
+    private static void addAllOperationsToShopOperations(final List<Operation> operations, final Shop shop,
+        final long registeredTime) {
+        for (Operation operation : operations) {
+            shop.addOperations(ShopOperation.of(shop, operation, registeredTime));
+        }
+    }
+
+    private static void addAllFacilitiesToShopFacilities(final List<Facility> facilities, final Shop shop,
+        final long registeredTime) {
+        for (Facility facility : facilities) {
+            shop.addSupportFacilities(ShopFacility.of(shop, facility, registeredTime));
+        }
+    }
+
+    public void addSupportFacilities(ShopFacility shopFacility) {
+        this.shopFacilities.add(shopFacility);
+    }
+
+
+    public void addOperations(ShopOperation shopOperation) {
+        this.shopOperations.add(shopOperation);
     }
 
     @Override

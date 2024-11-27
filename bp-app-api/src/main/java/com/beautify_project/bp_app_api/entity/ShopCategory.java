@@ -11,11 +11,12 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
-import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "shop_category")
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ShopCategory {
 
@@ -23,21 +24,24 @@ public class ShopCategory {
     @Column(name = "shop_category_id")
     private String id;
 
-    private String categoryId;
-    private String categoryName;
     private Long registered;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "shop_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
     private Shop shop;
 
-    @Builder
-    protected ShopCategory(final Shop shop, final String categoryId, final String categoryName,
-        final Long registered) {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+    private Category category;
+
+    private ShopCategory(final Long registered, final Shop shop, final Category category) {
         this.id = UUIDGenerator.generate();
-        this.shop = shop;
-        this.categoryId = categoryId;
-        this.categoryName = categoryName;
         this.registered = registered;
+        this.shop = shop;
+        this.category = category;
+    }
+
+    public static ShopCategory of(final Shop shop, final Category category, final Long registered) {
+        return new ShopCategory(registered, shop, category);
     }
 }

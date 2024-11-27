@@ -11,14 +11,13 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "shop_facility")
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ShopFacility {
     @Id
     @Column(name = "shop_facility_id")
@@ -34,11 +33,14 @@ public class ShopFacility {
 
     private Long registered;
 
-    @Builder
-    public ShopFacility(final Shop shop, final Facility facility, final Long registered) {
+    private ShopFacility(final Shop shop, final Facility facility, final Long registered) {
         this.id = UUIDGenerator.generate();
         this.shop = shop;
         this.facility = facility;
         this.registered = registered;
+    }
+
+    public static ShopFacility of(final Shop shop, final Facility facility, final Long registered) {
+        return new ShopFacility(shop, facility, registered);
     }
 }
