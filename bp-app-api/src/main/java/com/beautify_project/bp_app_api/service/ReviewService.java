@@ -18,9 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ReviewService {
 
-    private ReviewRepository reviewRepository;
+    private final ReviewRepository reviewRepository;
 
     public ResponseMessage findReview(final String reviewId) {
         return ResponseMessage.createResponseMessage(createFindReviewDummySuccessResponseBody());
