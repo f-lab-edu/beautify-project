@@ -122,7 +122,7 @@ class ShopControllerTest {
 
     @ParameterizedTest
     @DisplayName("Shop 리스트 조회 요청시 validation 성공 후 mocking 한 응답 메시지(조회 결과)를 받는다.")
-    @MethodSource("com.beautify_project.bp_app_api.fixtures.ShopTestFixture#validFindShopListParameterProvider")
+    @MethodSource("com.beautify_project.bp_app_api.fixtures.ShopTestFixture#validFindShopListParameterInControllerProvider")
     void given_requestFindShopList_when_validationSucceed_then_getMockedFindListSuccessResponseMessage(
         final String type, final String page,
         final String count, final String order) throws Exception {
