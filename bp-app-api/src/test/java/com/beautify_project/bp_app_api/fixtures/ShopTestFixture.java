@@ -1,23 +1,31 @@
 package com.beautify_project.bp_app_api.fixtures;
 
 import com.beautify_project.bp_app_api.dto.common.ResponseMessage;
+import com.beautify_project.bp_app_api.dto.shop.ShopFindListRequestParameters;
+import com.beautify_project.bp_app_api.dto.shop.ShopFindResult;
 import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest;
 import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest.Address;
 import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest.BusinessTime;
 import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest.IdName;
+import com.beautify_project.bp_app_api.entity.Facility;
+import com.beautify_project.bp_app_api.entity.Operation;
+import com.beautify_project.bp_app_api.entity.Shop;
+import com.beautify_project.bp_app_api.enumeration.OrderType;
+import com.beautify_project.bp_app_api.enumeration.ShopSearchType;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.params.provider.Arguments;
+import org.springframework.data.domain.Page;
 import org.springframework.mock.web.MockMultipartFile;
 
 public class ShopTestFixture {
@@ -33,7 +41,9 @@ public class ShopTestFixture {
     public static ResponseMessage MOCKED_REGISTER_SUCCESS_RESPONSE_MESSAGE;
     public static ResponseMessage MOCKED_FIND_LIST_SUCCESS_RESPONSE_MESSAGE;
     public static String BASE64_ENCODED_THUMBNAIL;
+    public static Page<Shop> MOCKED_SHOP_PAGE;
 
+    public static Shop[] MOCKED_VALID_SHOP_ENTITIES;
 
     public static void initMockedImageFiles() throws IOException {
         MOCKED_IMAGE_FILES = Arrays.asList(
@@ -57,32 +67,59 @@ public class ShopTestFixture {
     }
 
     public static void initMockedFindListSuccessResponseMessage() {
-        List<Map<String, Object>> returnValue = new ArrayList<>();
-        Map<String, Object> data1 = new HashMap<>();
-        data1.put("id", MOCKED_FIND_LIST_SUCCESS_RETURNED_SHOP_IDS[0]);
-        data1.put("name", "시술소1");
-        data1.put("operations", Arrays.asList("두피문신", "눈썹문신", "입술문신"));
-        data1.put("supportFacilities", Arrays.asList("주차가능", "와이파이", "샤워실"));
-        data1.put("rate", "4.5");
-        data1.put("likes", 132);
-        data1.put("likePushed", false);
-        data1.put("thumbnail", BASE64_ENCODED_THUMBNAIL);
+        ShopFindResult result1 = ShopFindResult.builder()
+            .id(MOCKED_FIND_LIST_SUCCESS_RETURNED_SHOP_IDS[0])
+            .name("시술소1")
+            .operations(Arrays.asList("두피문신", "눈썹문신", "입술문신"))
+            .supportFacilities(Arrays.asList("주차가능", "와이파이", "샤워실"))
+            .rate("4.5")
+            .likes(132)
+            .likePushed(false)
+            .thumbnail(BASE64_ENCODED_THUMBNAIL)
+            .build();
 
-        Map<String, Object> data2 = new HashMap<>();
-        data2.put("id", MOCKED_FIND_LIST_SUCCESS_RETURNED_SHOP_IDS[1]);
-        data2.put("name", "시술소2");
-        data2.put("operations", List.of("타투"));
-        data2.put("supportFacilities", List.of("와이파이"));
-        data2.put("rate", "3.0");
-        data2.put("likes", 20);
-        data2.put("likePushed", true);
-        data2.put("thumbnail", BASE64_ENCODED_THUMBNAIL);
+        ShopFindResult result2 = ShopFindResult.builder()
+            .id(MOCKED_FIND_LIST_SUCCESS_RETURNED_SHOP_IDS[1])
+            .name("시술소2")
+            .operations(List.of("타투"))
+            .supportFacilities(List.of("와이파이"))
+            .rate("3.0")
+            .likes(20)
+            .likePushed(true)
+            .thumbnail(BASE64_ENCODED_THUMBNAIL)
+            .build();
 
-        returnValue.add(data1);
-        returnValue.add(data2);
-
-        MOCKED_FIND_LIST_SUCCESS_RESPONSE_MESSAGE = ResponseMessage.createResponseMessage(returnValue);
+        MOCKED_FIND_LIST_SUCCESS_RESPONSE_MESSAGE = ResponseMessage.createResponseMessage(
+            Arrays.asList(result1, result2));
     }
+
+    public static void initMockedValidShopEntities() {
+        OperationTestFixture.initMockedValidOperationEntitiesIfNotExists();
+        FacilityTestFixture.initValidFacilityEntitiesIfNotExists();
+
+        List<Operation> operations = Collections.singletonList(
+            OperationTestFixture.MOCKED_VALID_OPERATION_ENTITIES[0]);
+
+        List<Facility> facilities = Arrays.asList(
+            FacilityTestFixture.MOCKED_VALID_FACILITY_ENTITIES);
+
+        MOCKED_VALID_SHOP_ENTITIES = new Shop[]{
+            Shop.createShop(createValidShopRegistrationRequest(), operations, facilities,
+                System.currentTimeMillis())
+        };
+
+    }
+//    public static void initMockedPage() {
+//        Shop mockedShop = Shop.from(createValidShopRegistrationRequest());
+//        Shop.from()
+//
+//        Pageable mockedPageable = PageRequest.of(0, 2,
+//            Sort.by(Sort.Direction.fromString(OrderType.ASC.name()),
+//                ShopSearchType.SHOP_NAME.getEntityName()));
+//
+//
+//
+//    }
 
     public static ShopRegistrationRequest createValidShopRegistrationRequest() {
         return new ShopRegistrationRequest(
@@ -246,7 +283,7 @@ public class ShopTestFixture {
         );
     }
 
-    public static Stream<Arguments> validFindShopListParameterProvider() {
+    public static Stream<Arguments> validFindShopListParameterInControllerProvider() {
         return Stream.of(
             Arguments.of("shopName", null, null, null),
             Arguments.of("shopName", null, null, "desc"),
@@ -254,4 +291,17 @@ public class ShopTestFixture {
             Arguments.of("like", "1", null, "asc")
         );
     }
+
+    public static Stream<Arguments> validFindShopListParameterInServiceProvider() {
+        return Stream.of(
+            Arguments.arguments(
+                new ShopFindListRequestParameters(ShopSearchType.SHOP_NAME, 0, 5, OrderType.ASC),
+                new ShopFindListRequestParameters(ShopSearchType.LIKE, 0, 10, OrderType.ASC),
+                new ShopFindListRequestParameters(ShopSearchType.RATE, 0, 15, OrderType.DESC),
+                new ShopFindListRequestParameters(ShopSearchType.LOCATION, 0, 100, OrderType.DESC)
+            )
+        );
+    }
+
+
 }
