@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.params.provider.Arguments;
-import org.springframework.data.domain.Page;
 import org.springframework.mock.web.MockMultipartFile;
 
 public class ShopTestFixture {
@@ -41,7 +40,6 @@ public class ShopTestFixture {
     public static ResponseMessage MOCKED_REGISTER_SUCCESS_RESPONSE_MESSAGE;
     public static ResponseMessage MOCKED_FIND_LIST_SUCCESS_RESPONSE_MESSAGE;
     public static String BASE64_ENCODED_THUMBNAIL;
-    public static Page<Shop> MOCKED_SHOP_PAGE;
 
     public static Shop[] MOCKED_VALID_SHOP_ENTITIES;
 
@@ -93,9 +91,9 @@ public class ShopTestFixture {
             Arrays.asList(result1, result2));
     }
 
-    public static void initMockedValidShopEntities() {
-        OperationTestFixture.initMockedValidOperationEntitiesIfNotExists();
-        FacilityTestFixture.initValidFacilityEntitiesIfNotExists();
+    public static void initMockedValidShopEntitiesIfNotInitialized() {
+        OperationTestFixture.initMockedValidOperationEntitiesIfNotInitialized();
+        FacilityTestFixture.initValidFacilityEntitiesIfNotInitialized();
 
         List<Operation> operations = Collections.singletonList(
             OperationTestFixture.MOCKED_VALID_OPERATION_ENTITIES[0]);
@@ -103,23 +101,16 @@ public class ShopTestFixture {
         List<Facility> facilities = Arrays.asList(
             FacilityTestFixture.MOCKED_VALID_FACILITY_ENTITIES);
 
+        if (CommonTestFixture.isInitialized(MOCKED_VALID_SHOP_ENTITIES)) {
+            return;
+        }
+
         MOCKED_VALID_SHOP_ENTITIES = new Shop[]{
             Shop.createShop(createValidShopRegistrationRequest(), operations, facilities,
                 System.currentTimeMillis())
         };
 
     }
-//    public static void initMockedPage() {
-//        Shop mockedShop = Shop.from(createValidShopRegistrationRequest());
-//        Shop.from()
-//
-//        Pageable mockedPageable = PageRequest.of(0, 2,
-//            Sort.by(Sort.Direction.fromString(OrderType.ASC.name()),
-//                ShopSearchType.SHOP_NAME.getEntityName()));
-//
-//
-//
-//    }
 
     public static ShopRegistrationRequest createValidShopRegistrationRequest() {
         return new ShopRegistrationRequest(

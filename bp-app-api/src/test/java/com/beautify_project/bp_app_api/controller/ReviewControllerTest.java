@@ -33,9 +33,9 @@ class ReviewControllerTest {
 
     @BeforeAll
     public static void setUp() {
-        ReviewTestFixture.createMockedEmptyResponseMessage();
-        ReviewTestFixture.createMockedFindReviewSuccessResponse();
-        ReviewTestFixture.createMockedFindReviewListSuccessResponse();
+        ReviewTestFixture.initMockedEmptyResponseMessage();
+        ReviewTestFixture.initMockedFindReviewSuccessResponse();
+        ReviewTestFixture.initMockedFindReviewListSuccessResponse();
     }
 
     @Test

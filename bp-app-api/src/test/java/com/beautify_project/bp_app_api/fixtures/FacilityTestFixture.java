@@ -6,8 +6,8 @@ public class FacilityTestFixture {
 
     public static Facility[] MOCKED_VALID_FACILITY_ENTITIES;
 
-    public static void initValidFacilityEntitiesIfNotExists() {
-        if (!CommonTestFixture.isArrayNullOrEmpty(MOCKED_VALID_FACILITY_ENTITIES)) {
+    public static void initValidFacilityEntitiesIfNotInitialized() {
+        if (CommonTestFixture.isInitialized(MOCKED_VALID_FACILITY_ENTITIES)) {
             return;
         }
 

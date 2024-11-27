@@ -67,7 +67,7 @@ class ShopServiceTest {
     static void setUp() throws Exception {
         ShopTestFixture.initMockedImageFiles();
         ShopTestFixture.initMockedFindListSuccessResponseMessage();
-        ShopTestFixture.initMockedValidShopEntities();
+        ShopTestFixture.initMockedValidShopEntitiesIfNotInitialized();
     }
 
     @BeforeEach

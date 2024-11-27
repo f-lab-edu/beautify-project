@@ -6,8 +6,8 @@ public class CategoryTestFixture {
 
     public static Category[] MOCKED_VALID_CATEGORY_ENTITIES;
 
-    public static void initValidCategoryEntitiesIfNotExists() {
-        if (!CommonTestFixture.isArrayNullOrEmpty(MOCKED_VALID_CATEGORY_ENTITIES)) {
+    public static void initValidCategoryEntitiesIfNotInitialized() {
+        if (CommonTestFixture.isInitialized(MOCKED_VALID_CATEGORY_ENTITIES)) {
             return;
         }
 

@@ -7,8 +7,9 @@ public class CommonTestFixture {
 
     public static ObjectMapper OBJECT_MAPPER = new ObjectMapper().registerModule(new JavaTimeModule());
 
-    public static boolean isArrayNullOrEmpty(Object[] array) {
-        return array == null || array.length == 0;
+    public static boolean isInitialized(Object[] array) {
+        return array != null && array.length > 0;
     }
+
 
 }

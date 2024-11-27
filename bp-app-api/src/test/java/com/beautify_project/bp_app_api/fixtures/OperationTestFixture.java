@@ -8,12 +8,12 @@ public class OperationTestFixture {
 
     public static Operation[] MOCKED_VALID_OPERATION_ENTITIES;
 
-    public static void initMockedValidOperationEntitiesIfNotExists() {
-        if (!CommonTestFixture.isArrayNullOrEmpty(MOCKED_VALID_OPERATION_ENTITIES)) {
+    public static void initMockedValidOperationEntitiesIfNotInitialized() {
+        if (CommonTestFixture.isInitialized(MOCKED_VALID_OPERATION_ENTITIES)) {
             return;
         }
 
-        CategoryTestFixture.initValidCategoryEntitiesIfNotExists();
+        CategoryTestFixture.initValidCategoryEntitiesIfNotInitialized();
 
         long currentTime = System.currentTimeMillis();
         // 두피문신 시술은 머리, 타투 카테고리에 속함
