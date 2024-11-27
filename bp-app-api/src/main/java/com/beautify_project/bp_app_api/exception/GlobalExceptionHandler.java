@@ -118,6 +118,13 @@ public class GlobalExceptionHandler {
             exception.getParameterName(), ErrorCode.BR001);
     }
 
+    @ExceptionHandler(FileStoreException.class)
+    @ResponseStatus(code = HttpStatus.INTERNAL_SERVER_ERROR)
+    private ErrorResponseMessage handleFileStoreException(final FileStoreException exception) {
+        log.error("", exception);
+        return ErrorResponseMessage.createErrorMessage(ErrorCode.IS001);
+    }
+
     private static ErrorResponseMessage createErrorResponseMessage(
         final String messageFormat,
         final String replaceText,
