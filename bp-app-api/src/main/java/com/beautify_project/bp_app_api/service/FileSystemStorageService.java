@@ -4,35 +4,34 @@ import com.beautify_project.bp_app_api.dto.shop.ImageFiles;
 import com.beautify_project.bp_app_api.exception.FileLoadException;
 import com.beautify_project.bp_app_api.exception.FileStoreException;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 public class FileSystemStorageService implements StorageService {
 
-    @Value("${storage.file-system-path:null}")
-    private String fileSystemPath;
-
+    public static final int FILE_ORDER_FIRST = 0;
+    @Value("${storage.path:null}")
+    private String storagePath;
 
     @Override
     public void storeImageFiles(final ImageFiles imageFiles, final String shopId)
         throws FileStoreException {
         try {
-            createDataDirectoryIfNotExists();
             final String directoryPathToBeStored = getDirectoryPathByShopId(shopId);
             writeFiles(imageFiles, directoryPathToBeStored, shopId);
-        } catch (IOException exception) {
+        } catch (IOException | NullPointerException exception) {
             log.error("", exception);
             throw new FileStoreException(exception.getMessage());
         }
     }
 
     @Override
-    public ImageFiles loadImageFiles(final String filePath) throws FileLoadException {
+    public ImageFiles loadImageFiles(final String shopId) throws FileLoadException {
 
         return null;
     }
@@ -43,31 +42,36 @@ public class FileSystemStorageService implements StorageService {
     }
 
     private String getDirectoryPathByShopId(final String shopId) {
-        return shopId.charAt(0) + shopId;
-    }
-
-    private void createDataDirectoryIfNotExists() throws IOException {
-        Path dataDirectoryPath = Path.of(fileSystemPath);
-        if (!Files.exists(dataDirectoryPath)) {
-            Files.createDirectory(dataDirectoryPath);
-        }
+        return storagePath + "/" + shopId.charAt(0) + "/" + shopId;
     }
 
     private void writeFiles(final ImageFiles imageFiles, final String directoryPath,
-        final String shopId) throws IOException {
+        final String shopId) throws IOException, NullPointerException {
 
-        boolean isFirstFile = true;
-        int i = 1;
+        int fileOrder = FILE_ORDER_FIRST;
         for (MultipartFile imageFile : imageFiles.files()) {
-            File fileToBeStored;
-            if (isFirstFile) {
-                fileToBeStored = new File(directoryPath + "/" + shopId + "_thumbnail");
-                isFirstFile = false;
-            } else {
-                fileToBeStored = new File(directoryPath + "/" + shopId + "_" + i);
-            }
-            imageFile.transferTo(fileToBeStored);
-            i++;
+            writeFile(directoryPath, shopId, imageFile, fileOrder);
+            fileOrder++;
+        }
+    }
+
+    private void writeFile(final String directoryPath, final String shopId,
+        final MultipartFile imageFile, final int fileOrder) throws IOException {
+
+        File fileToBeStored;
+        if (fileOrder == FILE_ORDER_FIRST) {
+            fileToBeStored = new File(directoryPath + "/" + shopId + "_thumbnail");
+            createDataDirectoryIfNotExists(fileToBeStored);
+        } else {
+            fileToBeStored = new File(directoryPath + "/" + shopId + "_" + fileOrder);
+        }
+        FileCopyUtils.copy(imageFile.getInputStream(), new FileOutputStream(fileToBeStored));
+    }
+
+    private void createDataDirectoryIfNotExists(File fileToCreate) {
+        File parentDirectory = fileToCreate.getParentFile();
+        if (parentDirectory != null && !parentDirectory.exists()) {
+            parentDirectory.mkdirs();
         }
     }
 }
