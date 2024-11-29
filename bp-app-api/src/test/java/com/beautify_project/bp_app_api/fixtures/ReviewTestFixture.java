@@ -1,6 +1,7 @@
 package com.beautify_project.bp_app_api.fixtures;
 
 import com.beautify_project.bp_app_api.dto.common.ResponseMessage;
+import com.beautify_project.bp_app_api.entity.Review;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,11 +19,13 @@ public class ReviewTestFixture {
     public static ResponseMessage MOCKED_FIND_REVIEW_SUCCESS_RESPONSE;
     public static ResponseMessage MOCKED_FIND_REVIEW_LIST_SUCCESS_RESPONSE;
 
-    public static void createMockedEmptyResponseMessage() {
+    public static Review[] MOCKED_VALID_REVIEW_ENTITIES;
+
+    public static void initMockedEmptyResponseMessage() {
         MOCKED_EMPTY_RESPONSE_MESSAGE = ResponseMessage.createResponseMessage(new HashMap<>());
     }
 
-    public static void createMockedFindReviewSuccessResponse() {
+    public static void initMockedFindReviewSuccessResponse() {
         Map<String, Object> returnValue = new HashMap<>();
         returnValue.put("id", MOCKED_REVIEW_ID);
         returnValue.put("rate", "4.5");
@@ -41,7 +44,7 @@ public class ReviewTestFixture {
         MOCKED_FIND_REVIEW_SUCCESS_RESPONSE = ResponseMessage.createResponseMessage(returnValue);
     }
 
-    public static void createMockedFindReviewListSuccessResponse() {
+    public static void initMockedFindReviewListSuccessResponse() {
         List<Map<String, Object>> returnValue = new ArrayList<>();
 
         Map<String, Object> data1 = new HashMap<>();
@@ -78,6 +81,19 @@ public class ReviewTestFixture {
 
         MOCKED_FIND_REVIEW_LIST_SUCCESS_RESPONSE = ResponseMessage.createResponseMessage(
             returnValue);
+    }
+
+    public static void initMockedValidReviewEntitiesIfNotInitialized() {
+        if (CommonTestFixture.isInitialized(MOCKED_VALID_REVIEW_ENTITIES)) {
+            return;
+        }
+
+        MOCKED_VALID_REVIEW_ENTITIES = new Review[]{
+            Review.of("4", "깔끔한 시술이었습니다.", System.currentTimeMillis()),
+            Review.of("3", "편의시설이 좋았어요.", System.currentTimeMillis()),
+            Review.of("1", "최악입니다.", System.currentTimeMillis())
+        };
+
     }
 
 //    public static Stream<Arguments> invalidFindReviewListRequestProvider() {

@@ -54,8 +54,13 @@ public class ReviewController {
         @RequestParam(name = "order", required = false, defaultValue = "asc") final String order)
         throws RuntimeException {
         return reviewService.findReviewList(
-            FindReviewListRequestParameters.builder().shopId(shopId).sortBy(ReviewSortBy.from(sort))
-                .page(page).count(count).orderType(OrderType.from(order)).build());
+            FindReviewListRequestParameters.builder()
+                .shopId(shopId)
+                .sortBy(ReviewSortBy.from(sort))
+                .page(page)
+                .count(count)
+                .orderType(OrderType.from(order))
+                .build());
     }
 
     /**

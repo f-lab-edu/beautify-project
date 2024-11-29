@@ -33,19 +33,18 @@ class ReviewControllerTest {
 
     @BeforeAll
     public static void setUp() {
-        ReviewTestFixture.createMockedEmptyResponseMessage();
-        ReviewTestFixture.createMockedFindReviewSuccessResponse();
-        ReviewTestFixture.createMockedFindReviewListSuccessResponse();
+        ReviewTestFixture.initMockedEmptyResponseMessage();
+        ReviewTestFixture.initMockedFindReviewSuccessResponse();
+        ReviewTestFixture.initMockedFindReviewListSuccessResponse();
     }
 
     @Test
-    @DisplayName("Review 상세조회 요청 성공시 데이터가 없는 경우 returnValue 까지만 있는 형태로 응답한다.")
-    void given_normalRequest_when_emptyResult_then_returnEmptyObject() throws Exception {
+    @DisplayName("Review 상세조회 요청 성공시 ResponseMessage 를 응답받는다.")
+    void given_findReviewRequest_when_succeed_then_getResponseMessage() throws Exception {
         // given
         final String reviewId = ReviewTestFixture.MOCKED_REVIEW_ID;
 
-        when(reviewService.findReview(any(String.class))).thenReturn(
-            ReviewTestFixture.MOCKED_EMPTY_RESPONSE_MESSAGE);
+        when(reviewService.findReview(any(String.class))).thenCallRealMethod();
 
         // when
         ResultActions resultActions = mockMvc.perform(
@@ -56,7 +55,6 @@ class ReviewControllerTest {
         resultActions
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.returnValue").exists())
-            .andExpect(jsonPath("$.returnValue").isEmpty())
             .andDo(print());
     }
 
@@ -84,11 +82,10 @@ class ReviewControllerTest {
         throws Exception {
         // given
         final String requestShopId = ReviewTestFixture.MOCKED_SHOP_ID;
+        when(reviewService.findReviewList(
+            any(FindReviewListRequestParameters.class))).thenCallRealMethod();
 
         // when
-        when(reviewService.findReviewList(any(FindReviewListRequestParameters.class))).thenReturn(
-            ReviewTestFixture.MOCKED_FIND_REVIEW_LIST_SUCCESS_RESPONSE);
-
         ResultActions resultActions = mockMvc.perform(
             MockMvcRequestBuilders.get("/v1/reviews/shops/" + requestShopId)
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -137,26 +134,26 @@ class ReviewControllerTest {
             .andDo(print());
     }
 
-    @Test
-//    @ParameterizedTest
-    @DisplayName("Shop 에 속한 Review 리스트 조회 요청시 올바르지 않은 파라미터 값은 실패한다")
-    void given_c() throws Exception {
-        // given
-
-        // when
-
-        // then
-    }
-
-    @Test
-    @DisplayName("리뷰 삭제 요청 성공시 No Content 상태 코드로 응답이 나간다.")
-    void given_d() throws Exception {
-
-    }
-
-    @Test
-    @DisplayName("리뷰 삭제 요청 실패시 errorCode, errorMessage 를 담은 에러 응답을 받는다.")
-    void given_e() throws Exception {
-
-    }
+//    @Test
+////    @ParameterizedTest
+//    @DisplayName("Shop 에 속한 Review 리스트 조회 요청시 올바르지 않은 파라미터 값은 실패한다")
+//    void given_c() throws Exception {
+//        // given
+//
+//        // when
+//
+//        // then
+//    }
+//
+//    @Test
+//    @DisplayName("리뷰 삭제 요청 성공시 No Content 상태 코드로 응답이 나간다.")
+//    void given_d() throws Exception {
+//
+//    }
+//
+//    @Test
+//    @DisplayName("리뷰 삭제 요청 실패시 errorCode, errorMessage 를 담은 에러 응답을 받는다.")
+//    void given_e() throws Exception {
+//
+//    }
 }

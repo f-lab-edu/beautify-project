@@ -7,7 +7,7 @@ import java.util.List;
 import lombok.Builder;
 
 @Builder
-public record ShopFindResult(
+public record ShopListFindResult(
     String id,
     String name,
     @JsonInclude(Include.NON_NULL)
@@ -21,13 +21,12 @@ public record ShopFindResult(
     @JsonInclude(Include.NON_NULL)
     String introduction,
     @JsonInclude(Include.NON_NULL)
-    String thumbnail) {
+    String thumbnail
+) {
 
-
-
-    public static ShopFindResult createShopFindResult(final Shop shop, final String thumbnail) {
+    public static ShopListFindResult createShopListFindResult(final Shop shop, final String thumbnail) {
         // TODO: likePushed 는 사용자 정보까지 같이 포함해서 조회필요
-        return ShopFindResult.builder()
+        return ShopListFindResult.builder()
             .id(shop.getId())
             .name(shop.getName())
             .operations(shop.getShopOperations().stream()
@@ -35,10 +34,26 @@ public record ShopFindResult(
             .supportFacilities(shop.getShopFacilities().stream()
                 .map(shopFacility -> shopFacility.getFacility().getName()).toList())
             .rate(shop.getRate())
+            .url(shop.getUrl())
             .likes(shop.getLikes())
             .introduction(shop.getIntroduction())
             .url(shop.getUrl())
             .thumbnail(thumbnail)
             .build();
+    }
+
+    @Override
+    public String toString() {
+        return "ShopListFindResult{" +
+            "introduction='" + introduction + '\'' +
+            ", url='" + url + '\'' +
+            ", likePushed=" + likePushed +
+            ", likes=" + likes +
+            ", rate='" + rate + '\'' +
+            ", supportFacilities=" + supportFacilities +
+            ", operations=" + operations +
+            ", name='" + name + '\'' +
+            ", id='" + id + '\'' +
+            '}';
     }
 }

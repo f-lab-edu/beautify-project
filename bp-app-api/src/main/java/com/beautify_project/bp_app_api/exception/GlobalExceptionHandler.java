@@ -3,6 +3,7 @@ package com.beautify_project.bp_app_api.exception;
 import com.beautify_project.bp_app_api.dto.common.ErrorCode;
 import com.beautify_project.bp_app_api.dto.common.ErrorResponseMessage;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -116,6 +117,29 @@ public class GlobalExceptionHandler {
         log.error("", exception);
         return createErrorResponseMessage(MSG_FORMAT_PARAMETER_OUT_OF_RANGE,
             exception.getParameterName(), ErrorCode.BR001);
+    }
+
+    @ExceptionHandler(FileStoreException.class)
+    @ResponseStatus(code = HttpStatus.INTERNAL_SERVER_ERROR)
+    private ErrorResponseMessage handleFileStoreException(final FileStoreException exception) {
+        log.error("", exception);
+        return ErrorResponseMessage.createErrorMessage(ErrorCode.IS001);
+    }
+
+    @ExceptionHandler(EmptyResultDataAccessException.class)
+    @ResponseStatus(code = HttpStatus.NOT_FOUND)
+    private ErrorResponseMessage handleEmptyResultDataAccessException(
+        final EmptyResultDataAccessException exception) {
+        log.error("", exception);
+        return ErrorResponseMessage.createErrorMessage(ErrorCode.NF002);
+    }
+
+    @ExceptionHandler(NotRegisteredReviewException.class)
+    @ResponseStatus(code = HttpStatus.NOT_FOUND)
+    private ErrorResponseMessage handleNotRegisteredReviewException(
+        final NotRegisteredReviewException exception) {
+        log.error("", exception);
+        return ErrorResponseMessage.createErrorMessage(ErrorCode.RV001);
     }
 
     private static ErrorResponseMessage createErrorResponseMessage(
