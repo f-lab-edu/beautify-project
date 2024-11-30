@@ -8,6 +8,7 @@ import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationResult;
 import com.beautify_project.bp_app_api.entity.Facility;
 import com.beautify_project.bp_app_api.entity.Operation;
 import com.beautify_project.bp_app_api.entity.Shop;
+import com.beautify_project.bp_app_api.exception.UnableToRegisterException;
 import com.beautify_project.bp_app_api.repository.ShopRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,7 @@ public class ShopService {
 
     @Transactional(rollbackFor = Exception.class)
     public ResponseMessage registerShop(final ShopRegistrationRequest shopRegistrationRequest)
-        throws Exception {
+        throws UnableToRegisterException {
 
         long registerTime = System.currentTimeMillis();
 

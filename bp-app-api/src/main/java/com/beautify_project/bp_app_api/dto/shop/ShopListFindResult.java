@@ -15,9 +15,7 @@ public record ShopListFindResult(
     List<String> facilities,
     String rate,
     Integer likes,
-    Boolean likePushed,
-    @JsonInclude(Include.NON_NULL)
-    String introduction
+    Boolean likePushed
 ) {
 
     public static ShopListFindResult from(final Shop shop) {
@@ -29,8 +27,7 @@ public record ShopListFindResult(
                 .map(shopFacility -> shopFacility.getFacility().getName()).toList(),
             shop.getRate(),
             shop.getLikes(),
-            null, // TODO: 사용자 엔티티 구현 후 세팅 추가 필요
-            shop.getIntroduction());
+            null); // TODO: 사용자 엔티티 구현 후 세팅 추가 필요
     }
 
     @Override
@@ -42,8 +39,7 @@ public record ShopListFindResult(
             ", facilities=" + facilities.stream().map(Object::toString).collect(Collectors.joining(", ")) +
             ", rate='" + rate + '\'' +
             ", likes=" + likes +
-            ", likePushed=" + likePushed +
-            ", introduction='" + introduction + '\'' +
+            ", likePushed=" + likePushed + '\'' +
             '}';
     }
 }

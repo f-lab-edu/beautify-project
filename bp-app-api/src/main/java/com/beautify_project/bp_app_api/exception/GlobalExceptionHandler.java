@@ -5,6 +5,7 @@ import com.beautify_project.bp_app_api.dto.common.ErrorResponseMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -49,20 +50,14 @@ public class GlobalExceptionHandler {
         return fields.toString();
     }
 
-    /**
-     * '@RequestPart required = true' 인 파라미터에 아무런 값이 들어오지 않을 때
-     *
-     * @param exception MissingServletRequestPartException
-     */
-    @ExceptionHandler(MissingServletRequestPartException.class)
+    @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    private ErrorResponseMessage handleMissingServletRequestPartException(
-        final MissingServletRequestPartException exception) {
+    private ErrorResponseMessage handleHttpMessageNotReadableException(
+        final HttpMessageNotReadableException exception) {
 
         log.error("", exception);
 
-        return createErrorResponseMessage(MSG_FORMAT_MISSING_PARAMETER,
-            exception.getRequestPartName(), ErrorCode.BR002);
+        return ErrorResponseMessage.createErrorMessage(ErrorCode.BR002);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
