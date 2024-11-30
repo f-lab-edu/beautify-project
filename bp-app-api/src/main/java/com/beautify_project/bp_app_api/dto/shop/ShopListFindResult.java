@@ -4,56 +4,46 @@ import com.beautify_project.bp_app_api.entity.Shop;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import java.util.List;
-import lombok.Builder;
+import java.util.stream.Collectors;
 
-@Builder
 public record ShopListFindResult(
     String id,
     String name,
     @JsonInclude(Include.NON_NULL)
     List<String> operations,
     @JsonInclude(Include.NON_NULL)
-    List<String> supportFacilities,
+    List<String> facilities,
     String rate,
     Integer likes,
     Boolean likePushed,
-    String url,
     @JsonInclude(Include.NON_NULL)
-    String introduction,
-    @JsonInclude(Include.NON_NULL)
-    String thumbnail
+    String introduction
 ) {
 
-    public static ShopListFindResult createShopListFindResult(final Shop shop, final String thumbnail) {
-        // TODO: likePushed 는 사용자 정보까지 같이 포함해서 조회필요
-        return ShopListFindResult.builder()
-            .id(shop.getId())
-            .name(shop.getName())
-            .operations(shop.getShopOperations().stream()
-                .map(shopOperation -> shopOperation.getOperation().getName()).toList())
-            .supportFacilities(shop.getShopFacilities().stream()
-                .map(shopFacility -> shopFacility.getFacility().getName()).toList())
-            .rate(shop.getRate())
-            .url(shop.getUrl())
-            .likes(shop.getLikes())
-            .introduction(shop.getIntroduction())
-            .url(shop.getUrl())
-            .thumbnail(thumbnail)
-            .build();
+    public static ShopListFindResult from(final Shop shop) {
+        return new ShopListFindResult(shop.getId(),
+            shop.getName(),
+            shop.getShopOperations().stream()
+                .map(shopOperation -> shopOperation.getOperation().getName()).toList(),
+            shop.getShopFacilities().stream()
+                .map(shopFacility -> shopFacility.getFacility().getName()).toList(),
+            shop.getRate(),
+            shop.getLikes(),
+            null, // TODO: 사용자 엔티티 구현 후 세팅 추가 필요
+            shop.getIntroduction());
     }
 
     @Override
     public String toString() {
-        return "ShopListFindResult{" +
-            "introduction='" + introduction + '\'' +
-            ", url='" + url + '\'' +
-            ", likePushed=" + likePushed +
-            ", likes=" + likes +
-            ", rate='" + rate + '\'' +
-            ", supportFacilities=" + supportFacilities +
-            ", operations=" + operations +
+        return "ShopFindResult{" +
+            "id='" + id + '\'' +
             ", name='" + name + '\'' +
-            ", id='" + id + '\'' +
+            ", operations=" + operations.stream().map(Object::toString).collect(Collectors.joining(", ")) +
+            ", facilities=" + facilities.stream().map(Object::toString).collect(Collectors.joining(", ")) +
+            ", rate='" + rate + '\'' +
+            ", likes=" + likes +
+            ", likePushed=" + likePushed +
+            ", introduction='" + introduction + '\'' +
             '}';
     }
 }

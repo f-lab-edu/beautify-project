@@ -60,33 +60,29 @@ public class Shop implements Persistable<String> {
     private Long objectCreated;
 
     @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "dongCode", column = @Column(name = "shop_dong_code")),
-        @AttributeOverride(name = "siDoName", column = @Column(name = "shop_si_do_name")),
-        @AttributeOverride(name = "siGoonGooName", column = @Column(name = "shop_si_goon_goo_name")),
-        @AttributeOverride(name = "eubMyunDongName", column = @Column(name = "shop_eub_myun_dong_name")),
-        @AttributeOverride(name = "roadNameCode", column = @Column(name = "shop_road_name_code")),
-        @AttributeOverride(name = "roadName", column = @Column(name = "shop_road_name")),
-        @AttributeOverride(name = "underGround", column = @Column(name = "shop_under_ground")),
-        @AttributeOverride(name = "roadMainNum", column = @Column(name = "shop_road_main_num")),
-        @AttributeOverride(name = "roadSubNum", column = @Column(name = "shop_road_sub_num")),
-        @AttributeOverride(name = "siGoonGooBuildingName", column = @Column(name = "shop_si_goon_goo_building_name")),
-        @AttributeOverride(name = "zipCode", column = @Column(name = "shop_zip_code")),
-        @AttributeOverride(name = "apartComplex", column = @Column(name = "shop_apart_complex")),
-        @AttributeOverride(name = "eubMyunDongSerialNumber", column = @Column(name = "shop_eub_myun_dong_serial_number")),
-        @AttributeOverride(name = "latitude", column = @Column(name = "shop_latitude")),
-        @AttributeOverride(name = "longitude", column = @Column(name = "shop_longitude"))
-    })
+    @AttributeOverride(name = "dongCode", column = @Column(name = "shop_dong_code"))
+    @AttributeOverride(name = "siDoName", column = @Column(name = "shop_si_do_name"))
+    @AttributeOverride(name = "siGoonGooName", column = @Column(name = "shop_si_goon_goo_name"))
+    @AttributeOverride(name = "eubMyunDongName", column = @Column(name = "shop_eub_myun_dong_name"))
+    @AttributeOverride(name = "roadNameCode", column = @Column(name = "shop_road_name_code"))
+    @AttributeOverride(name = "roadName", column = @Column(name = "shop_road_name"))
+    @AttributeOverride(name = "underGround", column = @Column(name = "shop_under_ground"))
+    @AttributeOverride(name = "roadMainNum", column = @Column(name = "shop_road_main_num"))
+    @AttributeOverride(name = "roadSubNum", column = @Column(name = "shop_road_sub_num"))
+    @AttributeOverride(name = "siGoonGooBuildingName", column = @Column(name = "shop_si_goon_goo_building_name"))
+    @AttributeOverride(name = "zipCode", column = @Column(name = "shop_zip_code"))
+    @AttributeOverride(name = "apartComplex", column = @Column(name = "shop_apart_complex"))
+    @AttributeOverride(name = "eubMyunDongSerialNumber", column = @Column(name = "shop_eub_myun_dong_serial_number"))
+    @AttributeOverride(name = "latitude", column = @Column(name = "shop_latitude"))
+    @AttributeOverride(name = "longitude", column = @Column(name = "shop_longitude"))
     private Address shopAddress;
 
     @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "openTime", column = @Column(name = "shop_open_time")),
-        @AttributeOverride(name = "closeTime", column = @Column(name = "shop_close_time")),
-        @AttributeOverride(name = "breakBeginTime", column = @Column(name = "shop_break_begin_time")),
-        @AttributeOverride(name = "breakEndTime", column = @Column(name = "shop_break_end_time")),
-        @AttributeOverride(name = "offDayOfWeek", column = @Column(name = "shop_off_day_of_week")),
-    })
+    @AttributeOverride(name = "openTime", column = @Column(name = "shop_open_time"))
+    @AttributeOverride(name = "closeTime", column = @Column(name = "shop_close_time"))
+    @AttributeOverride(name = "breakBeginTime", column = @Column(name = "shop_break_begin_time"))
+    @AttributeOverride(name = "breakEndTime", column = @Column(name = "shop_break_end_time"))
+    @AttributeOverride(name = "offDayOfWeek", column = @Column(name = "shop_off_day_of_week"))
     private BusinessTime businessTime;
 
     @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)

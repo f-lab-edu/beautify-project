@@ -11,16 +11,12 @@ public record ShopRegistrationRequest(
     @NotNull @Size(max = 13) String contact,
     String url,
     @Size(max = 2048) String introduction,
-    List<IdName> operations,
-    List<IdName> categories,
-    List<IdName> supportFacilities,
+    List<String> operationIds,
+    List<String> facilityIds,
+    List<String> imageUrls,
     BusinessTime businessTime,
     Address address) {
 
-
-    public record IdName (
-        @Size(max = 64) String id,
-        @Size(max = 128) String name) { }
 
     public record BusinessTime (
         LocalTime openTime,
@@ -28,7 +24,6 @@ public record ShopRegistrationRequest(
         LocalTime breakBeginTime,
         LocalTime breakEndTime,
         List<String> offDayOfWeek){
-
     }
 
     public record Address (

@@ -11,14 +11,14 @@ public record ShopDetailFindResult(
     String url,
     String introduction,
     String likePushed,
-    List<String> operations,
-    BusinessTime businessTime,
-    Address address,
-    List<String> categories,
-    List<String> supportFacilities,
     String rate,
     Integer likes,
-    List<String> images
+    List<String> operations,
+    List<String> categories,
+    List<String> supportFacilities,
+    BusinessTime businessTime,
+    Address address,
+    List<String> imageUrls
 ) {
 
 }
