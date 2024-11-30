@@ -12,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,15 +26,14 @@ public class ShopController {
      */
     @PostMapping("/v1/shops")
     @ResponseStatus(code = HttpStatus.OK)
-    ResponseMessage registerShop(
-        @Valid @RequestPart(value = "shopRegistrationInfo") final ShopRegistrationRequest shopRegistrationRequest)
+    ResponseMessage registerShop(@Valid final ShopRegistrationRequest shopRegistrationRequest)
         throws Exception {
 
         return shopService.registerShop(shopRegistrationRequest);
     }
 
     /**
-     *  Shop 리스트 조회
+     * Shop 리스트 조회
      */
     @GetMapping("/v1/shops")
     @ResponseStatus(code = HttpStatus.OK)
