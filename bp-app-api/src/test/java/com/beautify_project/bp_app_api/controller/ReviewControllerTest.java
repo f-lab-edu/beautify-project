@@ -6,10 +6,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.beautify_project.bp_app_api.dto.common.ErrorCode;
+import com.beautify_project.bp_app_api.dto.common.ResponseMessage;
 import com.beautify_project.bp_app_api.dto.review.FindReviewListRequestParameters;
-import com.beautify_project.bp_app_api.fixtures.ReviewTestFixture;
+import com.beautify_project.bp_app_api.dto.review.ReviewFindResult;
+import com.beautify_project.bp_app_api.dto.review.ReviewListFindResult;
+import com.beautify_project.bp_app_api.exception.NotFoundException;
 import com.beautify_project.bp_app_api.service.ReviewService;
-import org.junit.jupiter.api.BeforeAll;
+import com.beautify_project.bp_app_api.utils.UUIDGenerator;
+import java.util.Arrays;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -31,30 +37,41 @@ class ReviewControllerTest {
     @MockBean
     private ReviewService reviewService;
 
-    @BeforeAll
-    public static void setUp() {
-        ReviewTestFixture.initMockedEmptyResponseMessage();
-        ReviewTestFixture.initMockedFindReviewSuccessResponse();
-        ReviewTestFixture.initMockedFindReviewListSuccessResponse();
-    }
-
     @Test
-    @DisplayName("Review 상세조회 요청 성공시 ResponseMessage 를 응답받는다.")
-    void given_findReviewRequest_when_succeed_then_getResponseMessage() throws Exception {
+    @DisplayName("Review 상세조회 요청 성공시 FindReviewResult 를 wrapping 한 ResponseMessage 객체를 응답받는다.")
+    void given_findReviewRequest_when_succeed_then_getResponseMessageWrappingFindReviewListInShop()
+        throws Exception {
         // given
-        final String reviewId = ReviewTestFixture.MOCKED_REVIEW_ID;
+        final String mockedReviewId = UUIDGenerator.generate();
+        final ReviewFindResult mockedReviewFindResult = new ReviewFindResult(mockedReviewId, "4.5",
+            "리뷰 내용", 1730437200000L,
+            "dev.sssukho@gmail.com", "임석호", UUIDGenerator.generate(), "시술1",
+            UUIDGenerator.generate(), "미용시술소1", UUIDGenerator.generate(), 1730437200000L);
 
-        when(reviewService.findReview(any(String.class))).thenCallRealMethod();
+        when(reviewService.findReview(any(String.class))).thenReturn(
+            ResponseMessage.createResponseMessage(mockedReviewFindResult));
 
         // when
         ResultActions resultActions = mockMvc.perform(
-            MockMvcRequestBuilders.get("/v1/reviews/" + reviewId).contentType(
+            MockMvcRequestBuilders.get("/v1/reviews/" + mockedReviewId).contentType(
                 MediaType.APPLICATION_FORM_URLENCODED));
 
         // then
         resultActions
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.returnValue").exists())
+            .andExpect(jsonPath("$.returnValue.id").exists())
+            .andExpect(jsonPath("$.returnValue.rate").exists())
+            .andExpect(jsonPath("$.returnValue.content").exists())
+            .andExpect(jsonPath("$.returnValue.reviewRegisteredDate").exists())
+            .andExpect(jsonPath("$.returnValue.memberEmail").exists())
+            .andExpect(jsonPath("$.returnValue.memberName").exists())
+            .andExpect(jsonPath("$.returnValue.operationId").exists())
+            .andExpect(jsonPath("$.returnValue.operationName").exists())
+            .andExpect(jsonPath("$.returnValue.shopId").exists())
+            .andExpect(jsonPath("$.returnValue.shopName").exists())
+            .andExpect(jsonPath("$.returnValue.reservationId").exists())
+            .andExpect(jsonPath("$.returnValue.reservationDate").exists())
             .andDo(print());
     }
 
@@ -62,8 +79,17 @@ class ReviewControllerTest {
     @ParameterizedTest
     @ValueSource(strings = {"", " ", "   "})
     @DisplayName("Review 상세조회 요청시 ReviewId 값이 empty string 인 경우 errorCode, errorMessage 를 담은 에러 응답을 받는다.")
-    void given_requestWithNullOrEmptyStringReviewId_then_responseIncludingErrorCodeAndErrorMessageWith4xxHttpStatusCode(
+    void given_findReviewRequestWithNullOrEmptyStringReviewId_when_failed_then_getErrorResponseMessage(
         final String reviewId) throws Exception {
+        // given
+        final ReviewFindResult mockedReviewFindResult = new ReviewFindResult(reviewId, "4.5",
+            "리뷰 내용", 1730437200000L,
+            "dev.sssukho@gmail.com", "임석호", UUIDGenerator.generate(), "시술1",
+            UUIDGenerator.generate(), "미용시술소1", UUIDGenerator.generate(), 1730437200000L);
+
+        when(reviewService.findReview(any(String.class))).thenReturn(
+            ResponseMessage.createResponseMessage(mockedReviewFindResult));
+
         // when
         ResultActions resultActions = mockMvc.perform(
             MockMvcRequestBuilders.get("/v1/reviews/" + reviewId)
@@ -77,17 +103,25 @@ class ReviewControllerTest {
     }
 
     @Test
-    @DisplayName("Shop 에 속한 Review 리스트 조회 요청 성공시 returnValue 객체 안에 id, rate, member, operation 등의 정보가 list 안에 포함하여 응답한다.")
-    void given_normalRequest_when_hasResult_then_responseIncludingIdAndRateAndContentAndMemberAndOperationInList()
+    @DisplayName("Shop 에 속한 Review 리스트 조회 요청 성공시 FindReviewListResult 를 wrapping 한 ResponseMessage 객체를 응답받는다.")
+    void given_findReviewList_when_succeed_then_getResponseMessageWrappingFindReviewListInShopResult()
         throws Exception {
         // given
-        final String requestShopId = ReviewTestFixture.MOCKED_SHOP_ID;
-        when(reviewService.findReviewList(
-            any(FindReviewListRequestParameters.class))).thenCallRealMethod();
+        final String mockedShopId = UUIDGenerator.generate();
+
+        List<ReviewListFindResult> reviewListFindResults = Arrays.asList(
+            new ReviewListFindResult(UUIDGenerator.generate(), "4.0", 1730437200000L, "임석호1", "시술1",
+                1730437200000L),
+            new ReviewListFindResult(UUIDGenerator.generate(), "4.5", 1733042452808L, "임석호2", "시술2",
+                1733042452808L)
+        );
+
+        when(reviewService.findReviewListInShop(any(FindReviewListRequestParameters.class))).thenReturn(
+            ResponseMessage.createResponseMessage(reviewListFindResults));
 
         // when
         ResultActions resultActions = mockMvc.perform(
-            MockMvcRequestBuilders.get("/v1/reviews/shops/" + requestShopId)
+            MockMvcRequestBuilders.get("/v1/reviews/shops/" + mockedShopId)
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .param("sort", "registeredDate")
                 .param("page", "0")
@@ -101,26 +135,34 @@ class ReviewControllerTest {
             .andExpect(jsonPath("$.returnValue").exists())
             .andExpect(jsonPath("$.returnValue[0].id").exists())
             .andExpect(jsonPath("$.returnValue[0].rate").exists())
-            .andExpect(jsonPath("$.returnValue[0].member").exists())
-            .andExpect(jsonPath("$.returnValue[0].operation").exists())
+            .andExpect(jsonPath("$.returnValue[0].registeredDate").exists())
+            .andExpect(jsonPath("$.returnValue[0].memberName").exists())
+            .andExpect(jsonPath("$.returnValue[0].operationName").exists())
+            .andExpect(jsonPath("$.returnValue[0].reservationDate").exists())
             .andExpect(jsonPath("$.returnValue[1].id").exists())
             .andExpect(jsonPath("$.returnValue[1].rate").exists())
-            .andExpect(jsonPath("$.returnValue[1].member").exists())
-            .andExpect(jsonPath("$.returnValue[1].operation").exists())
+            .andExpect(jsonPath("$.returnValue[1].registeredDate").exists())
+            .andExpect(jsonPath("$.returnValue[1].memberName").exists())
+            .andExpect(jsonPath("$.returnValue[1].operationName").exists())
+            .andExpect(jsonPath("$.returnValue[1].reservationDate").exists())
             .andDo(print());
     }
 
     @Test
     @DisplayName("Shop 에 속한 Review 리스트 조회 요청 실패시 errorCode, errorMessage 를 담은 에러 응답을 받는다.")
-    void given_abnormalRequest_when_failed_then_getErrorCodeAndErrorMessage() throws Exception {
+    void given_findReviewList_InShop_when_failed_then_getErrorMessage() throws Exception {
         // given
-        final String requestShopId = ReviewTestFixture.MOCKED_SHOP_ID;
+        final String mockedShopId = UUIDGenerator.generate();
+
+        when(reviewService.findReviewListInShop(any(FindReviewListRequestParameters.class))).thenThrow(
+            new NotFoundException(
+                ErrorCode.SH001));
 
         // when
         ResultActions resultActions = mockMvc.perform(
-            MockMvcRequestBuilders.get("/v1/reviews/shops/" + requestShopId)
+            MockMvcRequestBuilders.get("/v1/reviews/shops/" + mockedShopId)
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .param("sort", "registeredDat")
+                .param("sort", "registeredDate")
                 .param("page", "0")
                 .param("count", "10")
                 .param("order", "asc")
@@ -130,30 +172,6 @@ class ReviewControllerTest {
         resultActions
             .andExpect(status().is4xxClientError())
             .andExpect(jsonPath("$.errorCode").exists())
-            .andExpect(jsonPath("$.errorMessage").exists())
-            .andDo(print());
+            .andExpect(jsonPath("$.errorMessage").exists());
     }
-
-//    @Test
-////    @ParameterizedTest
-//    @DisplayName("Shop 에 속한 Review 리스트 조회 요청시 올바르지 않은 파라미터 값은 실패한다")
-//    void given_c() throws Exception {
-//        // given
-//
-//        // when
-//
-//        // then
-//    }
-//
-//    @Test
-//    @DisplayName("리뷰 삭제 요청 성공시 No Content 상태 코드로 응답이 나간다.")
-//    void given_d() throws Exception {
-//
-//    }
-//
-//    @Test
-//    @DisplayName("리뷰 삭제 요청 실패시 errorCode, errorMessage 를 담은 에러 응답을 받는다.")
-//    void given_e() throws Exception {
-//
-//    }
 }

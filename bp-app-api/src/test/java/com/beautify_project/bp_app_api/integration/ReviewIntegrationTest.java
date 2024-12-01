@@ -66,7 +66,7 @@
 //        throws Exception {
 //        // given
 //        final String shopId = ShopTestFixture.MOCKED_REGISTER_SUCCESS_RETURNED_SHOP_ID;
-//        final String sort = "registeredDate";
+//        final String sort = "reviewRegisteredDate";
 //        final String page = "0";
 //        final String count = "10";
 //        final String order = "asc";

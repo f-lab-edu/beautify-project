@@ -3,10 +3,7 @@ package com.beautify_project.bp_app_api.dto.review;
 import com.beautify_project.bp_app_api.enumeration.OrderType;
 import com.beautify_project.bp_app_api.enumeration.ReviewSortBy;
 import com.beautify_project.bp_app_api.exception.ParameterOutOfRangeException;
-import lombok.Builder;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 
-@Builder
 public record FindReviewListRequestParameters(
     String shopId,
     ReviewSortBy sortBy,
