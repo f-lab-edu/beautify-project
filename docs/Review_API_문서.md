@@ -140,32 +140,24 @@ Content-Type: application/json
     {
       "id": "bd1cc4f9",
       "rate": "4.5",
-      "member": {
-        "id": "sssukho",
-        "name": "임석호"
-      },
-      "operation": {
-        "id": "d939f8ed",
-        "name": "두피문신",
-        "date": 1730437200000
-      }
+      "registeredDate": 1733068830463, 
+      "memberName": "임석호",
+      "operationName": "두피문신",
+      "resservationDate": 1733068830463
     },
     ...
   ]
 }
 ```
 
-| 필드명         | 데이터 타입     | 설명                |
-| -------------- | --------------- | ------------------- |
-| id             | String          | 리뷰 아이디         |
-| rate           | String          | 평점                |
-| member         | JSON            | 리뷰 남긴 회원 정보 |
-| member.id      | String          | 회원 아이디         |
-| member.name    | String          | 회원 이름           |
-| operation      | JSON            | 시술 정보           |
-| operation.id   | String          | 시술 아이디         |
-| operation.name | String          | 시술명              |
-| operation.date | Long(unix time) | 시술 받은 날짜      |
+| 필드명            | 데이터 타입          | 설명       |
+|----------------|-----------------|----------|
+| id             | String          | 리뷰 아이디   |
+| rate           | String          | 평점       |
+| registeredDate | Long(unix time) | 리뷰 등록일자  |
+| memberName     | String          | 회원 이름    |
+| operationName  | String          | 시술명      |
+| 예약날짜(=시술받은 날짜) | Long(unix time) | 시술 받은 날짜 |
 
 - 에러 응답은 [5. 에러](#5-에러) 참고
 
@@ -215,31 +207,31 @@ Content-Type: application/json
     "id": "bd1cc4f9",
     "rate": "4.5",
     "content": "깔끔하게 잘 해주셨습니다.",
-    "member": {
-      "id": "sssukho",
-      "name": "임석호"
-    },
-    "operation": {
-      "id": "d939f8ed",
-      "name": "두피문신",
-      "date": 1730437200000
-    }
+    "reviewRegisteredDate": 1733068830463,
+    "memberEmail": "dev.sssukho@gmail.com",
+    "memberName": "임석호",
+    "operationId": "3e1147ae",
+    "operationName": "두피문신",
+    "shopId": "ff9f4621",
+    "shopName": "미용시술소1",
+    "reservationDate": 1733068830463 
   }
 }
 ```
 
-| 필드명         | 데이터 타입     | 설명                |
-| -------------- | --------------- | ------------------- |
-| id             | String          | 리뷰 아이디         |
-| rate           | String          | 평점                |
-| content        | String          | 리뷰 내용           |
-| member         | JSON            | 리뷰 남긴 회원 정보 |
-| member.id      | String          | 회원 아이디         |
-| member.name    | String          | 회원 이름           |
-| operation      | JSON            | 시술 정보           |
-| operation.id   | String          | 시술 아이디         |
-| operation.name | String          | 시술명              |
-| operation.date | Long(unix time) | 시술 받은 날짜      |
+| 필드명                  | 데이터 타입          | 설명          |
+|----------------------|-----------------|-------------|
+| id                   | String          | 리뷰 아이디      |
+| rate                 | String          | 평점          |
+| content              | String          | 리뷰 내용       |
+| reviewRegisteredDate | Long(unix time) | 리뷰 등록일자     |
+| memberEmail          | String          | 회원 이메일(아이디) |
+| memberName           | String          | 회원 이름       |
+| operationId          | String          | 시술 아이디      |
+| operationName        | String          | 시술명         |
+| shopId               | String          | 샵 아이디       |
+| shopName             | String          | 샵 이름        |
+| reservationDate      | Long(unix time) | 시술 받은 날짜    |
 
 - 에러 응답은 [5. 에러](#5-에러) 참고
 
