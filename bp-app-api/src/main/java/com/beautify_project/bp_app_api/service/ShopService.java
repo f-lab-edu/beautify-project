@@ -1,6 +1,6 @@
 package com.beautify_project.bp_app_api.service;
 
-import com.beautify_project.bp_app_api.dto.common.ErrorCode;
+import com.beautify_project.bp_app_api.dto.common.ErrorResponseMessage.ErrorCode;
 import com.beautify_project.bp_app_api.dto.common.ResponseMessage;
 import com.beautify_project.bp_app_api.dto.shop.ShopListFindRequestParameters;
 import com.beautify_project.bp_app_api.dto.shop.ShopListFindResult;

@@ -1,6 +1,6 @@
 package com.beautify_project.bp_app_api.service;
 
-import com.beautify_project.bp_app_api.dto.common.ErrorCode;
+import com.beautify_project.bp_app_api.dto.common.ErrorResponseMessage.ErrorCode;
 import com.beautify_project.bp_app_api.entity.Member;
 import com.beautify_project.bp_app_api.exception.NotFoundException;
 import com.beautify_project.bp_app_api.repository.MemberRepository;
