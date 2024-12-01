@@ -12,8 +12,6 @@ import com.beautify_project.bp_app_api.entity.Review;
 import com.beautify_project.bp_app_api.entity.Shop;
 import com.beautify_project.bp_app_api.exception.NotFoundException;
 import com.beautify_project.bp_app_api.repository.ReviewRepository;
-import com.beautify_project.bp_app_api.utils.UUIDGenerator;
-import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -74,21 +72,5 @@ public class ReviewService {
     @Transactional
     public void deleteReview(final String reviewId) {
         reviewRepository.deleteById(reviewId);
-    }
-
-    private ReviewFindResult createFindReviewDummySuccessResponseBody() {
-
-        return new ReviewFindResult(UUIDGenerator.generate(), "4.5", "리뷰 내용", 1730437200000L,
-            "dev.sssukho@gmail.com", "임석호", UUIDGenerator.generate(), "시술1",
-            UUIDGenerator.generate(), "미용시술소1", UUIDGenerator.generate(), 1730437200000L);
-    }
-
-    private List<ReviewFindResult> createFindReviewListDummySuccessResponseBody() {
-        return Arrays.asList(
-            createFindReviewDummySuccessResponseBody(),
-            new ReviewFindResult(UUIDGenerator.generate(), "4.0", "리뷰 내용2", 1733042452808L,
-                "dev.ssukho2@gmail.com", "임석호2", UUIDGenerator.generate(), "시술2",
-                UUIDGenerator.generate(), "미용시술소2", UUIDGenerator.generate(), 1733042452808L)
-        );
     }
 }
