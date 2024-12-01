@@ -10,6 +10,7 @@ import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -34,6 +35,7 @@ public class Operation {
     @OneToMany(mappedBy = "operation", cascade = CascadeType.ALL)
     private final List<OperationCategory> operationCategories = new ArrayList<>();
 
+    @Builder
     private Operation(final String name, final String description, final Long registered) {
         this.id = UUIDGenerator.generate();
         this.name = name;
@@ -41,7 +43,7 @@ public class Operation {
         this.registered = registered;
     }
 
-    public static Operation createOperation(final String name, final String description,
+    public static Operation of(final String name, final String description,
         final Long registered, List<Category> categories) {
         Operation newOperation = new Operation(name, description, registered);
         for (Category category : categories) {

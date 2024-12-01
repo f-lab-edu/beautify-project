@@ -5,7 +5,9 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -17,6 +19,7 @@ public class Review {
 
     @Id
     @Column(name = "review_id")
+    @NotNull
     private String id;
 
     @Column(name = "review_rate")
@@ -25,16 +28,36 @@ public class Review {
     @Column(name = "review_content")
     private String content;
 
+    @Column(name = "review_registered")
     private Long registered;
 
-    private Review(final String rate, final String content, final Long registered) {
+    @Column(name = "member_email")
+    @NotNull
+    private String memberEmail;
+
+    @Column(name = "operation_id")
+    @NotNull
+    private String operationId;
+
+    @Column(name = "shop_id")
+    @NotNull
+    private String shopId;
+
+    @Column(name = "reservation_id")
+    @NotNull
+    private String reservationId;
+
+    @Builder
+    private Review(final String rate, final String content, final Long registered,
+        final String memberEmail,
+        final String operationId, final String shopId, final String reservationId) {
         this.id = UUIDGenerator.generate();
         this.rate = rate;
         this.content = content;
         this.registered = registered;
-    }
-
-    public static Review of(final String rate, final String content, final Long registered) {
-        return new Review(rate, content, registered);
+        this.memberEmail = memberEmail;
+        this.operationId = operationId;
+        this.shopId = shopId;
+        this.reservationId = reservationId;
     }
 }

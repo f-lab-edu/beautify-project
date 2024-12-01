@@ -5,7 +5,6 @@ import com.beautify_project.bp_app_api.entity.embedded.Address;
 import com.beautify_project.bp_app_api.entity.embedded.BusinessTime;
 import com.beautify_project.bp_app_api.utils.UUIDGenerator;
 import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -159,6 +158,9 @@ public class Shop implements Persistable<String> {
 
     private static void addAllOperationsToShopOperations(final List<Operation> operations, final Shop shop,
         final long registeredTime) {
+        if (operations == null || operations.isEmpty()) {
+            return;
+        }
         for (Operation operation : operations) {
             shop.addOperations(ShopOperation.of(shop, operation, registeredTime));
         }
@@ -166,6 +168,9 @@ public class Shop implements Persistable<String> {
 
     private static void addAllFacilitiesToShopFacilities(final List<Facility> facilities, final Shop shop,
         final long registeredTime) {
+        if (facilities == null || facilities.isEmpty()) {
+            return;
+        }
         for (Facility facility : facilities) {
             shop.addSupportFacilities(ShopFacility.of(shop, facility, registeredTime));
         }
