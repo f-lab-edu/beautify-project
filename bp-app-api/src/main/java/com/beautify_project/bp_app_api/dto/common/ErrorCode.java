@@ -17,10 +17,16 @@ public enum ErrorCode {
     NF001(HttpStatus.NOT_FOUND, "NF001", "요청 URL이 잘못되었습니다."),
     NF002(HttpStatus.NOT_FOUND, "NF002", "등록되지 않은 리소스 입니다."),
 
-    SH001(HttpStatus.NOT_FOUND, "SH001", "등록되지 않은 미용 시술소입니다."),
-    SH002(HttpStatus.INTERNAL_SERVER_ERROR, "SH002", "Shop 등록에 실패했습니다."),
+    SH001(HttpStatus.NOT_FOUND, "SH001", "등록되지 않은 샵 입니다."),
+    SH002(HttpStatus.INTERNAL_SERVER_ERROR, "SH002", "샵 등록에 실패했습니다."),
 
-    RV001(HttpStatus.NOT_FOUND, "RV001", "등록되지 않은 리뷰입니다."),
+    RE001(HttpStatus.NOT_FOUND, "RE001", "등록되지 않은 리뷰입니다."),
+
+    OP001(HttpStatus.NOT_FOUND, "OP001", "등록되지 않은 시술입니다."),
+
+    ME001(HttpStatus.NOT_FOUND, "ME001", "등록되지 않은 회원입니다."),
+
+    RS001(HttpStatus.NOT_FOUND, "RS001", "등록되지 않은 예약입니다."),
 
     IS001(HttpStatus.INTERNAL_SERVER_ERROR, "IS001", "시스템 에러가 발생하였습니다. 관리자에게 문의해주세요.")
     ;

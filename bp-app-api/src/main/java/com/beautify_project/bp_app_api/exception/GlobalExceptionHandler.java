@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @RestControllerAdvice
@@ -129,12 +128,11 @@ public class GlobalExceptionHandler {
         return ErrorResponseMessage.createErrorMessage(ErrorCode.NF002);
     }
 
-    @ExceptionHandler(NotRegisteredReviewException.class)
+    @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(code = HttpStatus.NOT_FOUND)
-    private ErrorResponseMessage handleNotRegisteredReviewException(
-        final NotRegisteredReviewException exception) {
+    private ErrorResponseMessage handleNotFoundException(final NotFoundException exception) {
         log.error("", exception);
-        return ErrorResponseMessage.createErrorMessage(ErrorCode.RV001);
+        return ErrorResponseMessage.createErrorMessage(exception.getErrorCode());
     }
 
     private static ErrorResponseMessage createErrorResponseMessage(

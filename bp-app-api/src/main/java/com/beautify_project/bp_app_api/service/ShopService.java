@@ -1,5 +1,6 @@
 package com.beautify_project.bp_app_api.service;
 
+import com.beautify_project.bp_app_api.dto.common.ErrorCode;
 import com.beautify_project.bp_app_api.dto.common.ResponseMessage;
 import com.beautify_project.bp_app_api.dto.shop.ShopListFindRequestParameters;
 import com.beautify_project.bp_app_api.dto.shop.ShopListFindResult;
@@ -8,8 +9,9 @@ import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationResult;
 import com.beautify_project.bp_app_api.entity.Facility;
 import com.beautify_project.bp_app_api.entity.Operation;
 import com.beautify_project.bp_app_api.entity.Shop;
-import com.beautify_project.bp_app_api.exception.UnableToRegisterException;
+import com.beautify_project.bp_app_api.exception.NotFoundException;
 import com.beautify_project.bp_app_api.repository.ShopRepository;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,14 +33,13 @@ public class ShopService {
     private final OperationService operationService;
 
     @Transactional(rollbackFor = Exception.class)
-    public ResponseMessage registerShop(final ShopRegistrationRequest shopRegistrationRequest)
-        throws UnableToRegisterException {
+    public ResponseMessage registerShop(final ShopRegistrationRequest shopRegistrationRequest) {
 
         long registerTime = System.currentTimeMillis();
 
-        List<Operation> operations = operationService.findOperationsByIds(
+        final List<Operation> operations = operationService.findOperationsByIds(
             shopRegistrationRequest.operationIds());
-        List<Facility> facilities = facilityService.findFacilitiesByIds(
+        final List<Facility> facilities = facilityService.findFacilitiesByIds(
             shopRegistrationRequest.facilityIds());
 
         final Shop regisertedShop = shopRepository.save(
@@ -57,5 +58,10 @@ public class ShopService {
             .map(ShopListFindResult::from);
 
         return ResponseMessage.createResponseMessage(foundPage.getContent());
+    }
+
+    public Shop findShopById(final @NotNull String shopId) {
+        return shopRepository.findById(shopId)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.SH001));
     }
 }

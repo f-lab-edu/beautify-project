@@ -28,8 +28,7 @@ public class ShopController {
     @PostMapping("/v1/shops")
     @ResponseStatus(code = HttpStatus.OK)
     ResponseMessage registerShop(
-        @Valid @RequestBody final ShopRegistrationRequest shopRegistrationRequest)
-        throws Exception {
+        @Valid @RequestBody final ShopRegistrationRequest shopRegistrationRequest) {
 
         return shopService.registerShop(shopRegistrationRequest);
     }
@@ -42,8 +41,7 @@ public class ShopController {
     ResponseMessage findShopList(@RequestParam(name = "type") final String searchType,
         @RequestParam(name = "page", required = false, defaultValue = "0") final Integer page,
         @RequestParam(name = "count", required = false, defaultValue = "10") final Integer count,
-        @RequestParam(name = "order", required = false, defaultValue = "asc") final String order)
-        throws RuntimeException {
+        @RequestParam(name = "order", required = false, defaultValue = "asc") final String order) {
 
         return shopService.findShopList(
             new ShopListFindRequestParameters(ShopSearchType.from(searchType), page, count,

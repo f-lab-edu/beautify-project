@@ -1,6 +1,5 @@
 package com.beautify_project.bp_app_api.controller;
 
-import static com.beautify_project.bp_app_api.fixtures.CommonTestFixture.OBJECT_MAPPER;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -23,6 +22,8 @@ import com.beautify_project.bp_app_api.service.FacilityService;
 import com.beautify_project.bp_app_api.service.OperationService;
 import com.beautify_project.bp_app_api.service.ShopService;
 import com.beautify_project.bp_app_api.utils.UUIDGenerator;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
@@ -43,6 +44,9 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 @WebMvcTest(controllers = ShopController.class)
 class ShopControllerTest {
+
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().registerModule(
+        new JavaTimeModule());
 
     @Autowired
     private MockMvc mockMvc;
@@ -68,9 +72,9 @@ class ShopControllerTest {
         Category mockedCategory2 = Category.of("카테고리2", "카테고리2 설명", System.currentTimeMillis());
 
         final List<Operation> mockedOperationEntities = Arrays.asList(
-            Operation.createOperation("시술1", "시술1 설명", System.currentTimeMillis(),
+            Operation.of("시술1", "시술1 설명", System.currentTimeMillis(),
                 List.of(mockedCategory1)),
-            Operation.createOperation("시술2", "시술2 설명", System.currentTimeMillis(),
+            Operation.of("시술2", "시술2 설명", System.currentTimeMillis(),
                 Arrays.asList(mockedCategory1, mockedCategory2)));
 
         final List<Facility> mockedFacilityEntities = Arrays.asList(
@@ -176,7 +180,7 @@ class ShopControllerTest {
     @ParameterizedTest
     @MethodSource("validFindShopListParameterInControllerProvider")
     @DisplayName("Shop 리스트 조회 요청시 ShopListFindResult 를 wrapping 한 ResponseMessage 객체를 응답 받는다.")
-    void given_requestFindShopList_when_succeed_then_get_getResponseMessageWrappingShopListFindResult(
+    void given_requestFindShopList_when_succeed_then_getResponseMessageWrappingShopListFindResult(
         final String type, final String page, final String count, final String order)
         throws Exception {
 
@@ -255,9 +259,9 @@ class ShopControllerTest {
         Category mockedCategory2 = Category.of("카테고리2", "카테고리2 설명", System.currentTimeMillis());
 
         final List<Operation> mockedOperationEntities = Arrays.asList(
-            Operation.createOperation("시술1", "시술1 설명", System.currentTimeMillis(),
+            Operation.of("시술1", "시술1 설명", System.currentTimeMillis(),
                 List.of(mockedCategory1)),
-            Operation.createOperation("시술2", "시술2 설명", System.currentTimeMillis(),
+            Operation.of("시술2", "시술2 설명", System.currentTimeMillis(),
                 Arrays.asList(mockedCategory1, mockedCategory2)));
 
         final List<Facility> mockedFacilityEntities = Arrays.asList(
@@ -309,9 +313,9 @@ class ShopControllerTest {
         Category mockedCategory2 = Category.of("카테고리2", "카테고리2 설명", System.currentTimeMillis());
 
         final List<Operation> mockedOperationEntities = Arrays.asList(
-            Operation.createOperation("시술1", "시술1 설명", System.currentTimeMillis(),
+            Operation.of("시술1", "시술1 설명", System.currentTimeMillis(),
                 List.of(mockedCategory1)),
-            Operation.createOperation("시술2", "시술2 설명", System.currentTimeMillis(),
+            Operation.of("시술2", "시술2 설명", System.currentTimeMillis(),
                 Arrays.asList(mockedCategory1, mockedCategory2)));
 
         final List<Facility> mockedFacilityEntities = Arrays.asList(
@@ -363,9 +367,9 @@ class ShopControllerTest {
         Category mockedCategory2 = Category.of("카테고리2", "카테고리2 설명", System.currentTimeMillis());
 
         final List<Operation> mockedOperationEntities = Arrays.asList(
-            Operation.createOperation("시술1", "시술1 설명", System.currentTimeMillis(),
+            Operation.of("시술1", "시술1 설명", System.currentTimeMillis(),
                 List.of(mockedCategory1)),
-            Operation.createOperation("시술2", "시술2 설명", System.currentTimeMillis(),
+            Operation.of("시술2", "시술2 설명", System.currentTimeMillis(),
                 Arrays.asList(mockedCategory1, mockedCategory2)));
 
         final List<Facility> mockedFacilityEntities = Arrays.asList(
