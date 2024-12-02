@@ -32,6 +32,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
 class ReviewServiceTest {
@@ -188,10 +191,9 @@ class ReviewServiceTest {
             .reservationId(mockedReservation.getId())
             .build();
 
-        when(reviewRepository.findReviewsInShop(any(String.class), any(String.class),
-            any(String.class), any(Integer.class), any(Integer.class))).thenReturn(
-            Arrays.asList(mockedReview1, mockedReview2));
-
+        final Page<Review> mockedPage = new PageImpl<>(Arrays.asList(mockedReview1, mockedReview2));
+        when(reviewRepository.findAll(any(Pageable.class))).thenReturn(
+            mockedPage);
         when(memberService.findMemberByEmail(any(String.class))).thenReturn(mockedMember);
         when(operationService.findOperationById(any(String.class))).thenReturn(mockedOperation);
         when(reservationService.findReservationById(any(String.class))).thenReturn(
@@ -206,9 +208,7 @@ class ReviewServiceTest {
 
         // then
         assertThat(responseMessage.getReturnValue()).isInstanceOf(List.class);
-        verify(reviewRepository, times(1))
-            .findReviewsInShop(any(String.class), any(String.class), any(String.class),
-                any(Integer.class), any(Integer.class));
+        verify(reviewRepository, times(1)).findAll(any(Pageable.class));
         verify(memberService, times(2)).findMemberByEmail(any(String.class));
         verify(operationService, times(2)).findOperationById(any(String.class));
         verify(reservationService, times(2)).findReservationById(any(String.class));
@@ -221,9 +221,9 @@ class ReviewServiceTest {
         FindReviewListRequestParameters requestParameters = new FindReviewListRequestParameters(
             UUIDGenerator.generate(), ReviewSortBy.REGISTERED_DATE, 0, 10, OrderType.DESC);
 
-        when(reviewRepository.findReviewsInShop(
-            any(String.class), any(String.class), any(String.class), any(Integer.class),
-            any(Integer.class))).thenReturn(new ArrayList<>());
+        final Page<Review> mockedPage = new PageImpl<>(new ArrayList<>());
+        when(reviewRepository.findAll(any(Pageable.class))).thenReturn(
+            mockedPage);
 
         // when & then
         assertThatThrownBy(

@@ -15,6 +15,9 @@ import com.beautify_project.bp_app_api.repository.ReviewRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,10 +53,12 @@ public class ReviewService {
 
     public ResponseMessage findReviewListInShop(final FindReviewListRequestParameters parameters) {
         // TODO: join 으로 개선 필요
-        final List<Review> foundReviews = reviewRepository.findReviewsInShop(parameters.shopId(), parameters.sortBy()
-                .name(), parameters.orderType().name(), parameters.page(), parameters.count());
+        Pageable pageable = PageRequest.of(parameters.page(), parameters.count(),
+            Sort.by(Sort.Direction.fromString(parameters.orderType().name()),
+                parameters.sortBy().name()));
 
-        if (foundReviews == null || foundReviews.isEmpty()) {
+        List<Review> foundReviews = reviewRepository.findAll(pageable).getContent();
+        if (foundReviews.isEmpty()) {
             throw new NotFoundException(ErrorCode.RE001);
         }
 
