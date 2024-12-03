@@ -5,7 +5,7 @@ import com.beautify_project.bp_app_api.enumeration.OrderType;
 import com.beautify_project.bp_app_api.enumeration.ShopSearchType;
 import jakarta.validation.constraints.Size;
 
-public record ShopFindListRequestParameters(
+public record ShopListFindRequestParameters(
     ShopSearchType searchType,
     @Size(min = 0)
     Integer page,

@@ -1,22 +1,14 @@
 package com.beautify_project.bp_app_api.service;
 
 import com.beautify_project.bp_app_api.dto.common.ResponseMessage;
-import com.beautify_project.bp_app_api.dto.shop.ImageFiles;
-import com.beautify_project.bp_app_api.dto.shop.ShopFindListRequestParameters;
-import com.beautify_project.bp_app_api.dto.shop.ShopFindResult;
+import com.beautify_project.bp_app_api.dto.shop.ShopListFindRequestParameters;
 import com.beautify_project.bp_app_api.dto.shop.ShopListFindResult;
 import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest;
-import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest.IdName;
 import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationResult;
 import com.beautify_project.bp_app_api.entity.Facility;
 import com.beautify_project.bp_app_api.entity.Operation;
 import com.beautify_project.bp_app_api.entity.Shop;
-import com.beautify_project.bp_app_api.repository.CategoryRepository;
-import com.beautify_project.bp_app_api.repository.FacilityRepository;
-import com.beautify_project.bp_app_api.repository.OperationRepository;
 import com.beautify_project.bp_app_api.repository.ShopRepository;
-import java.util.Arrays;
-import java.util.Base64;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,49 +26,35 @@ import org.springframework.transaction.annotation.Transactional;
 public class ShopService {
 
     private final ShopRepository shopRepository;
-    private final StorageService storageService;
-    private final FacilityRepository facilityRepository;
-    private final OperationRepository operationRepository;
-    private final CategoryRepository categoryRepository;
+    private final FacilityService facilityService;
+    private final OperationService operationService;
 
     @Transactional(rollbackFor = Exception.class)
-    public ResponseMessage registerShop(final ImageFiles images,
-        final ShopRegistrationRequest shopRegistrationRequest) {
+    public ResponseMessage registerShop(final ShopRegistrationRequest shopRegistrationRequest)
+        throws Exception {
 
-        // TODO: ShopRegistrationRequest 내 IdName 제거하고 id 값만 string 으로 받을 수 있게 수정
-        // TODO: ShopRegistrationRequest 내 category 객체 삭제
-        // TODO: ShopRegistrationRequest 변동 내용 문서 반영
         long registerTime = System.currentTimeMillis();
-        final List<String> operationIds = shopRegistrationRequest.operations().stream().map(IdName::id)
-            .toList();
-        final List<String> facilityIds = shopRegistrationRequest.supportFacilities().stream()
-            .map(IdName::id).toList();
 
-        List<Operation> operations = operationRepository.findByIdIn(operationIds);
-        List<Facility> facilities = facilityRepository.findByIdIn(facilityIds);
+        List<Operation> operations = operationService.findOperationsByIds(
+            shopRegistrationRequest.operationIds());
+        List<Facility> facilities = facilityService.findFacilitiesByIds(
+            shopRegistrationRequest.facilityIds());
 
         final Shop regisertedShop = shopRepository.save(
             Shop.createShop(shopRegistrationRequest, operations, facilities, registerTime));
-
-        if (!images.isEmpty()) {
-            storageService.storeImageFiles(images, regisertedShop.getId());
-        }
 
         return ResponseMessage.createResponseMessage(
             new ShopRegistrationResult(regisertedShop.getId()));
     }
 
-    public ResponseMessage findShopList(final ShopFindListRequestParameters parameters) {
+    public ResponseMessage findShopList(final ShopListFindRequestParameters parameters) {
         Pageable pageable = PageRequest.of(parameters.page(), parameters.count(),
             Sort.by(Sort.Direction.fromString(parameters.orderType().name()),
                 parameters.searchType().getEntityName()));
 
-        Page<ShopListFindResult> page = shopRepository.findAll(pageable)
-            .map(foundShop ->
-                ShopListFindResult.createShopListFindResult(foundShop,
-                    new String(Base64.getEncoder().encode(storageService.loadThumbnail(
-                        foundShop.getId())))));
+        Page<ShopListFindResult> foundPage = shopRepository.findAll(pageable)
+            .map(ShopListFindResult::from);
 
-        return ResponseMessage.createResponseMessage(page.getContent());
+        return ResponseMessage.createResponseMessage(foundPage.getContent());
     }
 }

@@ -18,10 +18,11 @@ public enum ErrorCode {
     NF002(HttpStatus.NOT_FOUND, "NF002", "등록되지 않은 리소스 입니다."),
 
     SH001(HttpStatus.NOT_FOUND, "SH001", "등록되지 않은 미용 시술소입니다."),
+    SH002(HttpStatus.INTERNAL_SERVER_ERROR, "SH002", "Shop 등록에 실패했습니다."),
 
     RV001(HttpStatus.NOT_FOUND, "RV001", "등록되지 않은 리뷰입니다."),
 
-    IS001(HttpStatus.INTERNAL_SERVER_ERROR, "IS001", "시스템 에러가 발생하였습니다. 관리자에게 문읜해주세요.")
+    IS001(HttpStatus.INTERNAL_SERVER_ERROR, "IS001", "시스템 에러가 발생하였습니다. 관리자에게 문의해주세요.")
     ;
 
     private final HttpStatus httpStatus;

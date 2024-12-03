@@ -5,26 +5,13 @@
 REST API 방식으로 호출하는 방법은 동일하나, OAuth 2.0 인증 기반이므로 Authorization API를 통해 접근 토큰(access token)을 발급받아 HTTP Header에 포함시켜 전송해야 합니다.
 
 
-
-
 ## 1. 샵 등록
-
-샵 등록 API에서는 `@RequestPart` 를 사용하여 multipart/form-data 형식으로 두 형식의 데이터(이미지 바이너리, JSON)를 수신 받습니다.
-
-- Shop 이미지들
-  - Content-Type: multipart/form-data
-  - 요소 이름: images
-- Shop 등록 정보
-  - Content-Type: application/json
-  - 요소 이름: shopRegistrationInfo
-
-
 
 ### 1-1. 기본 정보
 
-| 메서드 | URI       | 출력 포멧 | 설명    |
-| ------ | --------- | --------- | ------- |
-| POST   | /v1/shops | JSON      | 샵 등록 |
+| 메서드  | URI       | 출력 포멧 | 설명      |
+|------|-----------|-------|---------|
+| POST | /v1/shops | JSON  | 카테고리 등록 |
 
 
 
@@ -33,48 +20,42 @@ REST API 방식으로 호출하는 방법은 동일하나, OAuth 2.0 인증 기�
 | 헤더 key      | 필수 여부 | 설명                                  |
 | ------------- | --------- | ------------------------------------- |
 | Authorization | O         | Bearer ${ACCESS_TOKEN} |
-| Content-Type  | O         | multipart/form-data                   |
-
+| Content-Type  | O         | application/json                      |
 
 
 ### 1-3. 요청 본문
 
-| 변수명                           | 데이터 타입      | 제약 사항 | 필수 여부 | 기본값      | 설명                            |
-| -------------------------------- | ---------------- | --------- | --------- | ----------- | ------------------------------- |
-| images                           | List\<Multipart> |           | X         |             | 이미지 첨부 파일(최대 5개 가능) |
-| name                             | String           | 128       | O         |             | 샵 이름                         |
-| contact                          | String           | 13        | O         |             | 샵 대표 연락처                  |
-| url                              | String           | 1024      | X         |             | SNS 대표 URL                    |
-| introduction                     | String           | 1024      | X         |             | 소개글                          |
-| businessTime                     | JSON Object      |           | X         |             | 영업 시간                       |
-| businessTime.openTime            | String           |           | X         | 09:00       | 영업 시작 시간                  |
-| businessTime.closeTime           | String           |           | X         | 18:00       | 영업 종료 시간                  |
-| businessTime.breakBeginTime      | String           |           | X         | 12:00       | 휴식 시작 시간                  |
-| businessTime.breanEndTime        | String           |           | X         | 13:00       | 휴식 종료 시간                  |
-| businessTime.offDayOfWeek        | JSON Array       |           | X         | 휴무일 없음 | 영업 휴무일                     |
-| address                          | JSON Object      |           | O         |             | 주소 정보                       |
-| address.dongCode                 | String           |           | O         |             | 법정동코드                      |
-| address.siDoName                 | String           |           | O         |             | 시도명                          |
-| address.siGoonGooName            | String           |           | O         |             | 시군구명                        |
-| address.eubMyungDongName         | String           |           | O         |             | 읍면동명                        |
-| address.roadNameCode             | String           |           | O         |             | 도로명코드                      |
-| address.roadName                 | String           |           | O         |             | 도로명                          |
-| address.underGround              | String           |           | O         |             | 지하여부                        |
-| address.roadMainNum              | String           |           | O         |             | 건물본번                        |
-| address.roadSubNum               | String           |           | O         |             | 건물부번                        |
-| address.siGoonGooBuildingName    | String           |           | O         |             | 시군구건물명                    |
-| address.zipCode                  | String           |           | O         |             | 기초구역번호(새우편번호)        |
-| address.apartComplex             | String           |           | O         |             | 공동주택여부                    |
-| address.eubMyungDongSerialNumber | String           |           | O         |             | 읍면동일련번호                  |
-| address.latitude                 | String           |           | O         |             | 위도                            |
-| address.longitude                | String           |           | O         |             | 경도                            |
-| categories                       | JSON Array       |           | O         |             | 카테고리 정보                   |
-| categories.id                    | String           |           | O         |             | 카테고리 아이디                 |
-| categories.name                  | String           |           | O         |             | 카테고리명                      |
-| supportFacilities                | JSON Array       |           | X         |             | 편의시설 정보                   |
-| supportFacilities.id             | String           |           | X         |             | 편의 시설 아이디                |
-| supportFacilities.name           | String           |           | X         |             | 편의 시설 이름                  |
-
+| 변수명                              | 데이터 타입      | 제약 사항 | 필수 여부 | 기본값 | 설명                          |
+|----------------------------------|-------------|-------|-------|-----|-----------------------------|
+| name                             | String      | 128   | O     |     | 샵 이름                        |
+| contact                          | String      | 13    | O     |     | 샵 대표 연락처                    |
+| url                              | String      | 1024  | X     |     | SNS 대표 URL                  |
+| introduction                     | String      | 1024  | X     |     | 소개글                         |
+| operationIds                     | JSON Array  |       | O     |     | 카테고리 아이디                    |
+| facilityIds                      | JSON Array  |       | X     |     | 편의시설 아이디                    |
+| imageUrls                        | JSON Array  |       | X     |     | preSignedUrl로 업로드한 이미지의 url |
+| businessTime                     | JSON Object |       | X     |     | 영업 시간                       |
+| businessTime.openTime            | String      |       | X     |     | 영업 시작 시간                    |
+| businessTime.closeTime           | String      |       | X     |     | 영업 종료 시간                    |
+| businessTime.breakBeginTime      | String      |       | X     |     | 휴식 시작 시간                    |
+| businessTime.breanEndTime        | String      |       | X     |     | 휴식 종료 시간                    |
+| businessTime.offDayOfWeek        | JSON Array  |       | X     |     | 영업 휴무일                      |
+| address                          | JSON Object |       | O     |     | 주소 정보                       |
+| address.dongCode                 | String      |       | O     |     | 법정동코드                       |
+| address.siDoName                 | String      |       | O     |     | 시도명                         |
+| address.siGoonGooName            | String      |       | O     |     | 시군구명                        |
+| address.eubMyungDongName         | String      |       | O     |     | 읍면동명                        |
+| address.roadNameCode             | String      |       | O     |     | 도로명코드                       |
+| address.roadName                 | String      |       | O     |     | 도로명                         |
+| address.underGround              | String      |       | O     |     | 지하여부                        |
+| address.roadMainNum              | String      |       | O     |     | 건물본번                        |
+| address.roadSubNum               | String      |       | O     |     | 건물부번                        |
+| address.siGoonGooBuildingName    | String      |       | O     |     | 시군구건물명                      |
+| address.zipCode                  | String      |       | O     |     | 기초구역번호(새우편번호)               |
+| address.apartComplex             | String      |       | O     |     | 공동주택여부                      |
+| address.eubMyungDongSerialNumber | String      |       | O     |     | 읍면동일련번호                     |
+| address.latitude                 | String      |       | O     |     | 위도                          |
+| address.longitude                | String      |       | O     |     | 경도                          |
 
 
 ### 1-4. 요청 예시
@@ -82,41 +63,16 @@ REST API 방식으로 호출하는 방법은 동일하나, OAuth 2.0 인증 기�
 ``` http
 POST /v1/shops HTTP/1.1
 Authorization: Bearer ${ACCESS_TOKEN}
-Content-Type: multipart/form-data; 
-
---boundary
-Content-Disposition: form-data; name="images"; filename="image1.jpg"
-Content-Type: image/jpeg
-
-<이미지 바이너리 데이터>
---boundary
-Content-Disposition: form-data; name="images"; filename="image2.jpg"
-Content-Type: image/jpeg
-
-<이미지 바이너리 데이터>
--- boundary
-Content-Disposition: form-data; name="shopRegistrationInfo"
-Content-Type: application/json
+Content-Type: application/json;
 
 {
   "name": "시술소1",
   "contact": "010-1234-5678",
   "url": "www.naver.com",
   "introduction": "안녕하세요 시술소1 입니다. 두피문신, 눈썹문신, 입술문신 전문입니다.",
-  "operations": [
-    {
-      "id": "2d0a8ad5-69cd-4ebc-bb71-61f7f334197b",
-      "name": "두피문신"
-    },
-    {
-      "id": "7b603978-2f8d-486d-b797-b5b493891cf1",
-      "name": "눈썹문신"
-    },
-    {
-      "id": "2e933db2-e26a-4e14-93a0-686f1a728149",
-      "name": "입술문신"
-    }
-  ],
+  "operationIds": ["2d0a8ad5", "7b603978", "2e933db2"],
+  "facilityIds": ["cbc94211", "e652bf54", "1671fc08"],
+  "imageUrls": ["s3.uploaded.com1", "s3.uploaded.com2"]
   "businessTime": {
     "openTime": "09:00",
     "closeTime": "18:00",
@@ -140,35 +96,9 @@ Content-Type: application/json
     "eubMyungDongSerialNumber": "",
     "latitude": "",
     "longitude": ""
-  },
-  "categories": [
-    {
-      "id": "15108824",
-      "name": "머리미용"
-    },
-    {
-      "id": "940cdea0",
-      "name": "피부미용"
-    }
-  ],
-  "supportFacilities": [
-    {
-      "id": "cbc94211",
-      "name": "와이파이"
-    },
-    {
-      "id": "e652bf54",
-      "name": "주차가능"
-    },
-    {
-      "id": "1671fc08",
-      "name": "개인샤워실"
-    }
-  ]
+  }
 }
 ```
-
-
 
 ### 1-5. 응답
 
@@ -182,7 +112,6 @@ HTTP/1.1 200 OK
 }
 ```
 
-- shopId: 생성된 샵의 ID
 - 에러 응답은 [8. 에러](#8-에러) 참고
 
 
@@ -191,9 +120,9 @@ HTTP/1.1 200 OK
 
 ### 2-1. 기본 정보
 
-| 메서드 | 요청 URI  | 출력 포멧 | 설명           |
-| ------ | --------- | --------- | -------------- |
-| GET    | /v1/shops | JSON      | 샵 리스트 조회 |
+| 메서드 | 요청 URI    | 출력 포멧 | 설명       |
+|-----|-----------|-------|----------|
+| GET | /v1/shops | JSON  | 샵 리스트 조회 |
 
 - 파라미터 (Query String)
 
@@ -235,36 +164,36 @@ Content-Type: application/json
       "id": "2360c169",
       "name": "시술소1",
       "operations": ["두피문신", "눈썹문신", "입술문신"],
-      "supportFacilities": ["주차가능", "와이파이", "샤워실"],
+      "facilities": ["주차가능", "와이파이", "샤워실"],
       "rate": "4.5",
       "likes": 132,
       "likePushed": false,
-      "thumbnail": "base64 encoded string"
+      "thumbnailUrl": "www.s3.image1"
     },
     {
       "id": "f4804d31",
       "name": "시술소2",
       "operations": ["타투"],
-      "supportFacilities": ["와이파이"],
+      "facilities": ["와이파이"],
       "rate": "3.0",
       "likes": 20,
-      "likePushed": false
-      "thumbnail": "base64 encoded string"
+      "likePushed": false,
+      "thumbnailUrl": "www.s3.image2"
     },
     ...
   ]
 }
 ```
 
-| 필드명            | 데이터 타입 | 설명                                                         |
-| ----------------- | ----------- | ------------------------------------------------------------ |
-| name              | String      | 샵 이름                                                      |
-| operations        | JSON Array  | 샵에서 수행하는 시술                                         |
-| supportFacilities | JSON Array  | 편의시설                                                     |
-| rate              | String      | 평점                                                         |
-| likes             | int         | 좋아요 수                                                    |
-| likePushed        | boolean     | 좋아요 클릭 여부                                             |
-| thumbnail         | String      | Base64로 인코딩된 이미지 파일 (이미지 태그에 바로 넣을 수 있는 형태) |
+| 필드명          | 데이터 타입     | 설명          |
+|--------------|------------|-------------|
+| name         | String     | 샵 이름        |
+| operations   | JSON Array | 샵에서 수행하는 시술 |
+| facilities   | JSON Array | 편의시설        |
+| rate         | String     | 평점          |
+| likes        | int        | 좋아요 수       |
+| likePushed   | boolean    | 좋아요 클릭 여부   |
+| thumbnailUrl | String     | 썸네일 이미지 URL |
 
 - 에러 응답은 [8. 에러](#8-에러) 참고
 
@@ -281,7 +210,7 @@ Content-Type: application/json
 - 경로 변수 (Path Variable)
 
   | 변수명 | 필수 여부 | 설명                |
-    | ------ | --------- | ------------------- |
+  | ------ | --------- | ------------------- |
   | ${id}  | O         | 조회 대상 Shop의 Id |
 
 
@@ -311,13 +240,17 @@ Content-Type: application/json
 
 {
   "returnValue": {
-    "id": "2360c169-b908-4539-8cfd-b4a258d79520",
+    "id": "2360c169",
     "name": "시술소1",
     "contact": "010-1234-5678",
     "url": "www.naver.com",
     "introduction": "안녕하세요 시술소1 입니다. 두피문신, 눈썹문신, 입술문신 전문입니다.",
     "likePushed": false,
+    "rate": 4.5,
+    "likes": 132,
     "operations": ["두피문신", "눈썹문신", "입술문신"],
+    "facilites": ["와이파이", "주차가능", "개인샤워실"],
+    "categories": ["머리미용", "피부미용"],
     "businessTime": {
       "openTime": "09:00",
       "closeTime": "18:00",
@@ -336,69 +269,52 @@ Content-Type: application/json
       "latitude": "", 
       "longitude": ""
     },
-    "categories": ["머리미용", "피부미용"],
-    "supportFacilites": ["와이파이", "주차가능", "개인샤워실"],
-    "rate": 4.5,
-    "likes": 132,
-    "images": [
-      "",
-      "",
-      "",
-      "",
-      ""
+    "imageUrls": [
+      "www.s3.image1",
+      "www.s3.image2",
+      "www.s3.image3",
+      "www.s3.image4",
+      "www.s3.image5"
     ]
   }
 }
 ```
 
-| 필드명                      | 데이터 타입 | 설명                                                         |
-| --------------------------- | ----------- | ------------------------------------------------------------ |
-| name                        | String      | 샵 이름                                                      |
-| contact                     | String      | 연락처                                                       |
-| url                         | String      | 대표 SNS 주소                                                |
-| introduction                | String      | 소개글                                                       |
-| likePushed                  | boolean     | 좋아요 버튼 여부                                             |
-| operations                  | JSON Array  | 지원 시술 목록                                               |
-| businessTime                | JSON Object | 영업 시간                                                    |
-| businessTime.openTime       | String      | 영업 시작 시간                                               |
-| businessTime.closeTime      | String      | 영업 종료 시간                                               |
-| businessTime.breakBeginTime | String      | 휴식 시작 시간                                               |
-| businessTime.breakEndTime   | String      | 휴식 종료 시간                                               |
-| businessTime.offDayOfWeek   | JSON Array  | 휴무일                                                       |
-| address                     | JSON Object | 주소                                                         |
-| siDoName                    | String      | 시도명                                                       |
-| siGoonGooName               | String      | 시군구명                                                     |
-| eubMyunDongName             | String      | 읍면동명                                                     |
-| roadName                    | String      | 도로명                                                       |
-| roadMainNum                 | String      | 건물본번                                                     |
-| siGoonGooBuildingName       | String      | 시군구건물명                                                 |
-| zipCode                     | String      | 기초구역번호(새우편번호)                                     |
-| latitude                    | String      | 위도                                                         |
-| longitude                   | String      | 경도                                                         |
-| categories                  | JSON Array  | 미용 카테고리                                                |
-| supportFacilities           | JSON Array  | 이용 편의시설                                                |
-| rate                        | String      | 평점                                                         |
-| likes                       | Long        | 좋아요                                                       |
-| images                      | JSON Array  | Base64로 인코딩된 이미지 파일 (이미지 태그에 바로 넣을 수 있는 형태) |
+| 필드명                           | 데이터 타입      | 설명            |
+|-------------------------------|-------------|---------------|
+| id                            | String      | 샵 ID          |
+| name                          | String      | 샵 이름          |
+| contact                       | String      | 연락처           |
+| url                           | String      | 대표 SNS 주소     |
+| rate                          | String      | 평점            |
+| likes                         | Long        | 좋아요           |
+| likePushed                    | boolean     | 좋아요 버튼 여부     |
+| introduction                  | String      | 소개글           |
+| operations                    | JSON Array  | 지원 시술 목록      |
+| facilities                    | JSON Array  | 이용 편의시설       |
+| categories                    | JSON Array  | 미용 카테고리       |
+| businessTime                  | JSON Object | 영업 시간         |
+| businessTime.openTime         | String      | 영업 시작 시간      |
+| businessTime.closeTime        | String      | 영업 종료 시간      |
+| businessTime.breakBeginTime   | String      | 휴식 시작 시간      |
+| businessTime.breakEndTime     | String      | 휴식 종료 시간      |
+| businessTime.offDayOfWeek     | JSON Array  | 휴무일           |
+| address                       | JSON Object | 주소            |
+| address.siDoName              | String      | 시도명           |
+| address.siGoonGooName         | String      | 시군구명          |
+| address.eubMyunDongName       | String      | 읍면동명          |
+| address.roadName              | String      | 도로명           |
+| address.roadMainNum           | String      | 건물본번          |
+| address.siGoonGooBuildingName | String      | 시군구건물명        |
+| address.zipCode               | String      | 기초구역번호(새우편번호) |
+| address.latitude              | String      | 위도            |
+| address.longitude             | String      | 경도            |
+| imageUrls                     | JSON Array  | S3 이미지 URL    |
 
 - 에러 응답은 [8. 에러](#8-에러) 참고
 
 
-
-
-
 ## 4. 샵 수정
-
-샵 수정 API에서는 `@RequestPart` 를 사용하여 multipart/form-data 형식으로 두 형식의 데이터(이미지 바이너리, JSNO)를 수신 받습니다.
-
-- 샵 이미지들
-  - Content-Type: multipart/form-data
-  - 요소 이름: images
-- 샵 등록 정보
-  - Content-Type: application/json
-  - 요소 이름: shopRegistrationInfo
-
-
 
 ### 4-1. 기본정보
 
@@ -416,10 +332,10 @@ Content-Type: application/json
 
 ### 4-2. 요청 헤더
 
-| 헤더 key      | 필수 여부 | 설명                                  |
-| ------------- | --------- | ------------------------------------- |
+| 헤더 key      | 필수 여부 | 설명                     |
+| ------------- | --------- |------------------------|
 | Authorization | O         | Bearer ${ACCESS_TOKEN} |
-| Content-Type  | O         | multipart/form-data                   |
+| Content-Type  | O         | application/json       |
 
 
 
@@ -427,50 +343,14 @@ Content-Type: application/json
 
 [1. Shop 등록 API > 1-3. 요청 본문](#1-3-요청-본문) 과 동일한 형태로 수정이 필요한 필드값만 작성하면 됩니다. 단, 좋아요(likes), 평점(rate)은 각 API 통해서만 수정 가능하기 때문에 만약 본문에 필드들을 명시하여 요청을 보내더라도 해당 필드값들은 무시합니다.
 
-이미지 파일 같은 경우에는 추가나 삭제가 발생할 경우, 해당 이미지를 제외하고 전체 이미지를 다시 요청해야 합니다.
-
+배열 타입의 값을 수정하고자 하는 경우, 수정/삭제 대상을 변경/삭제하고 전체 배열을 다시 요청해야 합니다.
 
 
 ### 4-4. 요청 예시
 
-- 이미지 파일 수정/삭제가 없는 경우
-
   ``` http
   PATCH /v1/shops/2360c169 HTTP/1.1
   Authorization: Bearer ${ACCESS_TOKEN}
-  Content-Type: multipart/form-data
-  
-  {
-    "contact": "010-1234-5678",
-    "address": {
-      "siDoName": "서울특별시",
-      "siGoonGooName": "마포구",
-      "eubMyunDongName": "상암동",
-      "roadName": "월드컵북로",
-      "roadMainNum": "482",
-      "siGoonGooBuildingName": "상암 오벨리스크 123차",
-      "zipCode": "03902",
-      "latitude": "", 
-      "longitude": ""
-    }
-  }
-  ```
-
-- 이미지 파일 수정/삭제가 있는 경우 (기존 2개에서 1개에서 줄인 경우)
-
-  ``` http
-  PATCH /v1/shops/2360c169 HTTP/1.1
-  Authorization: Bearer ${ACCESS_TOKEN}
-  Content-Type: multipart/form-data
-  
-  -- boundary
-  Content-Disposition: form-data; name="images"; filename="image1.jpg"
-  Content-Type: image/jpeg
-  
-  <이미지 데이터>
-  
-  -- boundary
-  Content-Disposition: form-data; name="shopRegistrationRequest"
   Content-Type: application/json
   
   {
@@ -488,7 +368,6 @@ Content-Type: application/json
     }
   }
   ```
-
 
 
 ### 4-5. 응답
