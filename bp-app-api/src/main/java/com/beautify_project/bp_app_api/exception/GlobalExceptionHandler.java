@@ -7,6 +7,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -147,6 +148,15 @@ public class GlobalExceptionHandler {
     private ErrorResponseMessage handleStorageException(final StorageException exception) {
         log.error("", exception);
         return ErrorResponseMessage.createErrorMessage(exception.getErrorCode());
+    }
+
+    @ExceptionHandler(MissingPathVariableException.class)
+    @ResponseStatus(code = HttpStatus.NOT_FOUND)
+    private ErrorResponseMessage handleMissingPathVariableException(
+        final MissingPathVariableException exception
+    ) {
+        log.error("", exception);
+        return ErrorResponseMessage.createErrorMessage(ErrorCode.BR001);
     }
 
     private static ErrorResponseMessage createErrorResponseMessage(
