@@ -142,6 +142,13 @@ public class GlobalExceptionHandler {
         return ErrorResponseMessage.createErrorMessage(ErrorCode.RV001);
     }
 
+    @ExceptionHandler(StorageException.class)
+    @ResponseStatus(code = HttpStatus.INTERNAL_SERVER_ERROR)
+    private ErrorResponseMessage handleStorageException(final StorageException exception) {
+        log.error("", exception);
+        return ErrorResponseMessage.createErrorMessage(exception.getErrorCode());
+    }
+
     private static ErrorResponseMessage createErrorResponseMessage(
         final String messageFormat,
         final String replaceText,
