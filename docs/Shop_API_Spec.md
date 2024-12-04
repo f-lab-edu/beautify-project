@@ -108,7 +108,7 @@ HTTP/1.1 200 OK
 }
 ```
 
-- 에러 응답은 [10. 에러](#10-에러) 참고
+- 에러 응답은 [8. 에러](#8-에러) 참고
 
 ## 2. 샵 리스트 조회
 
@@ -183,7 +183,7 @@ Content-Type: application/json
 | likePushed   | boolean    | 좋아요 클릭 여부   |
 | thumbnailUrl | String     | 썸네일 이미지 URL |
 
-- 에러 응답은 [10. 에러](#10-에러) 참고
+- 에러 응답은 [8. 에러](#8-에러) 참고
 
 ## 3. 샵 상세 조회
 
@@ -288,7 +288,7 @@ Content-Type: application/json
 | address.longitude             | String      | 경도                         |
 | imageIds                      | JSON Array  | image 업로드시 응답으로 받았던 fileId |
 
-- 에러 응답은 [10. 에러](#10-에러) 참고
+- 에러 응답은 [8. 에러](#8-에러) 참고
 
 ## 4. 샵 수정
 
@@ -353,7 +353,7 @@ HTTP/1.1 200 OK
 }
 ```
 
-- 에러 응답은 [10. 에러](#10-에러) 참고
+- 에러 응답은 [8. 에러](#8-에러) 참고
 
 ## 5. 샵 삭제
 
@@ -390,7 +390,7 @@ Content-Type: application/x-www-form-urlencoded
 HTTP/1.1 204 No Content
 ```
 
-- 에러 응답은 [10. 에러](#10-에러) 참고
+- 에러 응답은 [8. 에러](#8-에러) 참고
 
 ## 6. 샵 좋아요
 
@@ -433,7 +433,7 @@ HTTP/1.1 200 OK
 }
 ```
 
-- 에러 응답은 [10. 에러](#10-에러) 참고
+- 에러 응답은 [8. 에러](#8-에러) 참고
 
 ## 7. 샵 좋아요 취소
 
@@ -470,85 +470,11 @@ Content-Type: application/x-www-form-urlencoded
 HTTP/1.1 204 No Content
 ```
 
-- 에러 응답은 [10. 에러](#10-에러) 참고
+- 에러 응답은 [8. 에러](#8-에러) 참고
 
-## 8. Shop 이미지 업로드를 위한 PreSignedUrl 발급
+## 8. 에러
 
-### 8-1. 기본 정보
-
-| 메서드 | 요청 URI                       | 출력 포멧 | 설명                                 |
-|-----|------------------------------|-------|------------------------------------|
-| GET | /v1/images/presigned-put-url | json  | 이미지 바이너리를 업로드 할 수 있는 URL |
-
-### 8-2. 요청 헤더
-
-| 헤더 key        | 필수 여부 | 설명                                |
-|---------------|-------|-----------------------------------|
-| Authorization | O     | Bearer ${ACCESS_TOKEN}            |
-| Content-Type  | O     | application/x-www-form-urlencoded |
-
-### 8-3. 요청 예시
-
-``` http
-GET /v1/images/presigned-put-url
-Authorization: Bearer ${ACCESS_TOKEN}
-Content-Type: application/x-www-form-urlencoded
-```
-
-### 8-4. 응답
-
-``` http
-HTTP/1.1 200 OK
-
-{
-  "returnValue": {
-    "preSignedPutUrl": "https://beautify-project.kr.object.ncloudstorage.com/asasdovbjasoiefjsoeijf",
-    "fileId": "1231a7a9-be6f-46e5-9c91-99c5beb702cc"
-  }
-}
-```
-
-- 에러 응답은 [10. 에러](#10-에러) 참고
-
-## 9. Shop 이미지 다운로드를 위한 PreSignedUrl 발급
-
-### 9-1. 기본 정보
-
-| 메서드 | 요청 URI                             | 출력 포멧 | 설명                       |
-|-----|------------------------------------|-------|--------------------------|
-| GET | /v1/images/presigned-get-url/${id} | json  | 이미지 바이너리를 다운로드할 수 있는 URL |
-- 경로 변수
-
-  | 변수명 | 필수 여부 | 설명                  |
-  | ------ | --------- |---------------------|
-  | ${id}  | O         | 다운로드 대상 이미지의 fileId |
-
-
-### 9-2. 요청 헤더
-| 헤더 key        | 필수 여부 | 설명                                |
-|---------------|-------|-----------------------------------|
-| Authorization | O     | Bearer ${ACCESS_TOKEN}            |
-| Content-Type  | O     | application/x-www-form-urlencoded |
-
-
-### 9-3. 요청 예시
-``` http
-GET /v1/images/presigned-get-url
-Authorization: Bearer ${ACCESS_TOKEN}
-Content-Type: application/x-www-form-urlencoded
-```
-
-### 9-4. 응답
-``` http
-"returnValue": {
-    "preSignedGetUrl": "https://beautify-project.kr.object.ncloudstorage.com/asasdovbjasoiefjsoeijf"
-  }
-```
-
-
-## 10. 에러
-
-### 10-1. 에러 응답 형식
+### 8-1. 에러 응답 형식
 
 ``` http
 HTTP/1.1 404 Not Found
@@ -562,7 +488,7 @@ Content-type: application/json
 
 에러 메시지의 형식은 에러가 발생하는 위치와 관계없이 동일하며, 에러의 성격에 따라 400번대 혹은 500번대 에러 코드가 HTTP 응답 코드로 반환됩니다.
 
-### 10-2. 에러 코드
+### 8-2. 에러 코드
 
 | HTTP 상태 코드 (에러 유형) | 에러 코드 | 에러 메시지                            | 에러 발생 원인                                            |
 |--------------------|-------|-----------------------------------|-----------------------------------------------------|
