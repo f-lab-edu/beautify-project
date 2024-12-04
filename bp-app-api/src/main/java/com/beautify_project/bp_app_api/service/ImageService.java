@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class NaverCloudPlatformObjectStorageService {
+public class ImageService {
 
     private final NCPObjectStorageClient ncpObjectStorageClient;
 
@@ -18,7 +18,7 @@ public class NaverCloudPlatformObjectStorageService {
             return ResponseMessage.createResponseMessage(
                 ncpObjectStorageClient.createPreSignedPutUrl());
         } catch (Exception e) {
-            throw new StorageException(e, ErrorCode.SH002);
+            throw new StorageException(e, ErrorCode.IS002);
         }
     }
 
@@ -28,7 +28,7 @@ public class NaverCloudPlatformObjectStorageService {
                 ncpObjectStorageClient.createPreSignedGetUrl(
                     fileId));
         } catch (Exception e) {
-            throw new StorageException(e, ErrorCode.SH002);
+            throw new StorageException(e, ErrorCode.IS002);
         }
     }
 
