@@ -29,7 +29,7 @@ public class ImageController {
     /**
      * Shop 이미지 조회를 위한 preSignedUrl 발급
      */
-    @GetMapping("/v1/images/presigned-get-url")
+    @GetMapping("/v1/images/presigned-get-url/{id}")
     ResponseMessage issuePreSignedGetUrl(
         @PathVariable(value = "id") @NotBlank @NotNull final String fileId) {
         return imageService.getPreSignedGetUrl(fileId);
