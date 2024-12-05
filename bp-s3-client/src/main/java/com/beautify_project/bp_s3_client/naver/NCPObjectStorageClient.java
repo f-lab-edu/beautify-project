@@ -16,8 +16,8 @@ import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignReques
 
 public class NCPObjectStorageClient {
 
-    public static final String MESSAGE_FAILED_TO_CREATE_PRESIGNED_PUR_URL = "NCP preSignedPutUrl 생성에 실패하였습니다.";
-    public static final String MESSAGE_FAILED_TO_CREATE_PRESIGNED_GET_URL = "NCP preSignedGetUrl 생성에 실패하였습니다.";
+    private static final String MESSAGE_FAILED_TO_CREATE_PRESIGNED_PUR_URL = "NCP preSignedPutUrl 생성에 실패하였습니다.";
+    private static final String MESSAGE_FAILED_TO_CREATE_PRESIGNED_GET_URL = "NCP preSignedGetUrl 생성에 실패하였습니다.";
     private final NCPConfig ncpConfig;
     private final StaticCredentialsProvider credentialsProvider;
 

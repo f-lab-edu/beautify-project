@@ -1,8 +1,6 @@
 package com.beautify_project.bp_app_api.service;
 
-import com.beautify_project.bp_app_api.dto.common.ErrorCode;
 import com.beautify_project.bp_app_api.dto.common.ResponseMessage;
-import com.beautify_project.bp_app_api.exception.StorageException;
 import com.beautify_project.bp_s3_client.naver.NCPObjectStorageClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,23 +11,16 @@ public class ImageService {
 
     private final NCPObjectStorageClient ncpObjectStorageClient;
 
-    public ResponseMessage getPreSignedPutUrl() {
-        try {
-            return ResponseMessage.createResponseMessage(
-                ncpObjectStorageClient.createPreSignedPutUrl());
-        } catch (Exception e) {
-            throw new StorageException(e, ErrorCode.IS002);
-        }
+    public ResponseMessage issuePreSignedPutUrl() {
+
+        return ResponseMessage.createResponseMessage(
+            ncpObjectStorageClient.createPreSignedPutUrl());
     }
 
-    public ResponseMessage getPreSignedGetUrl(final String fileId) {
-        try {
-            return ResponseMessage.createResponseMessage(
-                ncpObjectStorageClient.createPreSignedGetUrl(
-                    fileId));
-        } catch (Exception e) {
-            throw new StorageException(e, ErrorCode.IS002);
-        }
+    public ResponseMessage issuePreSignedGetUrl(final String fileId) {
+        return ResponseMessage.createResponseMessage(
+            ncpObjectStorageClient.createPreSignedGetUrl(
+                fileId));
     }
 
 }
