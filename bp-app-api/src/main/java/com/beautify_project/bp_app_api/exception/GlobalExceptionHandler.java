@@ -2,6 +2,7 @@ package com.beautify_project.bp_app_api.exception;
 
 import com.beautify_project.bp_app_api.dto.common.ErrorCode;
 import com.beautify_project.bp_app_api.dto.common.ErrorResponseMessage;
+import com.beautify_project.bp_s3_client.naver.S3ClientException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
@@ -143,11 +144,12 @@ public class GlobalExceptionHandler {
         return ErrorResponseMessage.createErrorMessage(ErrorCode.RV001);
     }
 
-    @ExceptionHandler(StorageException.class)
+    @ExceptionHandler(S3ClientException.class)
     @ResponseStatus(code = HttpStatus.INTERNAL_SERVER_ERROR)
-    private ErrorResponseMessage handleStorageException(final StorageException exception) {
+    private ErrorResponseMessage handleStorageException(final S3ClientException exception) {
         log.error("", exception);
-        return ErrorResponseMessage.createErrorMessage(exception.getErrorCode());
+
+        return ErrorResponseMessage.createErrorMessage(ErrorCode.IS002);
     }
 
     @ExceptionHandler(MissingPathVariableException.class)

@@ -23,7 +23,7 @@ public class ImageController {
     @GetMapping("/v1/images/presigned-put-url")
     @ResponseStatus(code = HttpStatus.OK)
     ResponseMessage issuePreSignedPutUrl() {
-        return imageService.getPreSignedPutUrl();
+        return imageService.issuePreSignedPutUrl();
     }
 
     /**
@@ -32,6 +32,6 @@ public class ImageController {
     @GetMapping("/v1/images/presigned-get-url/{id}")
     ResponseMessage issuePreSignedGetUrl(
         @PathVariable(value = "id") @NotBlank @NotNull final String fileId) {
-        return imageService.getPreSignedGetUrl(fileId);
+        return imageService.issuePreSignedGetUrl(fileId);
     }
 }
