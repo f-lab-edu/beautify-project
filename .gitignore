@@ -6,7 +6,7 @@ application-prod.yml
 datasource-prod.yml
 application-local.yml
 datasource-local.yml
-ncloud-auth.yml
+naver-cloud-platform-auth.yml
 
 
 ### Java ###
