@@ -144,12 +144,12 @@ public class GlobalExceptionHandler {
         return ErrorResponseMessage.createErrorMessage(ErrorCode.RV001);
     }
 
-    @ExceptionHandler(S3ClientException.class)
+    @ExceptionHandler(StorageException.class)
     @ResponseStatus(code = HttpStatus.INTERNAL_SERVER_ERROR)
-    private ErrorResponseMessage handleStorageException(final S3ClientException exception) {
+    private ErrorResponseMessage handleStorageException(final StorageException exception) {
         log.error("", exception);
 
-        return ErrorResponseMessage.createErrorMessage(ErrorCode.IS002);
+        return ErrorResponseMessage.createErrorMessage(exception.getErrorCode());
     }
 
     @ExceptionHandler(MissingPathVariableException.class)

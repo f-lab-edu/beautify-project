@@ -38,9 +38,10 @@ class ImageControllerTest {
 
     @Test
     @DisplayName("PreSignedPutUrl 요청시 성공 후 PreSignedPutUrlResult 를 wrapping 한 ResponseMessage 객체 응답을 받는다.")
-    void given_preSignedPutUrlRequest_when_succeed_then_getResponseMessageWrappingPreSignedPutUrlResult() throws Exception{
+    void given_preSignedPutUrlRequest_when_succeed_then_getResponseMessageWrappingPreSignedPutUrlResult()
+        throws Exception {
         // given
-        when(imageService.getPreSignedPutUrl()).thenReturn(ResponseMessage.createResponseMessage(
+        when(imageService.issuePreSignedPutUrl()).thenReturn(ResponseMessage.createResponseMessage(
             new PreSignedPutUrlResult("www.test.com", UUID.randomUUID().toString())));
 
         // when
@@ -60,9 +61,10 @@ class ImageControllerTest {
 
     @Test
     @DisplayName("PreSignedPutUrl 요청시 외부 서비스 처리 클라이언트에서 실패하면 IS002 에러 코드를 포함한 ErrorResponseMessage 객체 응답을 받는다.")
-    void given_preSignedPutUrlRequest_when_failed_then_getErrorResponseMessageWrappingErrorCodeIS002() throws Exception{
+    void given_preSignedPutUrlRequest_when_failed_then_getErrorResponseMessageWrappingErrorCodeIS002()
+        throws Exception {
         // given
-        when(imageService.getPreSignedPutUrl()).thenThrow(new StorageException(ErrorCode.IS002));
+        when(imageService.issuePreSignedPutUrl()).thenThrow(new StorageException(ErrorCode.IS002));
 
         // when
         ResultActions resultActions = mockMvc.perform(
@@ -79,9 +81,10 @@ class ImageControllerTest {
 
     @Test
     @DisplayName("PreSignedGetUrl 요청시 성공 후 PreSignedGetUrlResult 를 wrapping 한 ResponseMessage 객체 응답을 받는다.")
-    void given_preSignedGetUrlRequest_when_succeed_then_getResponseMessageWrappingPreSignedGetUrlResult() throws Exception {
+    void given_preSignedGetUrlRequest_when_succeed_then_getResponseMessageWrappingPreSignedGetUrlResult()
+        throws Exception {
         // given
-        when(imageService.getPreSignedGetUrl(any(String.class))).thenReturn(
+        when(imageService.issuePreSignedGetUrl(any(String.class))).thenReturn(
             ResponseMessage.createResponseMessage(
                 new PreSignedGetUrlResult("www.presignedGetUrl")));
 
@@ -102,7 +105,8 @@ class ImageControllerTest {
 
     @Test
     @DisplayName("PreSignedGetUrl 요청시 fileId 파라미터가 없으면 ErrorResponseMessage 객체 응답을 받는다.")
-    void given_preSignedGetUrlRequestWithoutFileId_when_succeed_then_getErrResponseMessage() throws Exception {
+    void given_preSignedGetUrlRequestWithoutFileId_when_succeed_then_getErrResponseMessage()
+        throws Exception {
         // when
         ResultActions resultActions = mockMvc.perform(
             MockMvcRequestBuilders.get(
@@ -120,9 +124,10 @@ class ImageControllerTest {
 
     @Test
     @DisplayName("PreSignedGetUrl 요청시 외부 서비스 처리 클라이언트에서 실패하면 IS002 에러 코드를 포함한 ErrorResponseMessage 객체 응답을 받는다.")
-    void given_preSignedGetUrlRequest_when_failed_then_getErrorResponseMessageWrappingErrorCodeIS002() throws Exception {
+    void given_preSignedGetUrlRequest_when_failed_then_getErrorResponseMessageWrappingErrorCodeIS002()
+        throws Exception {
         // given
-        when(imageService.getPreSignedGetUrl(any(String.class))).thenThrow(
+        when(imageService.issuePreSignedGetUrl(any(String.class))).thenThrow(
             new StorageException(ErrorCode.IS002));
 
         // when

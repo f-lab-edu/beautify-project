@@ -17,10 +17,13 @@ public class NaverCloudPlatformObjectStorageBean {
 
     @Bean
     NCPObjectStorageClient ncpObjectStorageClient() {
-      log.debug("{}", naverCloudPlatformObjectStorageConfig.toString());
-        return new NCPObjectStorageClient(new NCPConfig(naverCloudPlatformObjectStorageConfig.endpoint(),
-            naverCloudPlatformObjectStorageConfig.regionName(), naverCloudPlatformObjectStorageConfig.bucketName(),
-            naverCloudPlatformObjectStorageConfig.accessKey(), naverCloudPlatformObjectStorageConfig.secretKey()));
+        log.debug("{}", naverCloudPlatformObjectStorageConfig.toString());
+        return new NCPObjectStorageClient(
+            new NCPConfig(naverCloudPlatformObjectStorageConfig.endpoint(),
+                naverCloudPlatformObjectStorageConfig.regionName(),
+                naverCloudPlatformObjectStorageConfig.bucketName(),
+                naverCloudPlatformObjectStorageConfig.accessKey(),
+                naverCloudPlatformObjectStorageConfig.secretKey()));
     }
 
 }
