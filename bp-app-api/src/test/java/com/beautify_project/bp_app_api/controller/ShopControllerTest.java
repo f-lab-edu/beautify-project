@@ -192,7 +192,8 @@ class ShopControllerTest {
             Arrays.asList(UUIDGenerator.generate(), UUIDGenerator.generate()),
             "4.5",
             132,
-            false
+            false,
+            "www.file-link1.com"
         );
 
         when(shopService.findShopList(any(ShopListFindRequestParameters.class))).thenReturn(

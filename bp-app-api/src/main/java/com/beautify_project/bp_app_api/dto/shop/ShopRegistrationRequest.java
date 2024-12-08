@@ -13,7 +13,7 @@ public record ShopRegistrationRequest(
     @Size(max = 2048) String introduction,
     List<String> operationIds,
     List<String> facilityIds,
-    List<String> imageUrls,
+    List<String> imageFileIds,
     BusinessTime businessTime,
     Address address) {
 

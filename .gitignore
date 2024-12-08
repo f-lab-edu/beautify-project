@@ -4,8 +4,10 @@ build
 out
 application-prod.yml
 datasource-prod.yml
+storage-prod.yml
 application-local.yml
 datasource-local.yml
+storage-local.yml
 naver-cloud-platform-auth.yml
 
 
