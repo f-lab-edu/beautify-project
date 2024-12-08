@@ -31,8 +31,7 @@ public class ReviewController {
     @GetMapping("/v1/reviews/{id}")
     @ResponseStatus(code = HttpStatus.OK)
     public ResponseMessage findReview(
-        @PathVariable(value = "id") @NotBlank @NotNull final String reviewId)
-        throws RuntimeException {
+        @PathVariable(value = "id") @NotBlank @NotNull final String reviewId) {
         return reviewService.findReview(reviewId);
     }
 
@@ -47,20 +46,15 @@ public class ReviewController {
      */
     @GetMapping("/v1/reviews/shops/{id}")
     @ResponseStatus(code = HttpStatus.OK)
-    public ResponseMessage findReviewList(@PathVariable(value = "id") @NotBlank final String shopId,
-        @RequestParam(name = "sort", required = false, defaultValue = "registeredDate") final String sort,
+    public ResponseMessage findReviewListInShop(
+        @PathVariable(value = "id") @NotBlank final String shopId,
+        @RequestParam(name = "sort", required = false, defaultValue = "reviewRegisteredDate") final String sort,
         @RequestParam(name = "page", required = false, defaultValue = "0") final int page,
         @RequestParam(name = "count", required = false, defaultValue = "10") final int count,
-        @RequestParam(name = "order", required = false, defaultValue = "asc") final String order)
-        throws RuntimeException {
-        return reviewService.findReviewList(
-            FindReviewListRequestParameters.builder()
-                .shopId(shopId)
-                .sortBy(ReviewSortBy.from(sort))
-                .page(page)
-                .count(count)
-                .orderType(OrderType.from(order))
-                .build());
+        @RequestParam(name = "order", required = false, defaultValue = "asc") final String order) {
+        return reviewService.findReviewListInShop(
+            new FindReviewListRequestParameters(shopId, ReviewSortBy.from(sort), page, count,
+                OrderType.from(order)));
     }
 
     /**
@@ -70,8 +64,7 @@ public class ReviewController {
      */
     @DeleteMapping("/v1/reviews/{id}")
     @ResponseStatus(code = HttpStatus.NO_CONTENT)
-    public void deleteReview(@PathVariable(value = "id") @NotBlank final String reviewId)
-        throws RuntimeException {
+    public void deleteReview(@PathVariable(value = "id") @NotBlank final String reviewId) {
         reviewService.deleteReview(reviewId);
     }
 }

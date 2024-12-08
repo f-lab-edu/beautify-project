@@ -1,21 +1,19 @@
 package com.beautify_project.bp_app_api.exception;
 
-import com.beautify_project.bp_app_api.dto.common.ErrorCode;
 import com.beautify_project.bp_app_api.dto.common.ErrorResponseMessage;
-import com.beautify_project.bp_s3_client.naver.S3ClientException;
+import com.beautify_project.bp_app_api.dto.common.ErrorResponseMessage.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @RestControllerAdvice
@@ -33,14 +31,14 @@ public class GlobalExceptionHandler {
      * @param exception MethodArgumentNotValidaException
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    private ErrorResponseMessage handleMethodArgumentNotValidException (
+    private ResponseEntity<ErrorResponseMessage> handleMethodArgumentNotValidException(
         final MethodArgumentNotValidException exception) {
-
         log.error("", exception);
 
-        return createErrorResponseMessage(MSG_FORMAT_PARAMETER_INVALID,
-            enumerateFieldsWithComma(exception.getBindingResult()), ErrorCode.BR001);
+        final String customMessage = String.format(MSG_FORMAT_PARAMETER_INVALID,
+            enumerateFieldsWithComma(exception.getBindingResult()));
+
+        return createResponseWithCustomMessage(ErrorCode.BR001, customMessage);
     }
 
     private String enumerateFieldsWithComma(final BindingResult bindingResult) {
@@ -51,122 +49,117 @@ public class GlobalExceptionHandler {
         return fields.toString();
     }
 
-    /**
-     * '@RequestPart required = true' 인 파라미터에 아무런 값이 들어오지 않을 때
-     *
-     * @param exception MissingServletRequestPartException
-     */
-    @ExceptionHandler(MissingServletRequestPartException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    private ErrorResponseMessage handleMissingServletRequestPartException(
-        final MissingServletRequestPartException exception) {
-
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    private ResponseEntity<ErrorResponseMessage> handleHttpMessageNotReadableException(
+        final HttpMessageNotReadableException exception) {
         log.error("", exception);
-
-        return createErrorResponseMessage(MSG_FORMAT_MISSING_PARAMETER,
-            exception.getRequestPartName(), ErrorCode.BR002);
+        return createResponse(ErrorCode.BR002);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    private ErrorResponseMessage handleMissingServletRequestParameterException(
+    private ResponseEntity<ErrorResponseMessage> handleMissingServletRequestParameterException(
         final MissingServletRequestParameterException exception) {
-
         log.error("", exception);
 
-        return createErrorResponseMessage(MSG_FORMAT_PARAMETER_INVALID,
-            exception.getParameterName(), ErrorCode.BR001);
+        final String customMessage = String.format(MSG_FORMAT_PARAMETER_INVALID,
+            exception.getParameterName());
+
+        return createResponseWithCustomMessage(ErrorCode.BR001, customMessage);
     }
 
     @ExceptionHandler(EnumMismatchException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    private ErrorResponseMessage handleQueryStringException(final EnumMismatchException exception) {
+    private ResponseEntity<ErrorResponseMessage> handleQueryStringException(final EnumMismatchException exception) {
         log.error("", exception);
 
-        return createErrorResponseMessage(MSG_FORMAT_PARAMETER_INVALID, exception.getValue(),
-            ErrorCode.BR001);
+        final String customMessage = String.format(MSG_FORMAT_PARAMETER_INVALID,
+            exception.getValue());
+
+        return createResponseWithCustomMessage(ErrorCode.BR001, customMessage);
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    private ErrorResponseMessage handleMethodArgumentTypeMismatchException(
+    private ResponseEntity<ErrorResponseMessage> handleMethodArgumentTypeMismatchException(
         final MethodArgumentTypeMismatchException exception) {
         log.error("", exception);
 
-        return createErrorResponseMessage(MSG_FORMAT_PARAMETER_TYPE_MISMATCH,
-            exception.getPropertyName(), ErrorCode.BR001);
+        final String customMessage = String.format(MSG_FORMAT_PARAMETER_TYPE_MISMATCH,
+            exception.getPropertyName());
+
+        return createResponseWithCustomMessage(ErrorCode.BR001, customMessage);
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
-    @ResponseStatus(code = HttpStatus.NOT_FOUND)
-    private ErrorResponseMessage handleNoResourceFoundException(final NoResourceFoundException exception) {
+    private ResponseEntity<ErrorResponseMessage> handleNoResourceFoundException(
+        final NoResourceFoundException exception) {
         log.error("", exception);
-        return ErrorResponseMessage.createErrorMessage(ErrorCode.NF001);
+        return createResponse(ErrorCode.NF001);
     }
 
     @ExceptionHandler(HandlerMethodValidationException.class)
-    @ResponseStatus(code = HttpStatus.BAD_REQUEST)
-    private ErrorResponseMessage handleHandlerMethodValidationException(
+    private ResponseEntity<ErrorResponseMessage> handleHandlerMethodValidationException(
         final HandlerMethodValidationException exception) {
         log.error("", exception);
-        return ErrorResponseMessage.createErrorMessage(ErrorCode.BR001);
+        return createResponse(ErrorCode.BR001);
     }
 
     @ExceptionHandler(ParameterOutOfRangeException.class)
-    @ResponseStatus(code = HttpStatus.BAD_REQUEST)
-    private ErrorResponseMessage handleParameterOutOfRangeException(
+    private ResponseEntity<ErrorResponseMessage> handleParameterOutOfRangeException(
         final ParameterOutOfRangeException exception) {
         log.error("", exception);
-        return createErrorResponseMessage(MSG_FORMAT_PARAMETER_OUT_OF_RANGE,
-            exception.getParameterName(), ErrorCode.BR001);
+
+        final String customMessage = String.format(MSG_FORMAT_PARAMETER_OUT_OF_RANGE,
+            exception.getParameterName());
+        return createResponseWithCustomMessage(ErrorCode.BR001, customMessage);
     }
 
     @ExceptionHandler(FileStoreException.class)
-    @ResponseStatus(code = HttpStatus.INTERNAL_SERVER_ERROR)
-    private ErrorResponseMessage handleFileStoreException(final FileStoreException exception) {
+    private ResponseEntity<ErrorResponseMessage> handleFileStoreException(final FileStoreException exception) {
         log.error("", exception);
-        return ErrorResponseMessage.createErrorMessage(ErrorCode.IS001);
+
+        return createResponse(ErrorCode.IS001);
     }
 
     @ExceptionHandler(EmptyResultDataAccessException.class)
-    @ResponseStatus(code = HttpStatus.NOT_FOUND)
-    private ErrorResponseMessage handleEmptyResultDataAccessException(
+    private ResponseEntity<ErrorResponseMessage> handleEmptyResultDataAccessException(
         final EmptyResultDataAccessException exception) {
         log.error("", exception);
-        return ErrorResponseMessage.createErrorMessage(ErrorCode.NF002);
+        return createResponse(ErrorCode.NF002);
     }
 
-    @ExceptionHandler(NotRegisteredReviewException.class)
-    @ResponseStatus(code = HttpStatus.NOT_FOUND)
-    private ErrorResponseMessage handleNotRegisteredReviewException(
-        final NotRegisteredReviewException exception) {
+    @ExceptionHandler(NotFoundException.class)
+    private ResponseEntity<ErrorResponseMessage> handleNotFoundException(final NotFoundException exception) {
         log.error("", exception);
-        return ErrorResponseMessage.createErrorMessage(ErrorCode.RV001);
+        return createResponse(exception.getErrorCode());
     }
+
 
     @ExceptionHandler(StorageException.class)
-    @ResponseStatus(code = HttpStatus.INTERNAL_SERVER_ERROR)
-    private ErrorResponseMessage handleStorageException(final StorageException exception) {
+    private ResponseEntity<ErrorResponseMessage> handleStorageException(final StorageException exception) {
         log.error("", exception);
-
-        return ErrorResponseMessage.createErrorMessage(exception.getErrorCode());
+        return createResponse(exception.getErrorCode());
     }
 
     @ExceptionHandler(MissingPathVariableException.class)
-    @ResponseStatus(code = HttpStatus.NOT_FOUND)
-    private ErrorResponseMessage handleMissingPathVariableException(
+    private ResponseEntity<ErrorResponseMessage> handleMissingPathVariableException(
         final MissingPathVariableException exception
     ) {
         log.error("", exception);
-        return ErrorResponseMessage.createErrorMessage(ErrorCode.BR001);
+        return createResponse(ErrorCode.BR001);
     }
 
-    private static ErrorResponseMessage createErrorResponseMessage(
-        final String messageFormat,
-        final String replaceText,
-        final ErrorCode errorCode) {
+    private static ResponseEntity<ErrorResponseMessage> createResponse(final ErrorCode errorCode) {
+        ErrorResponseMessage errorResponseMessage = ErrorResponseMessage.createErrorMessage(
+            errorCode);
+        return new ResponseEntity<>(errorResponseMessage, errorResponseMessage.getHttpStatus());
+    }
 
-        return ErrorResponseMessage.createCustomErrorMessage(errorCode,
-            String.format(messageFormat, replaceText));
+    private static ResponseEntity<ErrorResponseMessage> createResponseWithCustomMessage(
+        final ErrorCode errorCode, final String customMessage) {
+
+        ErrorResponseMessage customErrorResponseMessage = ErrorResponseMessage.createCustomErrorMessage(
+            errorCode, customMessage);
+
+        return new ResponseEntity<>(customErrorResponseMessage,
+            customErrorResponseMessage.getHttpStatus());
     }
 }
