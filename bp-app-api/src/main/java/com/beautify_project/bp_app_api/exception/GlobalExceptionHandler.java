@@ -112,13 +112,6 @@ public class GlobalExceptionHandler {
         return createResponseWithCustomMessage(ErrorCode.BR001, customMessage);
     }
 
-    @ExceptionHandler(FileStoreException.class)
-    private ResponseEntity<ErrorResponseMessage> handleFileStoreException(final FileStoreException exception) {
-        log.error("", exception);
-
-        return createResponse(ErrorCode.IS001);
-    }
-
     @ExceptionHandler(EmptyResultDataAccessException.class)
     private ResponseEntity<ErrorResponseMessage> handleEmptyResultDataAccessException(
         final EmptyResultDataAccessException exception) {
@@ -132,7 +125,6 @@ public class GlobalExceptionHandler {
         return createResponse(exception.getErrorCode());
     }
 
-
     @ExceptionHandler(StorageException.class)
     private ResponseEntity<ErrorResponseMessage> handleStorageException(final StorageException exception) {
         log.error("", exception);
@@ -145,6 +137,13 @@ public class GlobalExceptionHandler {
     ) {
         log.error("", exception);
         return createResponse(ErrorCode.BR001);
+    }
+
+    @ExceptionHandler(ConfigurationException.class)
+    private ResponseEntity<ErrorResponseMessage> handleConfigurationException(
+        final ConfigurationException exception) {
+        log.error("", exception);
+        return createResponse(exception.getErrorCode());
     }
 
     private static ResponseEntity<ErrorResponseMessage> createResponse(final ErrorCode errorCode) {
