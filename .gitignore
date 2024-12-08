@@ -2,6 +2,12 @@
 .gradle
 build
 out
+application-prod.yml
+datasource-prod.yml
+application-local.yml
+datasource-local.yml
+naver-cloud-platform-auth.yml
+
 
 ### Java ###
 # Compiled class file

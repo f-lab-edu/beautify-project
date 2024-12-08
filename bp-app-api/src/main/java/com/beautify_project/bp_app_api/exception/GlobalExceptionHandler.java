@@ -4,14 +4,13 @@ import com.beautify_project.bp_app_api.dto.common.ErrorResponseMessage;
 import com.beautify_project.bp_app_api.dto.common.ErrorResponseMessage.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -134,8 +133,21 @@ public class GlobalExceptionHandler {
     }
 
 
-    private static ResponseEntity<ErrorResponseMessage> createResponse(
-        final ErrorCode errorCode) {
+    @ExceptionHandler(StorageException.class)
+    private ResponseEntity<ErrorResponseMessage> handleStorageException(final StorageException exception) {
+        log.error("", exception);
+        return createResponse(exception.getErrorCode());
+    }
+
+    @ExceptionHandler(MissingPathVariableException.class)
+    private ResponseEntity<ErrorResponseMessage> handleMissingPathVariableException(
+        final MissingPathVariableException exception
+    ) {
+        log.error("", exception);
+        return createResponse(ErrorCode.BR001);
+    }
+
+    private static ResponseEntity<ErrorResponseMessage> createResponse(final ErrorCode errorCode) {
         ErrorResponseMessage errorResponseMessage = ErrorResponseMessage.createErrorMessage(
             errorCode);
         return new ResponseEntity<>(errorResponseMessage, errorResponseMessage.getHttpStatus());

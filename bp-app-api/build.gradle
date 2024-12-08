@@ -5,15 +5,13 @@ plugins {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-
     implementation project(':bp-kafka-event-publisher')
     implementation project(':bp-utils')
-
-    implementation 'org.apache.commons:commons-lang3:3.14.0'
-
+    implementation project(':bp-s3-client')
+    implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.apache.commons:commons-lang3:3.14.0'
 
     runtimeOnly 'org.postgresql:postgresql'
 
@@ -23,8 +21,6 @@ dependencies {
 
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
-
 
     test {
         useJUnitPlatform()

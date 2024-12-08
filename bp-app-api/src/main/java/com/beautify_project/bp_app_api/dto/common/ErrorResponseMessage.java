@@ -72,7 +72,8 @@ public class ErrorResponseMessage {
 
         RS001(HttpStatus.NOT_FOUND, "RS001", "등록되지 않은 예약입니다."),
 
-        IS001(HttpStatus.INTERNAL_SERVER_ERROR, "IS001", "시스템 에러가 발생하였습니다. 관리자에게 문의해주세요.")
+        IS001(HttpStatus.INTERNAL_SERVER_ERROR, "IS001", "시스템 에러가 발생하였습니다. 관리자에게 문의해주세요."),
+        IS002(HttpStatus.INTERNAL_SERVER_ERROR, "IS002", "외부 시스템에서 에러가 발생하였습니다.")
         ;
 
         private final HttpStatus httpStatus;

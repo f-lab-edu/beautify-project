@@ -1,0 +1,15 @@
+dependencies {
+    implementation 'software.amazon.awssdk:s3:2.29.23'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.5'
+    testImplementation 'org.mockito:mockito-core:5.11.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.11.0'
+    testImplementation 'org.assertj:assertj-core:3.25.3'
+
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.5 '
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.10.5'
+}
+
+test {
+    useJUnitPlatform()
+}
