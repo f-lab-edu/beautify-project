@@ -7,9 +7,12 @@ import com.beautify_project.bp_app_api.enumeration.OrderType;
 import com.beautify_project.bp_app_api.enumeration.ShopSearchType;
 import com.beautify_project.bp_app_api.service.ShopService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -27,7 +30,7 @@ public class ShopController {
      */
     @PostMapping("/v1/shops")
     @ResponseStatus(code = HttpStatus.OK)
-    ResponseMessage registerShop(
+    public ResponseMessage registerShop(
         @Valid @RequestBody final ShopRegistrationRequest shopRegistrationRequest) {
 
         return shopService.registerShop(shopRegistrationRequest);
@@ -38,7 +41,7 @@ public class ShopController {
      */
     @GetMapping("/v1/shops")
     @ResponseStatus(code = HttpStatus.OK)
-    ResponseMessage findShopList(@RequestParam(name = "type") final String searchType,
+    public ResponseMessage findShopList(@RequestParam(name = "type") final String searchType,
         @RequestParam(name = "page", required = false, defaultValue = "0") final Integer page,
         @RequestParam(name = "count", required = false, defaultValue = "10") final Integer count,
         @RequestParam(name = "order", required = false, defaultValue = "asc") final String order) {
@@ -51,6 +54,14 @@ public class ShopController {
     // TODO: 샵 상세 조회 구현
     // TODO: 샵 수정 구현
     // TODO: 샵 삭제 구현
-    // TODO: 샵 좋아요 구현
     // TODO: 샵 좋아요 취소 구현
+
+    /**
+     * Shop 좋아요
+     */
+    @PostMapping("/v1/shops/likes")
+    @ResponseStatus(code = HttpStatus.NO_CONTENT)
+    public void likeShop(@PathVariable(value = "id") @NotBlank final String shopId) {
+        shopService.likeShop(shopId);
+    }
 }

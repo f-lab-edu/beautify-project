@@ -9,15 +9,14 @@ import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationResult;
 import com.beautify_project.bp_app_api.entity.Facility;
 import com.beautify_project.bp_app_api.entity.Operation;
 import com.beautify_project.bp_app_api.entity.Shop;
+import com.beautify_project.bp_app_api.entity.ShopLike;
 import com.beautify_project.bp_app_api.exception.NotFoundException;
 import com.beautify_project.bp_app_api.repository.ShopRepository;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -34,6 +33,7 @@ public class ShopService {
     private final FacilityService facilityService;
     private final OperationService operationService;
     private final ImageService imageService;
+    private final ShopLikeService shopLikeService;
 
     @Transactional(rollbackFor = Exception.class)
     public ResponseMessage registerShop(final ShopRegistrationRequest shopRegistrationRequest) {
@@ -75,5 +75,16 @@ public class ShopService {
     public Shop findShopById(final @NotNull String shopId) {
         return shopRepository.findById(shopId)
             .orElseThrow(() -> new NotFoundException(ErrorCode.SH001));
+    }
+
+    @Transactional
+    public void likeShop(final @NotNull String shopId) {
+        Shop foundShop = findShopById(shopId);
+        log.debug("foundShop: {}", foundShop.toString());
+        Long shopLikeTotalCount = shopLikeService.getTotalCountByShopId(shopId);
+        foundShop.addLikeCount(shopLikeTotalCount);
+        shopRepository.save(foundShop);
+        // TODO: bearer token 에서 사용자 정보 추출하는 로직 필요
+        shopLikeService.registerShopLike(ShopLike.of(shopId, "sssukho"));
     }
 }
