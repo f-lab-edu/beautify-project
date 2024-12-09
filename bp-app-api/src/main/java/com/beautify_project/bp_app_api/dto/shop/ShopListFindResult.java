@@ -14,7 +14,7 @@ public record ShopListFindResult(
     @JsonInclude(Include.NON_NULL)
     List<String> facilities,
     String rate,
-    Integer likes,
+    Long likes,
     Boolean likePushed,
     String thumbnailLink
 ) {

@@ -47,7 +47,7 @@ public class Shop implements Persistable<String> {
     private String rate = "0.0";
 
     @Column(name = "shop_likes")
-    private Integer likes = 0;
+    private Long likes = 0L;
 
     @Column(name = "shop_registered")
     private Long registered;
@@ -96,7 +96,7 @@ public class Shop implements Persistable<String> {
     @Builder
     private Shop(final String name, final String contact, final String url,
         final String introduction, final String rate,
-        final Integer likes, final Long registered, final Long updated, final Address shopAddress,
+        final Long likes, final Long registered, final Long updated, final Address shopAddress,
         final BusinessTime businessTime) {
         this.id = UUIDGenerator.generate();
         this.name = name;
@@ -110,8 +110,6 @@ public class Shop implements Persistable<String> {
         this.shopAddress = shopAddress;
         this.businessTime = businessTime;
     }
-
-
 
     private static Shop of(final ShopRegistrationRequest request, long registeredTime) {
         return Shop.builder()
@@ -190,9 +188,33 @@ public class Shop implements Persistable<String> {
         this.shopFacilities.add(shopFacility);
     }
 
-
     public void addOperations(ShopOperation shopOperation) {
         this.shopOperations.add(shopOperation);
+    }
+
+    public void addLikeCount(final Long previousLikeCount) {
+        likes = previousLikeCount + 1;
+    }
+
+    @Override
+    public String toString() {
+        return "Shop{" +
+            "id='" + id + '\'' +
+            ", name='" + name + '\'' +
+            ", contact='" + contact + '\'' +
+            ", url='" + url + '\'' +
+            ", introduction='" + introduction + '\'' +
+            ", rate='" + rate + '\'' +
+            ", likes=" + likes +
+            ", registered=" + registered +
+            ", updated=" + updated +
+            ", imageFileIds=" + imageFileIds +
+            ", objectCreated=" + objectCreated +
+            ", shopAddress=" + shopAddress +
+            ", businessTime=" + businessTime +
+            ", shopFacilities=" + shopFacilities +
+            ", shopOperations=" + shopOperations +
+            '}';
     }
 
     @Override

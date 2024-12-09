@@ -80,7 +80,7 @@ class ReviewServiceTest {
             .url("www.naver.com")
             .introduction("소개글")
             .rate("4.3")
-            .likes(132)
+            .likes(132L)
             .registered(System.currentTimeMillis())
             .updated(System.currentTimeMillis())
             .build();
@@ -158,7 +158,7 @@ class ReviewServiceTest {
             .url("www.naver.com")
             .introduction("소개글")
             .rate("4.3")
-            .likes(132)
+            .likes(132L)
             .registered(System.currentTimeMillis())
             .updated(System.currentTimeMillis())
             .build();

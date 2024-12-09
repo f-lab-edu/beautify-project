@@ -191,7 +191,7 @@ class ShopControllerTest {
             Arrays.asList(UUIDGenerator.generate(), UUIDGenerator.generate()),
             Arrays.asList(UUIDGenerator.generate(), UUIDGenerator.generate()),
             "4.5",
-            132,
+            132L,
             false,
             "www.file-link1.com"
         );
