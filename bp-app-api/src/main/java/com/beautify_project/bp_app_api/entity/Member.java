@@ -5,7 +5,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -25,15 +24,18 @@ public class Member {
     @Column(name = "member_contact")
     private String contact;
 
-    @Column(name = "member_registered")
-    private Long registered;
+    @Column(name = "member_registered_time")
+    private Long registeredTime;
 
-    @Builder
     private Member(final String email, final String name, final String contact,
-        final Long registered) {
+        final Long registeredTime) {
         this.email = email;
         this.name = name;
         this.contact = contact;
-        this.registered = registered;
+        this.registeredTime = registeredTime;
+    }
+
+    public static Member of(final String email, final String name, final String contact) {
+        return new Member(email, name, contact, System.currentTimeMillis());
     }
 }

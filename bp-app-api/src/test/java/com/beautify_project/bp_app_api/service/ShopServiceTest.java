@@ -3,7 +3,6 @@ package com.beautify_project.bp_app_api.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -14,15 +13,14 @@ import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest;
 import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest.Address;
 import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest.BusinessTime;
 import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationResult;
-import com.beautify_project.bp_app_api.entity.Category;
 import com.beautify_project.bp_app_api.entity.Facility;
 import com.beautify_project.bp_app_api.entity.Operation;
 import com.beautify_project.bp_app_api.entity.Shop;
+import com.beautify_project.bp_app_api.entity.ShopOperation;
 import com.beautify_project.bp_app_api.enumeration.OrderType;
 import com.beautify_project.bp_app_api.enumeration.ShopSearchType;
 import com.beautify_project.bp_app_api.repository.ShopRepository;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -54,25 +52,24 @@ class ShopServiceTest {
     @Mock
     private OperationService operationService;
 
+    @Mock
+    private ShopOperationService shopOperationService;
+
+    @Mock
+    private ShopFacilityService shopFacilityService;
+
 
     @Test
     @DisplayName("Shop 등록 요청시 모든 필드값이 있는 경우 등록에 성공 후 ResponseMessage 를 리턴한다.")
     void given_shopRegisterWithAllFields_when_succeed_then_returnResponseMessageWrappingShopId() {
         // given
-        final List<Category> mockedCategoryEntities = Arrays.asList(
-            Category.of("머리", "머리 설명", System.currentTimeMillis()),
-            Category.of("피부", "피부 설명", System.currentTimeMillis()));
-
         final List<Operation> mockedOperationEntities = Arrays.asList(
-            Operation.of("두피 문신 시술", "두피 문신 시술 설명", System.currentTimeMillis(),
-                List.of(mockedCategoryEntities.get(0))),
-            Operation.of("점 제거 시술", "점 제거 시술 설명", System.currentTimeMillis(),
-                List.of(mockedCategoryEntities.get(1))
-            ));
+            Operation.of("두피 문신 시술", "두피 문신 시술 설명"),
+            Operation.of("점 제거 시술", "점 제거 시술 설명"));
 
         final List<Facility> mockedFacilityEntities = Arrays.asList(
-            Facility.of("와이파이", System.currentTimeMillis()),
-            Facility.of("샤워실", System.currentTimeMillis())
+            Facility.withName("와이파이"),
+            Facility.withName("샤워실")
         );
 
         final List<String> mockedOperationIds = Arrays.asList(
@@ -114,13 +111,8 @@ class ShopServiceTest {
             )
         );
 
-        Shop mockedRegisteredShop = Shop.createShop(mockedRequest, mockedOperationEntities,
-            mockedFacilityEntities, System.currentTimeMillis());
+        Shop mockedRegisteredShop = Shop.from(mockedRequest);
 
-        when(operationService.findOperationsByIds(anyList())).thenReturn(
-            mockedOperationEntities);
-        when(facilityService.findFacilitiesByIds(anyList())).thenReturn(
-            mockedFacilityEntities);
         when(shopRepository.save(any(Shop.class))).thenReturn(mockedRegisteredShop);
 
         // when
@@ -128,8 +120,6 @@ class ShopServiceTest {
 
         // then
         assertThat(responseMessage.getReturnValue()).isInstanceOf(ShopRegistrationResult.class);
-        verify(operationService, times(1)).findOperationsByIds(anyList());
-        verify(facilityService, times(1)).findFacilitiesByIds(anyList());
         verify(shopRepository, times(1)).save(any(Shop.class));
     }
 
@@ -138,8 +128,8 @@ class ShopServiceTest {
     void given_shopRegisterWithoutOperation_when_succeed_then_returnResponseMessageWrappingShopId() {
         // given
         final List<Facility> mockedFacilityEntities = Arrays.asList(
-            Facility.of("시설1", System.currentTimeMillis()),
-            Facility.of("시설2", System.currentTimeMillis())
+            Facility.withName("시설1"),
+            Facility.withName("시설2")
         );
 
         final List<String> mockedFacilityIds = Arrays.asList(
@@ -179,11 +169,8 @@ class ShopServiceTest {
             )
         );
 
-        Shop mockedRegisteredShop = Shop.createShop(mockedRequest, null, mockedFacilityEntities,
-            System.currentTimeMillis());
+        Shop mockedRegisteredShop = Shop.from(mockedRequest);
 
-        when(operationService.findOperationsByIds(null)).thenReturn(new ArrayList<>());
-        when(facilityService.findFacilitiesByIds(anyList())).thenReturn(mockedFacilityEntities);
         when(shopRepository.save(any(Shop.class))).thenReturn(mockedRegisteredShop);
 
         // when
@@ -191,8 +178,6 @@ class ShopServiceTest {
 
         // when & then
         assertThat(responseMessage.getReturnValue()).isInstanceOf(ShopRegistrationResult.class);
-        verify(operationService, never()).findOperationsByIds(anyList());
-        verify(facilityService, times(1)).findFacilitiesByIds(anyList());
         verify(shopRepository, times(1)).save(any(Shop.class));
     }
 
@@ -200,16 +185,9 @@ class ShopServiceTest {
     @DisplayName("Shop 등록 요청 데이터에 지원 시설 아이디가 없어도 등록에 성공 후 ResponseMessage 를 리턴한다.")
     void given_shopRegisterWithoutFacility_when_succeed_then_returnResponseMessageWrappingShopId() {
         // given
-        final List<Category> mockedCategoryEntities = Arrays.asList(
-            Category.of("머리", "머리 설명", System.currentTimeMillis()),
-            Category.of("피부", "피부 설명", System.currentTimeMillis()));
-
         final List<Operation> mockedOperationEntities = Arrays.asList(
-            Operation.of("두피 문신 시술", "두피 문신 시술 설명", System.currentTimeMillis(),
-                List.of(mockedCategoryEntities.get(0))),
-            Operation.of("점 제거 시술", "점 제거 시술 설명", System.currentTimeMillis(),
-                List.of(mockedCategoryEntities.get(1))
-            ));
+            Operation.of("두피 문신 시술", "두피 문신 시술 설명"),
+            Operation.of("점 제거 시술", "점 제거 시술 설명"));
 
         final List<String> mockedOperationIds = Arrays.asList(
             mockedOperationEntities.get(0).getId(), mockedOperationEntities.get(1).getId());
@@ -247,13 +225,8 @@ class ShopServiceTest {
             )
         );
 
-        Shop mockedRegisteredShop = Shop.createShop(mockedRequest, mockedOperationEntities,
-            null, System.currentTimeMillis());
+        Shop mockedRegisteredShop = Shop.from(mockedRequest);
 
-        when(operationService.findOperationsByIds(anyList())).thenReturn(
-            mockedOperationEntities);
-        when(facilityService.findFacilitiesByIds(null)).thenReturn(
-            new ArrayList<>());
         when(shopRepository.save(any(Shop.class))).thenReturn(mockedRegisteredShop);
 
         // when
@@ -261,8 +234,6 @@ class ShopServiceTest {
 
         // then
         assertThat(responseMessage.getReturnValue()).isInstanceOf(ShopRegistrationResult.class);
-        verify(operationService, times(1)).findOperationsByIds(anyList());
-        verify(facilityService, never()).findFacilitiesByIds(anyList());
         verify(shopRepository, times(1)).save(any(Shop.class));
     }
 
@@ -272,20 +243,13 @@ class ShopServiceTest {
     void given_shopListFind_when_succeed_then_returnResponseMessageWrappingShopFindResult(final
     ShopListFindRequestParameters parameters) {
         // given
-        final List<Category> mockedCategoryEntities = Arrays.asList(
-            Category.of("머리", "머리 설명", System.currentTimeMillis()),
-            Category.of("피부", "피부 설명", System.currentTimeMillis()));
-
         final List<Operation> mockedOperationEntities = Arrays.asList(
-            Operation.of("두피 문신 시술", "두피 문신 시술 설명", System.currentTimeMillis(),
-                List.of(mockedCategoryEntities.get(0))),
-            Operation.of("점 제거 시술", "점 제거 시술 설명", System.currentTimeMillis(),
-                List.of(mockedCategoryEntities.get(1))
-            ));
+            Operation.of("두피 문신 시술", "두피 문신 시술 설명"),
+            Operation.of("점 제거 시술", "점 제거 시술 설명"));
 
         final List<Facility> mockedFacilityEntities = Arrays.asList(
-            Facility.of("와이파이", System.currentTimeMillis()),
-            Facility.of("샤워실", System.currentTimeMillis())
+            Facility.withName("와이파이"),
+            Facility.withName("샤워실")
         );
 
         final List<String> mockedOperationIds = Arrays.asList(
@@ -327,12 +291,12 @@ class ShopServiceTest {
             )
         );
 
-        Shop mockedRegisteredShop = Shop.createShop(mockedRequest, mockedOperationEntities,
-            mockedFacilityEntities, System.currentTimeMillis());
+        Shop mockedRegisteredShop = Shop.from(mockedRequest);
 
         List<Shop> mockedShopList = List.of(mockedRegisteredShop);
         Page<Shop> mockedPage = new PageImpl<>(mockedShopList);
         when(shopRepository.findAll(any(Pageable.class))).thenReturn(mockedPage);
+
 
         // when
         ResponseMessage responseMessage = shopService.findShopList(parameters);

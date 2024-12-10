@@ -13,7 +13,6 @@ import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest;
 import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest.Address;
 import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest.BusinessTime;
 import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationResult;
-import com.beautify_project.bp_app_api.entity.Category;
 import com.beautify_project.bp_app_api.entity.Facility;
 import com.beautify_project.bp_app_api.entity.Operation;
 import com.beautify_project.bp_app_api.entity.Shop;
@@ -68,18 +67,13 @@ class ShopControllerTest {
     void given_shopRegistrationRequest_when_success_then_getResponseMessageWrappingShopId()
         throws Exception {
         // given
-        Category mockedCategory1 = Category.of("카테고리1", "카테고리1 설명", System.currentTimeMillis());
-        Category mockedCategory2 = Category.of("카테고리2", "카테고리2 설명", System.currentTimeMillis());
-
         final List<Operation> mockedOperationEntities = Arrays.asList(
-            Operation.of("시술1", "시술1 설명", System.currentTimeMillis(),
-                List.of(mockedCategory1)),
-            Operation.of("시술2", "시술2 설명", System.currentTimeMillis(),
-                Arrays.asList(mockedCategory1, mockedCategory2)));
+            Operation.of("시술1", "시술1 설명"),
+            Operation.of("시술2", "시술2 설명"));
 
         final List<Facility> mockedFacilityEntities = Arrays.asList(
-            Facility.of("시설1", System.currentTimeMillis()),
-            Facility.of("시설2", System.currentTimeMillis())
+            Facility.withName("시설1"),
+            Facility.withName("시설2")
         );
 
         final List<String> mockedOperationIds = Arrays.asList(
@@ -121,8 +115,7 @@ class ShopControllerTest {
             )
         );
 
-        Shop mockedShop = Shop.createShop(mockedRequest, mockedOperationEntities,
-            mockedFacilityEntities, System.currentTimeMillis());
+        Shop mockedShop = Shop.from(mockedRequest);
         when(shopService.registerShop(mockedRequest)).thenReturn(
             ResponseMessage.createResponseMessage(new ShopRegistrationResult(mockedShop.getId())));
 
@@ -191,7 +184,7 @@ class ShopControllerTest {
             Arrays.asList(UUIDGenerator.generate(), UUIDGenerator.generate()),
             Arrays.asList(UUIDGenerator.generate(), UUIDGenerator.generate()),
             "4.5",
-            132,
+            132L,
             false
         );
 
@@ -255,18 +248,13 @@ class ShopControllerTest {
     }
 
     private static ShopRegistrationRequest createInvalidNameRequest() {
-        Category mockedCategory1 = Category.of("카테고리1", "카테고리1 설명", System.currentTimeMillis());
-        Category mockedCategory2 = Category.of("카테고리2", "카테고리2 설명", System.currentTimeMillis());
-
         final List<Operation> mockedOperationEntities = Arrays.asList(
-            Operation.of("시술1", "시술1 설명", System.currentTimeMillis(),
-                List.of(mockedCategory1)),
-            Operation.of("시술2", "시술2 설명", System.currentTimeMillis(),
-                Arrays.asList(mockedCategory1, mockedCategory2)));
+            Operation.of("시술1", "시술1 설명"),
+            Operation.of("시술2", "시술2 설명"));
 
         final List<Facility> mockedFacilityEntities = Arrays.asList(
-            Facility.of("시설1", System.currentTimeMillis()),
-            Facility.of("시설2", System.currentTimeMillis())
+            Facility.withName("시설1"),
+            Facility.withName("시설2")
         );
 
         final List<String> mockedOperationIds = Arrays.asList(
@@ -309,18 +297,13 @@ class ShopControllerTest {
     }
 
     private static ShopRegistrationRequest createInvalidContactRequest() {
-        Category mockedCategory1 = Category.of("카테고리1", "카테고리1 설명", System.currentTimeMillis());
-        Category mockedCategory2 = Category.of("카테고리2", "카테고리2 설명", System.currentTimeMillis());
-
         final List<Operation> mockedOperationEntities = Arrays.asList(
-            Operation.of("시술1", "시술1 설명", System.currentTimeMillis(),
-                List.of(mockedCategory1)),
-            Operation.of("시술2", "시술2 설명", System.currentTimeMillis(),
-                Arrays.asList(mockedCategory1, mockedCategory2)));
+            Operation.of("시술1", "시술1 설명"),
+            Operation.of("시술2", "시술2 설명"));
 
         final List<Facility> mockedFacilityEntities = Arrays.asList(
-            Facility.of("시설1", System.currentTimeMillis()),
-            Facility.of("시설2", System.currentTimeMillis())
+            Facility.withName("시설1"),
+            Facility.withName("시설2")
         );
 
         final List<String> mockedOperationIds = Arrays.asList(
@@ -363,18 +346,13 @@ class ShopControllerTest {
     }
 
     private static ShopRegistrationRequest createInvalidIntroduction() {
-        Category mockedCategory1 = Category.of("카테고리1", "카테고리1 설명", System.currentTimeMillis());
-        Category mockedCategory2 = Category.of("카테고리2", "카테고리2 설명", System.currentTimeMillis());
-
         final List<Operation> mockedOperationEntities = Arrays.asList(
-            Operation.of("시술1", "시술1 설명", System.currentTimeMillis(),
-                List.of(mockedCategory1)),
-            Operation.of("시술2", "시술2 설명", System.currentTimeMillis(),
-                Arrays.asList(mockedCategory1, mockedCategory2)));
+            Operation.of("시술1", "시술1 설명"),
+            Operation.of("시술2", "시술2 설명"));
 
         final List<Facility> mockedFacilityEntities = Arrays.asList(
-            Facility.of("시설1", System.currentTimeMillis()),
-            Facility.of("시설2", System.currentTimeMillis())
+            Facility.withName("시설1"),
+            Facility.withName("시설2")
         );
 
         final List<String> mockedOperationIds = Arrays.asList(

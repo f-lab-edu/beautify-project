@@ -1,16 +1,11 @@
 package com.beautify_project.bp_app_api.entity;
 
 import com.beautify_project.bp_app_api.utils.UUIDGenerator;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -30,30 +25,18 @@ public class Operation {
     @Column(name = "operation_description")
     private String description;
 
-    private Long registered;
+    @Column(name = "operation_registered_time")
+    private Long registeredTime;
 
-    @OneToMany(mappedBy = "operation", cascade = CascadeType.ALL)
-    private final List<OperationCategory> operationCategories = new ArrayList<>();
-
-    @Builder
-    private Operation(final String name, final String description, final Long registered) {
-        this.id = UUIDGenerator.generate();
+    private Operation(final String id, final String name, final String description,
+        final Long registeredTime) {
+        this.id = id;
         this.name = name;
         this.description = description;
-        this.registered = registered;
+        this.registeredTime = registeredTime;
     }
 
-    public static Operation of(final String name, final String description,
-        final Long registered, List<Category> categories) {
-        Operation newOperation = new Operation(name, description, registered);
-        for (Category category : categories) {
-            newOperation.addOperationCategory(
-                OperationCategory.of(newOperation, category, registered));
-        }
-        return newOperation;
-    }
-
-    public void addOperationCategory(final OperationCategory operationCategory) {
-        this.operationCategories.add(operationCategory);
+    public static Operation of(final String name, final String description) {
+        return new Operation(UUIDGenerator.generate(), name, description, System.currentTimeMillis());
     }
 }
