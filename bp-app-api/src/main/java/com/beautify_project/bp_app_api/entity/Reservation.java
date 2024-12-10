@@ -6,7 +6,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -23,26 +22,31 @@ public class Reservation {
     @Column(name = "reservation_date")
     private Long date;
 
-    private Long registered;
+    @Column(name = "reservation_registered_time")
+    private Long registeredTime;
 
     @Column(name = "reservation_member_email")
     private String memberEmail;
 
-    @Column(name = "reservation_shop_id")
+    @Column(name = "shop_id")
     private String shopId;
 
-    @Column(name = "reservation_operation_id")
+    @Column(name = "operation_id")
     private String operationId;
 
-    @Builder
-    private Reservation(final Long date, final Long registered, final String memberEmail,
-        final String shopId,
-        final String operationId) {
+    private Reservation(final Long date, final Long registeredTime, final String memberEmail,
+        final String shopId, final String operationId) {
         this.id = UUIDGenerator.generate();
         this.date = date;
-        this.registered = registered;
+        this.registeredTime = registeredTime;
         this.memberEmail = memberEmail;
         this.shopId = shopId;
         this.operationId = operationId;
+    }
+
+    public static Reservation of(final Long reservationDate,
+        final String memberEmail, final String shopId, final String operationId) {
+        return new Reservation(reservationDate, System.currentTimeMillis(), memberEmail, shopId,
+            operationId);
     }
 }

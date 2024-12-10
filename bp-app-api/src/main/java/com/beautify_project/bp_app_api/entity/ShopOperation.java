@@ -2,13 +2,8 @@ package com.beautify_project.bp_app_api.entity;
 
 import com.beautify_project.bp_app_api.utils.UUIDGenerator;
 import jakarta.persistence.Column;
-import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.ForeignKey;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -23,25 +18,26 @@ public class ShopOperation {
     @Id
     @Column(name = "shop_operation_id")
     private String id;
-    private Long registered;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "shop_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-    private Shop shop;
+    @Column(name = "shop_id")
+    private String shopId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "operation_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-    private Operation operation;
+    @Column(name = "operation_id")
+    private String operationId;
 
-    private ShopOperation(final Long registered, final Shop shop, final Operation operation) {
-        this.id = UUIDGenerator.generate();
-        this.registered = registered;
-        this.shop = shop;
-        this.operation = operation;
+    @Column(name = "shop_operation_registered_time")
+    private Long registeredTime;
+
+    public ShopOperation(final String id, final String shopId, final String operationId,
+        final Long registeredTime) {
+        this.id = id;
+        this.shopId = shopId;
+        this.operationId = operationId;
+        this.registeredTime = registeredTime;
     }
 
-    public static ShopOperation of(final Shop shop, final Operation operation,
-        final Long registered) {
-        return new ShopOperation(registered, shop, operation);
+    public static ShopOperation of(final String shopId, final String operationId) {
+        return new ShopOperation(UUIDGenerator.generate(), shopId, operationId,
+            System.currentTimeMillis());
     }
 }

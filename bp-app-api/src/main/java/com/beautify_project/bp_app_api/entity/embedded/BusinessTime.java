@@ -13,4 +13,15 @@ public record BusinessTime(
     LocalTime breakBeginTime,
     LocalTime breakEndTime,
     List<String> offDayOfWeek) {
+
+    @Override
+    public String toString() {
+        return "BusinessTime{" +
+            "openTime=" + openTime +
+            ", closeTime=" + closeTime +
+            ", breakBeginTime=" + breakBeginTime +
+            ", breakEndTime=" + breakEndTime +
+            ", offDayOfWeek=" + offDayOfWeek +
+            '}';
+    }
 }

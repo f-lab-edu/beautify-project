@@ -7,7 +7,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -28,8 +27,8 @@ public class Review {
     @Column(name = "review_content")
     private String content;
 
-    @Column(name = "review_registered")
-    private Long registered;
+    @Column(name = "review_registered_time")
+    private Long registeredTime;
 
     @Column(name = "member_email")
     @NotNull
@@ -47,17 +46,22 @@ public class Review {
     @NotNull
     private String reservationId;
 
-    @Builder
-    private Review(final String rate, final String content, final Long registered,
-        final String memberEmail,
+    private Review(final String id, final String rate, final String content,
+        final Long registeredTime, final String memberEmail,
         final String operationId, final String shopId, final String reservationId) {
-        this.id = UUIDGenerator.generate();
+        this.id = id;
         this.rate = rate;
         this.content = content;
-        this.registered = registered;
+        this.registeredTime = registeredTime;
         this.memberEmail = memberEmail;
         this.operationId = operationId;
         this.shopId = shopId;
         this.reservationId = reservationId;
+    }
+
+    public static Review of(final String rate, final String content, final String memberEmail,
+        final String operationId, final String shopId, final String reservationId) {
+        return new Review(UUIDGenerator.generate(), rate, content, System.currentTimeMillis(),
+            memberEmail, operationId, shopId, reservationId);
     }
 }

@@ -24,16 +24,19 @@ public class Category {
     @Column(name = "category_description")
     private String description;
 
-    private Long registered;
+    @Column(name = "category_registered_time")
+    private Long registeredTime;
 
-    private Category(final String name, final String description, final Long registered) {
-        this.id = UUIDGenerator.generate();
+    private Category(final String id, final String name, final String description,
+        final Long registeredTime) {
+        this.id = id;
         this.name = name;
         this.description = description;
-        this.registered = registered;
+        this.registeredTime = registeredTime;
     }
 
-    public static Category of(final String name, final String description, final Long registered) {
-        return new Category(name, description, registered);
+    public static Category of(final String name, final String description) {
+        return new Category(UUIDGenerator.generate(), name, description,
+            System.currentTimeMillis());
     }
 }
