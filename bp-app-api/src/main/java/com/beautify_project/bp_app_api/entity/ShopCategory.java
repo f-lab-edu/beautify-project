@@ -2,13 +2,8 @@ package com.beautify_project.bp_app_api.entity;
 
 import com.beautify_project.bp_app_api.utils.UUIDGenerator;
 import jakarta.persistence.Column;
-import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.ForeignKey;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -24,24 +19,25 @@ public class ShopCategory {
     @Column(name = "shop_category_id")
     private String id;
 
-    private Long registered;
+    @Column(name = "shop_id")
+    private String shopId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "shop_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-    private Shop shop;
+    @Column(name = "category_id")
+    private String categoryId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-    private Category category;
+    @Column(name = "shop_category_registered_time")
+    private Long registeredTime;
 
-    private ShopCategory(final Long registered, final Shop shop, final Category category) {
-        this.id = UUIDGenerator.generate();
-        this.registered = registered;
-        this.shop = shop;
-        this.category = category;
+    private ShopCategory(final String id, final String shopId, final String categoryId,
+        final Long registeredTime) {
+        this.id = id;
+        this.shopId = shopId;
+        this.categoryId = categoryId;
+        this.registeredTime = registeredTime;
     }
 
-    public static ShopCategory of(final Shop shop, final Category category, final Long registered) {
-        return new ShopCategory(registered, shop, category);
+    public static ShopCategory of(final String shopId, final String categoryId) {
+        return new ShopCategory(UUIDGenerator.generate(), shopId, categoryId,
+            System.currentTimeMillis());
     }
 }

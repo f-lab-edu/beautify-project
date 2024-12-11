@@ -424,13 +424,7 @@ Content-Type: application/x-www-form-urlencoded
 ### 6-4. 응답
 
 ``` http
-HTTP/1.1 200 OK
-
-{
-  "returnValue": {
-    "shopId": "2360c169"
-  }
-}
+HTTP/1.1 204 No Content
 ```
 
 - 에러 응답은 [8. 에러](#8-에러) 참고

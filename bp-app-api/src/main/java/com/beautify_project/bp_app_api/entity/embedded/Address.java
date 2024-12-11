@@ -26,7 +26,7 @@ public class Address {
     private String longitude;
 
     @Builder
-    public Address(final String dongCode, final String siDoName, final String siGoonGooName,
+    private Address(final String dongCode, final String siDoName, final String siGoonGooName,
         final String eubMyunDongName,
         final String roadNameCode, final String roadName, final String underGround,
         final String roadMainNum, final String roadSubNum,
@@ -47,5 +47,26 @@ public class Address {
         this.eubMyunDongSerialNumber = eubMyunDongSerialNumber;
         this.latitude = latitude;
         this.longitude = longitude;
+    }
+
+    @Override
+    public String toString() {
+        return "Address{" +
+            "dongCode='" + dongCode + '\'' +
+            ", siDoName='" + siDoName + '\'' +
+            ", siGoonGooName='" + siGoonGooName + '\'' +
+            ", eubMyunDongName='" + eubMyunDongName + '\'' +
+            ", roadNameCode='" + roadNameCode + '\'' +
+            ", roadName='" + roadName + '\'' +
+            ", underGround='" + underGround + '\'' +
+            ", roadMainNum='" + roadMainNum + '\'' +
+            ", roadSubNum='" + roadSubNum + '\'' +
+            ", siGoonGooBuildingName='" + siGoonGooBuildingName + '\'' +
+            ", zipCode='" + zipCode + '\'' +
+            ", apartComplex='" + apartComplex + '\'' +
+            ", eubMyunDongSerialNumber='" + eubMyunDongSerialNumber + '\'' +
+            ", latitude='" + latitude + '\'' +
+            ", longitude='" + longitude + '\'' +
+            '}';
     }
 }

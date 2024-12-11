@@ -146,6 +146,13 @@ public class GlobalExceptionHandler {
         return createResponse(exception.getErrorCode());
     }
 
+    @ExceptionHandler(AlreadyProcessedException.class)
+    private ResponseEntity<ErrorResponseMessage> handlerAlreadyLikeException(
+        final AlreadyProcessedException exception) {
+        log.error("", exception);
+        return createResponse(exception.getErrorCode());
+    }
+
     private static ResponseEntity<ErrorResponseMessage> createResponse(final ErrorCode errorCode) {
         ErrorResponseMessage errorResponseMessage = ErrorResponseMessage.createErrorMessage(
             errorCode);
