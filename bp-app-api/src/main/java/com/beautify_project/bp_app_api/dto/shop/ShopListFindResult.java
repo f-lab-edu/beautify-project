@@ -15,19 +15,17 @@ public record ShopListFindResult(
     List<String> facilities,
     String rate,
     Integer likes,
-    Boolean likePushed
+    Boolean likePushed,
+    String thumbnailLink
 ) {
 
-    public static ShopListFindResult from(final Shop shop) {
-        return new ShopListFindResult(shop.getId(),
-            shop.getName(),
+    public static ShopListFindResult of(final Shop shop, final String thumbnailLink) {
+        return new ShopListFindResult(shop.getId(), shop.getName(),
             shop.getShopOperations().stream()
                 .map(shopOperation -> shopOperation.getOperation().getName()).toList(),
             shop.getShopFacilities().stream()
-                .map(shopFacility -> shopFacility.getFacility().getName()).toList(),
-            shop.getRate(),
-            shop.getLikes(),
-            null); // TODO: 사용자 엔티티 구현 후 세팅 추가 필요
+                .map(shopFacility -> shopFacility.getFacility().getName()).toList(), shop.getRate(),
+            shop.getLikes(), null, thumbnailLink); // TODO: 사용자 엔티티 구현 후 likePushed 추가 세팅 필요
     }
 
     @Override

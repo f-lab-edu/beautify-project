@@ -55,6 +55,9 @@ public class Shop implements Persistable<String> {
     @Column(name = "shop_updated")
     private Long updated;
 
+    @Column(name = "shop_image_file_ids")
+    private final List<String> imageFileIds = new ArrayList<>();
+
     @Transient
     private Long objectCreated;
 
@@ -108,6 +111,8 @@ public class Shop implements Persistable<String> {
         this.businessTime = businessTime;
     }
 
+
+
     private static Shop of(final ShopRegistrationRequest request, long registeredTime) {
         return Shop.builder()
             .name(request.name())
@@ -151,9 +156,14 @@ public class Shop implements Persistable<String> {
         List<Operation> operations, List<Facility> facilities, Long registeredTime) {
         Shop newShop = of(registrationRequest, registeredTime);
 
+        addAllImageFileIds(newShop, registrationRequest.imageFileIds());
         addAllOperationsToShopOperations(operations, newShop, registeredTime);
         addAllFacilitiesToShopFacilities(facilities, newShop, registeredTime);
         return newShop;
+    }
+
+    private static void addAllImageFileIds(final Shop shop, final List<String> imageFileIdsParam) {
+        imageFileIdsParam.forEach(imageFileId -> shop.getImageFileIds().add(imageFileId));
     }
 
     private static void addAllOperationsToShopOperations(final List<Operation> operations, final Shop shop,

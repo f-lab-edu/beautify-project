@@ -54,6 +54,9 @@ class ShopServiceTest {
     @Mock
     private OperationService operationService;
 
+    @Mock
+    private ImageService imageService;
+
 
     @Test
     @DisplayName("Shop 등록 요청시 모든 필드값이 있는 경우 등록에 성공 후 ResponseMessage 를 리턴한다.")
@@ -327,12 +330,15 @@ class ShopServiceTest {
             )
         );
 
+        final List<String> mockedThumbnailLinks = Arrays.asList("thumbnail-link-1");
+
         Shop mockedRegisteredShop = Shop.createShop(mockedRequest, mockedOperationEntities,
             mockedFacilityEntities, System.currentTimeMillis());
 
         List<Shop> mockedShopList = List.of(mockedRegisteredShop);
         Page<Shop> mockedPage = new PageImpl<>(mockedShopList);
         when(shopRepository.findAll(any(Pageable.class))).thenReturn(mockedPage);
+        when(imageService.issuePreSignedGetUrls(anyList())).thenReturn(mockedThumbnailLinks);
 
         // when
         ResponseMessage responseMessage = shopService.findShopList(parameters);

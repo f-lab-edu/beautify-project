@@ -12,7 +12,9 @@ import com.beautify_project.bp_app_api.entity.Shop;
 import com.beautify_project.bp_app_api.exception.NotFoundException;
 import com.beautify_project.bp_app_api.repository.ShopRepository;
 import jakarta.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -31,6 +33,7 @@ public class ShopService {
     private final ShopRepository shopRepository;
     private final FacilityService facilityService;
     private final OperationService operationService;
+    private final ImageService imageService;
 
     @Transactional(rollbackFor = Exception.class)
     public ResponseMessage registerShop(final ShopRegistrationRequest shopRegistrationRequest) {
@@ -54,10 +57,19 @@ public class ShopService {
             Sort.by(Sort.Direction.fromString(parameters.orderType().name()),
                 parameters.searchType().getEntityName()));
 
-        Page<ShopListFindResult> foundPage = shopRepository.findAll(pageable)
-            .map(ShopListFindResult::from);
+        final List<Shop> foundShops = shopRepository.findAll(pageable).getContent();
+        final List<String> thumbnailFileIds = foundShops.stream()
+            .map(foundShop -> foundShop.getImageFileIds().get(0)).toList();
 
-        return ResponseMessage.createResponseMessage(foundPage.getContent());
+        final List<String> thumbnailLinks = imageService.issuePreSignedGetUrls(thumbnailFileIds);
+
+        final List<ShopListFindResult> shopListFindResults = new ArrayList<>();
+        for (int i = 0; i < foundShops.size(); i++) {
+            shopListFindResults.add(
+                ShopListFindResult.of(foundShops.get(i), thumbnailLinks.get(i)));
+        }
+
+        return ResponseMessage.createResponseMessage(shopListFindResults);
     }
 
     public Shop findShopById(final @NotNull String shopId) {
