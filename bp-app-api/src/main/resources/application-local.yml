@@ -4,25 +4,14 @@ server:
     uri-encoding: UTF-8
 
 spring:
-  datasource:
-    url: jdbc:postgresql://127.0.0.1:5432/beautify_project?stringtype=unspecified
-    driver-class-name: org.postgresql.Driver
-    username: postgres
-    password: postgres
-
-  jpa:
-    hibernate:
-      dialect: org.hibernate.dialect.PostgreSQL15Dialect
-      ddl-auto: create
-    properties:
-      hibernate:
-        format_sql: true
-
-storage:
-  #implementation: S3
-  implementation: fileSystem
-  file-system-path: /Users/sukholim/dev/f-lab/beautify-project/data/test
+  config:
+    activate:
+      on-profile: local
+    import:
+      - datasource-local.yml
+      - storage-local.yml
 
 logging:
   level:
     org.hibernate.SQL: debug
+    com.beautify_project.bp_app_api: debug
