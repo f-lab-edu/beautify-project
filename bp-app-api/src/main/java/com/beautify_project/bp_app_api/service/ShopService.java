@@ -12,8 +12,10 @@ import com.beautify_project.bp_app_api.entity.Shop;
 import com.beautify_project.bp_app_api.entity.ShopFacility;
 import com.beautify_project.bp_app_api.entity.ShopLike;
 import com.beautify_project.bp_app_api.entity.ShopOperation;
+import com.beautify_project.bp_app_api.exception.AlreadyLikedException;
 import com.beautify_project.bp_app_api.exception.NotFoundException;
 import com.beautify_project.bp_app_api.repository.ShopRepository;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -152,19 +154,38 @@ public class ShopService {
         }
     }
 
-    public Shop findShopById(final @NotNull String shopId) {
+    public Shop findShopById(final @NotBlank String shopId) {
         return shopRepository.findById(shopId)
             .orElseThrow(() -> new NotFoundException(ErrorCode.SH001));
     }
 
     @Transactional
-    public void likeShop(final @NotNull String shopId) {
+    public void likeShop(final @NotBlank String shopId, final @NotBlank String memberEmail) {
+        if (shopLikeService.isLikePushed(shopId, memberEmail)) {
+            throw new AlreadyLikedException(ErrorCode.AL001);
+        }
+
         Shop foundShop = findShopById(shopId);
-        log.debug("shop like count before process like: shopId - {}, likeCount - {}",
+        log.debug("shop like count before add like: shopId - {}, likeCount - {}",
             foundShop.getId(), foundShop.getLikes());
         foundShop.addLikeCount();
         shopRepository.save(foundShop);
         // TODO: bearer token 에서 사용자 정보 추출하는 로직 필요
-        shopLikeService.registerShopLike(ShopLike.of(shopId, "sssukho"));
+        shopLikeService.registerShopLike(ShopLike.of(shopId, memberEmail));
+    }
+
+    @Transactional
+    public void cancelLikeShop(final @NotBlank String shopId, final @NotBlank String memberEmail) {
+        if (!shopLikeService.isLikePushed(shopId, memberEmail)) {
+            throw new AlreadyLikedException(ErrorCode.AL002);
+        }
+
+        Shop foundShop = findShopById(shopId);
+        log.debug("shop like count before subtract like: shopId - {}, likeCount - {}",
+            foundShop.getId(), foundShop.getLikes());
+        foundShop.subtractLikeCount();
+        shopRepository.save(foundShop);
+        // TODO: bearer token 에서 사용자 정보 추출하는 로직 필요
+        shopLikeService.deleteShopLike(ShopLike.of(shopId, memberEmail));
     }
 }

@@ -136,6 +136,10 @@ public class Shop implements Persistable<String> {
         likes += 1;
     }
 
+    public void subtractLikeCount() {
+        likes -= 1;
+    }
+
     @Override
     public String toString() {
         return "Shop{" +
