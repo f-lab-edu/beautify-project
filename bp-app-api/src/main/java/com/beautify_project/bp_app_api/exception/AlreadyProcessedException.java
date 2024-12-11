@@ -4,11 +4,11 @@ import com.beautify_project.bp_app_api.dto.common.ErrorResponseMessage.ErrorCode
 import lombok.Getter;
 
 @Getter
-public class AlreadyLikedException extends RuntimeException {
+public class AlreadyProcessedException extends RuntimeException {
 
     private final ErrorCode errorCode;
 
-    public AlreadyLikedException(final ErrorCode errorCode) {
+    public AlreadyProcessedException(final ErrorCode errorCode) {
         super(errorCode.getErrorMessage());
         this.errorCode = errorCode;
     }

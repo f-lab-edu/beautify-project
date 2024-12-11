@@ -146,9 +146,9 @@ public class GlobalExceptionHandler {
         return createResponse(exception.getErrorCode());
     }
 
-    @ExceptionHandler(AlreadyLikedException.class)
+    @ExceptionHandler(AlreadyProcessedException.class)
     private ResponseEntity<ErrorResponseMessage> handlerAlreadyLikeException(
-        final AlreadyLikedException exception) {
+        final AlreadyProcessedException exception) {
         log.error("", exception);
         return createResponse(exception.getErrorCode());
     }
