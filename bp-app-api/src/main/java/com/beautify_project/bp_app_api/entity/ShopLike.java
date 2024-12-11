@@ -10,34 +10,32 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "shop_category")
+@Table(name = "shop_like")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ShopCategory {
+public class ShopLike {
 
     @Id
-    @Column(name = "shop_category_id")
+    @Column(name = "shop_like_id")
     private String id;
 
     @Column(name = "shop_id")
     private String shopId;
 
-    @Column(name = "category_id")
-    private String categoryId;
+    @Column(name = "member_id")
+    private String memberId;
 
-    @Column(name = "shop_category_registered_time")
+    @Column(name = "shop_like_registered_time")
     private Long registeredTime;
 
-    private ShopCategory(final String id, final String shopId, final String categoryId,
-        final Long registeredTime) {
+    private ShopLike(final String id, final String shopId, final String memberId, final Long registeredTime) {
         this.id = id;
         this.shopId = shopId;
-        this.categoryId = categoryId;
+        this.memberId = memberId;
         this.registeredTime = registeredTime;
     }
 
-    public static ShopCategory of(final String shopId, final String categoryId) {
-        return new ShopCategory(UUIDGenerator.generate(), shopId, categoryId,
-            System.currentTimeMillis());
+    public static ShopLike of(final String shopId, final String memberId) {
+        return new ShopLike(UUIDGenerator.generate(), shopId, memberId, System.currentTimeMillis());
     }
 }

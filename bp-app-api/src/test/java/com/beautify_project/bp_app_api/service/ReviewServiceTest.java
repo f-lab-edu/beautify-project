@@ -12,6 +12,9 @@ import static org.mockito.Mockito.when;
 import com.beautify_project.bp_app_api.dto.common.ResponseMessage;
 import com.beautify_project.bp_app_api.dto.review.FindReviewListRequestParameters;
 import com.beautify_project.bp_app_api.dto.review.ReviewFindResult;
+import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest;
+import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest.Address;
+import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest.BusinessTime;
 import com.beautify_project.bp_app_api.entity.Member;
 import com.beautify_project.bp_app_api.entity.Operation;
 import com.beautify_project.bp_app_api.entity.Reservation;
@@ -22,6 +25,7 @@ import com.beautify_project.bp_app_api.enumeration.ReviewSortBy;
 import com.beautify_project.bp_app_api.exception.NotFoundException;
 import com.beautify_project.bp_app_api.repository.ReviewRepository;
 import com.beautify_project.bp_app_api.utils.UUIDGenerator;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -61,47 +65,46 @@ class ReviewServiceTest {
     @DisplayName("Review 상세 조회 성공시 ReviewFindResult 를 wrapping 한 ResponseMessage 객체를 리턴한다.")
     void given_reviewFindRequest_when_succeed_then_returnResponseMessageWrappingReviewFindResult() {
         // given
-        final Member mockedMember = Member.builder()
-            .email("dev.sssukho@gmail.com")
-            .name("임석호")
-            .contact("010-1234-5678")
-            .registered(System.currentTimeMillis())
-            .build();
-
-        final Operation mockedOperation = Operation.builder()
-            .name("시술명")
-            .registered(System.currentTimeMillis())
-            .description("시술 설명")
-            .build();
-
-        final Shop mockedShop = Shop.builder()
-            .name("미용시술소1")
-            .contact("010-5678-1234")
-            .url("www.naver.com")
-            .introduction("소개글")
-            .rate("4.3")
-            .likes(132L)
-            .registered(System.currentTimeMillis())
-            .updated(System.currentTimeMillis())
-            .build();
-
-        final Reservation mockedReservation = Reservation.builder()
-            .date(System.currentTimeMillis())
-            .registered(System.currentTimeMillis())
-            .memberEmail(mockedMember.getEmail())
-            .shopId(mockedShop.getId())
-            .operationId(mockedOperation.getId())
-            .build();
-
-        final Review mockedReview = Review.builder()
-            .rate("4.5")
-            .content("리뷰 내용")
-            .registered(1730437200000L)
-            .memberEmail(mockedMember.getEmail())
-            .operationId(mockedOperation.getId())
-            .shopId(mockedShop.getId())
-            .reservationId(mockedReservation.getId())
-            .build();
+        final Member mockedMember = Member.of("dev.sssukho@gmail.com", "임석호", "010-1234-5678");
+        final Operation mockedOperation = Operation.of("시술명", "시술 설명");
+        final ShopRegistrationRequest requestForMockedShop = new ShopRegistrationRequest(
+            "미용시술소1",
+            "010-1234-5678",
+            "www.naer.com",
+            "안녕하세요 미용시술소1입니다.",
+            Arrays.asList(UUIDGenerator.generate(), UUIDGenerator.generate()),
+            Arrays.asList(UUIDGenerator.generate(), UUIDGenerator.generate()),
+            Arrays.asList("preSigned-url1", "preSigned-url2"),
+            new BusinessTime(
+                LocalTime.of(9, 0),
+                LocalTime.of(18, 0),
+                LocalTime.of(13, 0),
+                LocalTime.of(14, 0),
+                Arrays.asList("monday", "tuesday")),
+            new Address(
+                "111",
+                "서울시",
+                "마포구",
+                "상암동",
+                "481",
+                "월드컵북로",
+                "true",
+                "131",
+                "707",
+                "오벨리스크",
+                "134-070",
+                "주상복합",
+                "12345678",
+                "34",
+                "90"
+            )
+        );
+        final Shop mockedShop = Shop.from(requestForMockedShop);
+        final Reservation mockedReservation = Reservation.of(System.currentTimeMillis(),
+            mockedMember.getEmail(), mockedShop.getId(), mockedOperation.getId());
+        final Review mockedReview = Review.of("4.5", "리뷰 내용", mockedMember.getEmail(),
+            mockedOperation.getId(),
+            mockedShop.getId(), mockedReservation.getId());
 
         final String mockedReviewId = mockedReview.getId();
 
@@ -139,57 +142,49 @@ class ReviewServiceTest {
     @DisplayName("Review 리스트 조회 성공시 List<ReviewListFindResult> 를 wrapping 한 ResponseMessage 객체를 리턴한다.")
     void given_reviewFindListRequest_when_succeed_then_getResponseMessageWRappingReviewListFindResult() {
         // given
-        final Member mockedMember = Member.builder()
-            .email("dev.sssukho@gmail.com")
-            .name("임석호")
-            .contact("010-1234-5678")
-            .registered(System.currentTimeMillis())
-            .build();
-
-        final Operation mockedOperation = Operation.builder()
-            .name("시술명")
-            .registered(System.currentTimeMillis())
-            .description("시술 설명")
-            .build();
-
-        final Shop mockedShop = Shop.builder()
-            .name("미용시술소1")
-            .contact("010-5678-1234")
-            .url("www.naver.com")
-            .introduction("소개글")
-            .rate("4.3")
-            .likes(132L)
-            .registered(System.currentTimeMillis())
-            .updated(System.currentTimeMillis())
-            .build();
-
-        final Reservation mockedReservation = Reservation.builder()
-            .date(System.currentTimeMillis())
-            .registered(System.currentTimeMillis())
-            .memberEmail(mockedMember.getEmail())
-            .shopId(mockedShop.getId())
-            .operationId(mockedOperation.getId())
-            .build();
-
-        final Review mockedReview1 = Review.builder()
-            .rate("4.5")
-            .content("리뷰 내용")
-            .registered(1730437200000L)
-            .memberEmail(mockedMember.getEmail())
-            .operationId(mockedOperation.getId())
-            .shopId(mockedShop.getId())
-            .reservationId(mockedReservation.getId())
-            .build();
-
-        final Review mockedReview2 = Review.builder()
-            .rate("4.3")
-            .content("리뷰 내용 2")
-            .registered(System.currentTimeMillis())
-            .memberEmail(mockedMember.getEmail())
-            .operationId(mockedOperation.getId())
-            .shopId(mockedShop.getId())
-            .reservationId(mockedReservation.getId())
-            .build();
+        final Member mockedMember = Member.of("dev.sssukho@gmail.com", "임석호", "010-1234-5678");
+        final Operation mockedOperation = Operation.of("시술명", "시술 설명");
+        final ShopRegistrationRequest requestForMockedShop = new ShopRegistrationRequest(
+            "미용시술소1",
+            "010-1234-5678",
+            "www.naer.com",
+            "안녕하세요 미용시술소1입니다.",
+            Arrays.asList(UUIDGenerator.generate(), UUIDGenerator.generate()),
+            Arrays.asList(UUIDGenerator.generate(), UUIDGenerator.generate()),
+            Arrays.asList("preSigned-url1", "preSigned-url2"),
+            new BusinessTime(
+                LocalTime.of(9, 0),
+                LocalTime.of(18, 0),
+                LocalTime.of(13, 0),
+                LocalTime.of(14, 0),
+                Arrays.asList("monday", "tuesday")),
+            new Address(
+                "111",
+                "서울시",
+                "마포구",
+                "상암동",
+                "481",
+                "월드컵북로",
+                "true",
+                "131",
+                "707",
+                "오벨리스크",
+                "134-070",
+                "주상복합",
+                "12345678",
+                "34",
+                "90"
+            )
+        );
+        final Shop mockedShop = Shop.from(requestForMockedShop);
+        final Reservation mockedReservation = Reservation.of(System.currentTimeMillis(),
+            mockedMember.getEmail(), mockedShop.getId(), mockedOperation.getId());
+        final Review mockedReview1 = Review.of("4.5", "리뷰 내용", mockedMember.getEmail(),
+            mockedOperation.getId(),
+            mockedShop.getId(), mockedReservation.getId());
+        final Review mockedReview2 = mockedReview1.of("4.3", "리뷰 내용 2", mockedMember.getEmail(),
+            mockedOperation.getId(), mockedShop.getId(),
+            mockedReservation.getId());
 
         final Page<Review> mockedPage = new PageImpl<>(Arrays.asList(mockedReview1, mockedReview2));
         when(reviewRepository.findAll(any(Pageable.class))).thenReturn(

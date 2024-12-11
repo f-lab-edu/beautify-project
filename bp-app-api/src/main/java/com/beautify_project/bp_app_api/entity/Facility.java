@@ -21,15 +21,17 @@ public class Facility {
 
     @Column(name = "facility_name")
     private String name;
-    private Long registered;
 
-    private Facility(final String name, final Long registered) {
-        this.id = UUIDGenerator.generate();
+    @Column(name = "facility_registered_time")
+    private Long registeredTime;
+
+    private Facility(final String id, final String name, final Long registeredTime) {
+        this.id = id;
         this.name = name;
-        this.registered = registered;
+        this.registeredTime = registeredTime;
     }
 
-    public static Facility of(final String name, final Long registered) {
-        return new Facility(name, registered);
+    public static Facility withName(final String name) {
+        return new Facility(UUIDGenerator.generate(), name, System.currentTimeMillis());
     }
 }
