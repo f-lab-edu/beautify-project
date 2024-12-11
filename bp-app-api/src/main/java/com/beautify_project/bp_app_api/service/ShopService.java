@@ -14,7 +14,7 @@ import com.beautify_project.bp_app_api.entity.ShopLike;
 import com.beautify_project.bp_app_api.entity.ShopOperation;
 import com.beautify_project.bp_app_api.exception.NotFoundException;
 import com.beautify_project.bp_app_api.repository.ShopRepository;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -160,13 +160,13 @@ public class ShopService {
     @Transactional
     public void likeShop(final @NotBlank String shopId, final @NotBlank String memberEmail) {
         if (shopLikeService.isLikePushed(shopId, memberEmail)) {
-            throw new AlreadyLikedException(ErrorCode.AL001);
+            throw new AlreadyProcessedException(ErrorCode.AL001);
         }
 
         Shop foundShop = findShopById(shopId);
         log.debug("shop like count before add like: shopId - {}, likeCount - {}",
             foundShop.getId(), foundShop.getLikes());
-        foundShop.addLikeCount();
+        foundShop.increaseLikeCount();
         shopRepository.save(foundShop);
         // TODO: bearer token 에서 사용자 정보 추출하는 로직 필요
         shopLikeService.registerShopLike(ShopLike.of(shopId, memberEmail));
@@ -175,13 +175,13 @@ public class ShopService {
     @Transactional
     public void cancelLikeShop(final @NotBlank String shopId, final @NotBlank String memberEmail) {
         if (!shopLikeService.isLikePushed(shopId, memberEmail)) {
-            throw new AlreadyLikedException(ErrorCode.AL002);
+            throw new AlreadyProcessedException(ErrorCode.AL002);
         }
 
         Shop foundShop = findShopById(shopId);
         log.debug("shop like count before subtract like: shopId - {}, likeCount - {}",
             foundShop.getId(), foundShop.getLikes());
-        foundShop.subtractLikeCount();
+        foundShop.decreaseLikeCount();
         shopRepository.save(foundShop);
         // TODO: bearer token 에서 사용자 정보 추출하는 로직 필요
         shopLikeService.deleteShopLike(ShopLike.of(shopId, memberEmail));

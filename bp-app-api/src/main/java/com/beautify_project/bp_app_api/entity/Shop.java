@@ -135,11 +135,11 @@ public class Shop implements Persistable<String> {
         );
     }
 
-    public void addLikeCount() {
+    public void increaseLikeCount() {
         likes += 1;
     }
 
-    public void subtractLikeCount() {
+    public void decreaseLikeCount() {
         likes -= 1;
     }
 
