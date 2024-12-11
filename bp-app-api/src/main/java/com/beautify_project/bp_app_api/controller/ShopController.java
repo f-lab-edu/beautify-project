@@ -54,14 +54,24 @@ public class ShopController {
     // TODO: 샵 상세 조회 구현
     // TODO: 샵 수정 구현
     // TODO: 샵 삭제 구현
-    // TODO: 샵 좋아요 취소 구현
 
     /**
      * Shop 좋아요
      */
-    @PostMapping("/v1/shops/likes")
+    @PostMapping("/v1/shops/likes/{id}")
     @ResponseStatus(code = HttpStatus.NO_CONTENT)
     public void likeShop(@PathVariable(value = "id") @NotBlank final String shopId) {
-        shopService.likeShop(shopId);
+        // TODO: spring security 통해서 토큰 넘겨주는 방식으로 개선 필요
+        shopService.likeShop(shopId, "sssukho@gmail.com");
+    }
+
+    /**
+     * Shop 좋아요 취소
+     */
+    @DeleteMapping("/v1/shops/likes/{id}")
+    @ResponseStatus(code = HttpStatus.NO_CONTENT)
+    public void cancelLikeShop(@PathVariable(value = "id") @NotBlank final String shopId) {
+        // TODO: spring security 통해서 토큰 넘겨주는 방식으로 개선 필요
+        shopService.cancelLikeShop(shopId, "sssukho@gmail.com");
     }
 }

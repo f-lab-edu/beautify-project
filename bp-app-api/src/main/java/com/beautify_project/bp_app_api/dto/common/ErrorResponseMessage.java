@@ -78,6 +78,9 @@ public class ErrorResponseMessage {
 
         SO001(HttpStatus.NOT_FOUND, "SO001", "샵에 속한 시설이 존재하지 않습니다."),
 
+        AL001(HttpStatus.BAD_REQUEST, "AL001", "이미 좋아요를 누른 샵 입니다."),
+        AL002(HttpStatus.BAD_REQUEST, "AL002", "이미 좋아요 취소를 한 샵 입니다."),
+
         IS001(HttpStatus.INTERNAL_SERVER_ERROR, "IS001", "시스템 에러가 발생하였습니다. 관리자에게 문의해주세요."),
         IS002(HttpStatus.INTERNAL_SERVER_ERROR, "IS002", "외부 시스템에서 에러가 발생하였습니다.")
         ;
