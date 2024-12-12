@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
@@ -46,16 +48,30 @@ class NCPObjectStorageClientTest {
     @Test
     @DisplayName("preSignedPutUrl 생성 테스트")
     void testCreatePreSignedPutUrl() {
-        PreSignedPutUrlResult preSignedPutUrlResult = REAL_NCP_OBJECT_STORAGE_CLIENT.createPreSignedPutUrl();
-        assertThat(preSignedPutUrlResult.preSignedUrl()).isNotBlank();
-        assertThat(preSignedPutUrlResult.fileId()).isNotBlank();
+        NCPPreSignedPutUrlResult ncpPreSignedPutUrlResult = REAL_NCP_OBJECT_STORAGE_CLIENT.createPreSignedPutUrl();
+        assertThat(ncpPreSignedPutUrlResult.preSignedUrl()).isNotBlank();
+        assertThat(ncpPreSignedPutUrlResult.fileId()).isNotBlank();
     }
 
     @Test
     @DisplayName("preSignedGetUrl 생성 테스트")
     void testPreSignedGetUrl() {
-        PreSignedGetUrlResult preSignedGetUrlResult = REAL_NCP_OBJECT_STORAGE_CLIENT.createPreSignedGetUrl(
+        NCPPreSignedGetUrlResult ncpPreSignedGetUrlResult = REAL_NCP_OBJECT_STORAGE_CLIENT.createPreSignedGetUrl(
             UUID.randomUUID().toString());
-        assertThat(preSignedGetUrlResult.preSignedUrl()).isNotBlank();
+        assertThat(ncpPreSignedGetUrlResult.preSignedUrl()).isNotBlank();
+    }
+
+    @Test
+    @DisplayName("preSignedGetUrl 리스트 생성 테스트")
+    void testPreSignedGetUrls() {
+        final List<String> fakeFileIds = Arrays.asList(UUID.randomUUID().toString(),
+            UUID.randomUUID().toString(), UUID.randomUUID().toString());
+
+        List<NCPPreSignedGetUrlResult> ncpPreSignedGetUrlResultList = REAL_NCP_OBJECT_STORAGE_CLIENT.createPreSignedGetUrls(
+            fakeFileIds);
+
+        ncpPreSignedGetUrlResultList.forEach(value -> {
+            assertThat(value.preSignedUrl()).isNotBlank();
+        });
     }
 }

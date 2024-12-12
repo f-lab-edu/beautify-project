@@ -2,6 +2,8 @@ package com.beautify_project.bp_s3_client.naver;
 
 import java.net.URI;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -32,7 +34,7 @@ public class NCPObjectStorageClient {
             ncpConfig.secretKey()));
     }
 
-    public PreSignedPutUrlResult createPreSignedPutUrl() {
+    public NCPPreSignedPutUrlResult createPreSignedPutUrl() {
         final String fileId = UUID.randomUUID().toString();
 
         try (S3Presigner s3Presigner = createS3Presigner()) {
@@ -49,14 +51,27 @@ public class NCPObjectStorageClient {
             PresignedPutObjectRequest presignedPutObjectRequest = s3Presigner.presignPutObject(
                 preSignRequest);
 
-            return new PreSignedPutUrlResult(presignedPutObjectRequest.url().toExternalForm(),
+            return new NCPPreSignedPutUrlResult(presignedPutObjectRequest.url().toExternalForm(),
                 fileId);
         } catch (Exception e) {
             throw new S3ClientException(MESSAGE_FAILED_TO_CREATE_PRESIGNED_PUR_URL, e);
         }
     }
 
-    public PreSignedGetUrlResult createPreSignedGetUrl(final String fileName) {
+    public NCPPreSignedGetUrlResult createPreSignedGetUrl(final String fileName) {
+        return getNcpPreSignedGetUrlResult(fileName);
+    }
+
+    public List<NCPPreSignedGetUrlResult> createPreSignedGetUrls(final List<String> fileNames) {
+        List<NCPPreSignedGetUrlResult> urls = new ArrayList<>();
+        fileNames.forEach(fileName -> {
+            urls.add(getNcpPreSignedGetUrlResult(fileName));
+        });
+
+        return urls;
+    }
+
+    private NCPPreSignedGetUrlResult getNcpPreSignedGetUrlResult(final String fileName) {
         try (S3Presigner s3Presigner = createS3Presigner()) {
             GetObjectRequest objectRequest = GetObjectRequest.builder()
                 .bucket(ncpConfig.bucketName())
@@ -71,7 +86,7 @@ public class NCPObjectStorageClient {
             PresignedGetObjectRequest presignedGetObjectRequest = s3Presigner.presignGetObject(
                 preSignRequest);
 
-            return new PreSignedGetUrlResult(presignedGetObjectRequest.url().toExternalForm());
+            return new NCPPreSignedGetUrlResult(presignedGetObjectRequest.url().toExternalForm());
         } catch (Exception e) {
             throw new S3ClientException(MESSAGE_FAILED_TO_CREATE_PRESIGNED_GET_URL, e);
         }
