@@ -9,15 +9,18 @@ import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationResult;
 import com.beautify_project.bp_app_api.entity.Facility;
 import com.beautify_project.bp_app_api.entity.Operation;
 import com.beautify_project.bp_app_api.entity.Shop;
+import com.beautify_project.bp_app_api.entity.ShopFacility;
+import com.beautify_project.bp_app_api.entity.ShopOperation;
 import com.beautify_project.bp_app_api.exception.NotFoundException;
 import com.beautify_project.bp_app_api.repository.ShopRepository;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.Map.Entry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -31,45 +34,120 @@ import org.springframework.transaction.annotation.Transactional;
 public class ShopService {
 
     private final ShopRepository shopRepository;
-    private final FacilityService facilityService;
+    private final ShopOperationService shopOperationService;
     private final OperationService operationService;
-    private final ImageService imageService;
+    private final ShopFacilityService shopFacilityService;
+    private final FacilityService facilityService;
 
     @Transactional(rollbackFor = Exception.class)
     public ResponseMessage registerShop(final ShopRegistrationRequest shopRegistrationRequest) {
-
-        long registerTime = System.currentTimeMillis();
-
-        final List<Operation> operations = operationService.findOperationsByIds(
-            shopRegistrationRequest.operationIds());
-        final List<Facility> facilities = facilityService.findFacilitiesByIds(
-            shopRegistrationRequest.facilityIds());
-
-        final Shop regisertedShop = shopRepository.save(
-            Shop.createShop(shopRegistrationRequest, operations, facilities, registerTime));
-
+        final Shop registeredShop = shopRepository.save(Shop.from(shopRegistrationRequest));
         return ResponseMessage.createResponseMessage(
-            new ShopRegistrationResult(regisertedShop.getId()));
+            new ShopRegistrationResult(registeredShop.getId()));
     }
 
     public ResponseMessage findShopList(final ShopListFindRequestParameters parameters) {
-        Pageable pageable = PageRequest.of(parameters.page(), parameters.count(),
+        // TODO: jpql 조인 쿼리로 개선 필요
+        final Pageable pageable = PageRequest.of(parameters.page(), parameters.count(),
             Sort.by(Sort.Direction.fromString(parameters.orderType().name()),
                 parameters.searchType().getEntityName()));
 
         final List<Shop> foundShops = shopRepository.findAll(pageable).getContent();
-        final List<String> thumbnailFileIds = foundShops.stream()
-            .map(foundShop -> foundShop.getImageFileIds().get(0)).toList();
+        return ResponseMessage.createResponseMessage(createShopListFindResults(foundShops));
+    }
 
-        final List<String> thumbnailLinks = imageService.issuePreSignedGetUrls(thumbnailFileIds);
+    private List<ShopListFindResult> createShopListFindResults(final List<Shop> foundShops) {
+
+        final List<String> shopIds = foundShops.stream().map(Shop::getId).toList();
+        final Map<String, List<String>> operationNamesByShopId = findOperationNamesByShops(shopIds);
+        final Map<String, List<String>> facilityNamesByShopId = findFacilityNamesByShops(shopIds);
 
         final List<ShopListFindResult> shopListFindResults = new ArrayList<>();
-        for (int i = 0; i < foundShops.size(); i++) {
+
+        for (Shop foundShop : foundShops) {
+            final String shopId = foundShop.getId();
+            final List<String> operationNames = operationNamesByShopId.get(shopId);
+            final List<String> facilityNames = facilityNamesByShopId.get(shopId);
+
             shopListFindResults.add(
-                ShopListFindResult.of(foundShops.get(i), thumbnailLinks.get(i)));
+                ShopListFindResult.createShopListFindResult(foundShop, operationNames, facilityNames));
         }
 
-        return ResponseMessage.createResponseMessage(shopListFindResults);
+        return shopListFindResults;
+    }
+
+    private Map<String, List<String>> findOperationNamesByShops(final List<String> shopIds) {
+        final List<ShopOperation> shopOperations = shopOperationService.findShopOperationsByShopIds(
+            shopIds);
+
+        final Map<String, List<String>> operationIdsByShopId = new HashMap<>();
+        for (ShopOperation shopOperation : shopOperations) {
+            addOperationIdsByShopId(shopOperation, operationIdsByShopId);
+        }
+
+        final Map<String, List<String>> operationNamesByShopId = new HashMap<>();
+        for (Entry<String, List<String>> entry : operationIdsByShopId.entrySet()) {
+            final String shopId = entry.getKey();
+            final List<String> operationIds = operationIdsByShopId.get(shopId);
+            final List<String> operationNames = operationService.findOperationsByIds(operationIds)
+                .stream().map(Operation::getName).toList();
+            operationNamesByShopId.put(shopId, operationNames);
+        }
+
+        return operationNamesByShopId;
+    }
+
+    private void addOperationIdsByShopId(final ShopOperation shopOperation,
+        final Map<String, List<String>> operationIdsByShopId) {
+
+        final String shopId = shopOperation.getShopId();
+        List<String> operationIds;
+
+        if (operationIdsByShopId.containsKey(shopId)) {
+            operationIds = operationIdsByShopId.get(shopId);
+            operationIds.add(shopOperation.getOperationId());
+        } else {
+            operationIds = new ArrayList<>();
+            operationIds.add(shopOperation.getOperationId());
+            operationIdsByShopId.put(shopId, operationIds);
+        }
+    }
+
+    private Map<String, List<String>> findFacilityNamesByShops(final List<String> shopIds) {
+        final List<ShopFacility> shopFacilities = shopFacilityService.findShopFacilitiesByShopIds(
+            shopIds);
+
+        final Map<String, List<String>> facilityIdsByShopId = new HashMap<>();
+        for (ShopFacility shopFacility : shopFacilities) {
+            addFacilityIdsByShopId(shopFacility, facilityIdsByShopId);
+        }
+
+        final Map<String, List<String>> facilityNamesByShopId = new HashMap<>();
+        for (Entry<String, List<String>> entry : facilityIdsByShopId.entrySet()) {
+            final String shopId = entry.getKey();
+            final List<String> facilityIds = facilityIdsByShopId.get(shopId);
+            final List<String> facilityNames = facilityService.findFacilitiesByIds(facilityIds)
+                .stream().map(Facility::getName).toList();
+            facilityNamesByShopId.put(shopId, facilityNames);
+        }
+
+        return facilityNamesByShopId;
+    }
+
+    private void addFacilityIdsByShopId(final ShopFacility shopFacility,
+        final Map<String, List<String>> facilityIdsByShopId) {
+
+        final String shopId = shopFacility.getShopId();
+        List<String> facilityIds;
+
+        if (facilityIdsByShopId.containsKey(shopId)) {
+            facilityIds = facilityIdsByShopId.get(shopId);
+            facilityIds.add(shopFacility.getFacilityId());
+        } else {
+            facilityIds = new ArrayList<>();
+            facilityIds.add(shopFacility.getFacilityId());
+            facilityIdsByShopId.put(shopId, facilityIds);
+        }
     }
 
     public Shop findShopById(final @NotNull String shopId) {

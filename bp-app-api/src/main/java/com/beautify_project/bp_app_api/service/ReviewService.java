@@ -45,7 +45,7 @@ public class ReviewService {
             foundReview.getReservationId());
 
         return ResponseMessage.createResponseMessage(new ReviewFindResult(foundReview.getId(),
-            foundReview.getRate(), foundReview.getContent(), foundReview.getRegistered(),
+            foundReview.getRate(), foundReview.getContent(), foundReview.getRegisteredTime(),
             reviewedWriter.getEmail(), reviewedWriter.getName(),
             reviewedOperation.getId(), reviewedOperation.getName(), reviewedShop.getId(),
             reviewedShop.getName(), reviewedReservation.getId(), reviewedReservation.getDate()));
@@ -64,7 +64,7 @@ public class ReviewService {
 
         final List<ReviewListFindResult> result =  foundReviews.stream().map(review ->
                 new ReviewListFindResult(review.getId(),
-                    review.getRate(), review.getRegistered(),
+                    review.getRate(), review.getRegisteredTime(),
                     memberService.findMemberByEmail(review.getMemberEmail()).getName(),
                     operationService.findOperationById(
                         review.getOperationId()).getName(),

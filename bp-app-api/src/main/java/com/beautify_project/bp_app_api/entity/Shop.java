@@ -5,18 +5,13 @@ import com.beautify_project.bp_app_api.entity.embedded.Address;
 import com.beautify_project.bp_app_api.entity.embedded.BusinessTime;
 import com.beautify_project.bp_app_api.utils.UUIDGenerator;
 import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Persistable;
@@ -47,16 +42,13 @@ public class Shop implements Persistable<String> {
     private String rate = "0.0";
 
     @Column(name = "shop_likes")
-    private Integer likes = 0;
+    private Long likes = 0L;
 
-    @Column(name = "shop_registered")
-    private Long registered;
+    @Column(name = "shop_registered_time")
+    private Long registeredTime;
 
     @Column(name = "shop_updated")
     private Long updated;
-
-    @Column(name = "shop_image_file_ids")
-    private final List<String> imageFileIds = new ArrayList<>();
 
     @Transient
     private Long objectCreated;
@@ -87,112 +79,74 @@ public class Shop implements Persistable<String> {
     @AttributeOverride(name = "offDayOfWeek", column = @Column(name = "shop_off_day_of_week"))
     private BusinessTime businessTime;
 
-    @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
-    private final List<ShopFacility> shopFacilities = new ArrayList<>();
-
-    @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
-    private final List<ShopOperation> shopOperations = new ArrayList<>();
-
-    @Builder
-    private Shop(final String name, final String contact, final String url,
-        final String introduction, final String rate,
-        final Integer likes, final Long registered, final Long updated, final Address shopAddress,
-        final BusinessTime businessTime) {
-        this.id = UUIDGenerator.generate();
+    private Shop(final String id, final String name, final String contact, final String url,
+        final String introduction, final String rate, final Long likes, final Long registeredTime,
+        final Long updated, final Address shopAddress, final BusinessTime businessTime) {
+        this.id = id;
         this.name = name;
         this.contact = contact;
         this.url = url;
         this.introduction = introduction;
         this.rate = rate;
         this.likes = likes;
-        this.registered = registered;
+        this.registeredTime = registeredTime;
         this.updated = updated;
         this.shopAddress = shopAddress;
         this.businessTime = businessTime;
     }
 
-
-
-    private static Shop of(final ShopRegistrationRequest request, long registeredTime) {
-        return Shop.builder()
-            .name(request.name())
-            .contact(request.contact())
-            .url(request.url())
-            .registered(registeredTime)
-            .updated(registeredTime)
-            .introduction(request.introduction())
-            .shopAddress(
-                Address.builder()
-                    .dongCode(request.address().dongCode())
-                    .siDoName(request.address().siDoName())
-                    .siGoonGooName(request.address().siGoonGooName())
-                    .eubMyunDongName(request.address().eubMyunDongName())
-                    .roadNameCode(request.address().roadNameCode())
-                    .roadName(request.address().roadName())
-                    .underGround(request.address().underGround())
-                    .roadMainNum(request.address().roadMainNum())
-                    .roadSubNum(request.address().roadSubNum())
-                    .siGoonGooBuildingName(request.address().siGoonGooBuildingName())
-                    .zipCode(request.address().zipCode())
-                    .apartComplex(request.address().apartComplex())
-                    .eubMyunDongSerialNumber(request.address().eubMyunDongSerialNumber())
-                    .latitude(request.address().latitude())
-                    .longitude(request.address().longitude())
-                    .build()
-            )
-            .businessTime(
-                BusinessTime.builder()
-                    .openTime(request.businessTime().openTime())
-                    .closeTime(request.businessTime().closeTime())
-                    .breakBeginTime(request.businessTime().breakBeginTime())
-                    .breakEndTime(request.businessTime().breakEndTime())
-                    .offDayOfWeek(request.businessTime().offDayOfWeek())
-                    .build()
-            )
-            .build();
+    public static Shop from(final ShopRegistrationRequest registrationRequest) {
+        return new Shop(
+            UUIDGenerator.generate(),
+            registrationRequest.name(),
+            registrationRequest.contact(),
+            registrationRequest.url(),
+            registrationRequest.introduction(),
+            "0.0", // rate
+            0L, // likes
+            System.currentTimeMillis(), // registeredTime
+            System.currentTimeMillis(), // updated
+            Address.builder()
+                .dongCode(registrationRequest.address().dongCode())
+                .siDoName(registrationRequest.address().siDoName())
+                .siGoonGooName(registrationRequest.address().siGoonGooName())
+                .eubMyunDongName(registrationRequest.address().eubMyunDongName())
+                .roadNameCode(registrationRequest.address().roadNameCode())
+                .roadName(registrationRequest.address().roadName())
+                .underGround(registrationRequest.address().underGround())
+                .roadMainNum(registrationRequest.address().roadMainNum())
+                .roadSubNum(registrationRequest.address().roadSubNum())
+                .siGoonGooBuildingName(registrationRequest.address().siGoonGooBuildingName())
+                .zipCode(registrationRequest.address().zipCode())
+                .apartComplex(registrationRequest.address().apartComplex())
+                .eubMyunDongSerialNumber(registrationRequest.address().eubMyunDongSerialNumber())
+                .latitude(registrationRequest.address().latitude())
+                .longitude(registrationRequest.address().longitude())
+                .build(),
+            BusinessTime.builder()
+                .openTime(registrationRequest.businessTime().openTime())
+                .closeTime(registrationRequest.businessTime().closeTime())
+                .breakBeginTime(registrationRequest.businessTime().breakBeginTime())
+                .breakEndTime(registrationRequest.businessTime().breakEndTime())
+                .offDayOfWeek(registrationRequest.businessTime().offDayOfWeek()).build()
+        );
     }
 
-    public static Shop createShop(ShopRegistrationRequest registrationRequest,
-        List<Operation> operations, List<Facility> facilities, Long registeredTime) {
-        Shop newShop = of(registrationRequest, registeredTime);
-
-        addAllImageFileIds(newShop, registrationRequest.imageFileIds());
-        addAllOperationsToShopOperations(operations, newShop, registeredTime);
-        addAllFacilitiesToShopFacilities(facilities, newShop, registeredTime);
-        return newShop;
-    }
-
-    private static void addAllImageFileIds(final Shop shop, final List<String> imageFileIdsParam) {
-        imageFileIdsParam.forEach(imageFileId -> shop.getImageFileIds().add(imageFileId));
-    }
-
-    private static void addAllOperationsToShopOperations(final List<Operation> operations, final Shop shop,
-        final long registeredTime) {
-        if (operations == null || operations.isEmpty()) {
-            return;
-        }
-        for (Operation operation : operations) {
-            shop.addOperations(ShopOperation.of(shop, operation, registeredTime));
-        }
-    }
-
-    private static void addAllFacilitiesToShopFacilities(final List<Facility> facilities, final Shop shop,
-        final long registeredTime) {
-        if (facilities == null || facilities.isEmpty()) {
-            return;
-        }
-        for (Facility facility : facilities) {
-            shop.addSupportFacilities(ShopFacility.of(shop, facility, registeredTime));
-        }
-    }
-
-    public void addSupportFacilities(ShopFacility shopFacility) {
-        this.shopFacilities.add(shopFacility);
-    }
-
-
-    public void addOperations(ShopOperation shopOperation) {
-        this.shopOperations.add(shopOperation);
+    @Override
+    public String toString() {
+        return "Shop{" +
+            "id='" + id + '\'' +
+            ", name='" + name + '\'' +
+            ", contact='" + contact + '\'' +
+            ", url='" + url + '\'' +
+            ", introduction='" + introduction + '\'' +
+            ", rate='" + rate + '\'' +
+            ", likes=" + likes +
+            ", registeredTime=" + registeredTime +
+            ", updated=" + updated +
+            ", shopAddress=" + shopAddress +
+            ", businessTime=" + businessTime +
+            '}';
     }
 
     @Override
