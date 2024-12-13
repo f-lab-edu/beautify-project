@@ -3,7 +3,6 @@ package com.beautify_project.bp_app_api.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -14,7 +13,6 @@ import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest;
 import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest.Address;
 import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest.BusinessTime;
 import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationResult;
-import com.beautify_project.bp_app_api.entity.Category;
 import com.beautify_project.bp_app_api.entity.Facility;
 import com.beautify_project.bp_app_api.entity.Operation;
 import com.beautify_project.bp_app_api.entity.Shop;
@@ -22,7 +20,6 @@ import com.beautify_project.bp_app_api.enumeration.OrderType;
 import com.beautify_project.bp_app_api.enumeration.ShopSearchType;
 import com.beautify_project.bp_app_api.repository.ShopRepository;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -56,6 +53,9 @@ class ShopServiceTest {
 
     @Mock
     private ShopCategoryService shopCategoryService;
+
+    @Mock
+    private ImageService imageService;
 
     @Test
     @DisplayName("Shop 등록 요청시 모든 필드값이 있는 경우 등록에 성공 후 ResponseMessage 를 리턴한다.")
@@ -311,6 +311,7 @@ class ShopServiceTest {
         List<Shop> mockedShopList = List.of(mockedRegisteredShop);
         Page<Shop> mockedPage = new PageImpl<>(mockedShopList);
         when(shopRepository.findAll(any(Pageable.class))).thenReturn(mockedPage);
+        when(imageService.issuePreSignedGetUrl(any(String.class))).thenReturn("presigned-get-url");
 
         // when
         ResponseMessage responseMessage = shopService.findShopList(parameters);

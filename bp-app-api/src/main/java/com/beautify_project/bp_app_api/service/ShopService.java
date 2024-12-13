@@ -12,6 +12,7 @@ import com.beautify_project.bp_app_api.entity.Shop;
 import com.beautify_project.bp_app_api.entity.ShopFacility;
 import com.beautify_project.bp_app_api.entity.ShopLike;
 import com.beautify_project.bp_app_api.entity.ShopOperation;
+import com.beautify_project.bp_app_api.exception.AlreadyProcessedException;
 import com.beautify_project.bp_app_api.exception.NotFoundException;
 import com.beautify_project.bp_app_api.repository.ShopRepository;
 import com.beautify_project.bp_app_api.utils.Validator;
@@ -42,7 +43,7 @@ public class ShopService {
     private final FacilityService facilityService;
     private final ShopLikeService shopLikeService;
     private final ShopCategoryService shopCategoryService;
-    private final OperationCategoryService operationCategoryService;
+    private final ImageService imageService;
 
     @Transactional(rollbackFor = Exception.class)
     public ResponseMessage registerShop(final ShopRegistrationRequest shopRegistrationRequest) {
@@ -88,10 +89,12 @@ public class ShopService {
             final String shopId = foundShop.getId();
             final List<String> operationNames = operationNamesByShopId.get(shopId);
             final List<String> facilityNames = facilityNamesByShopId.get(shopId);
+            final String thumbnailLink = imageService.issuePreSignedGetUrl(
+                foundShop.getImageFileIds().get(0));
 
             shopListFindResults.add(
                 ShopListFindResult.createShopListFindResult(foundShop, operationNames,
-                    facilityNames));
+                    facilityNames, thumbnailLink));
         }
 
         return shopListFindResults;
