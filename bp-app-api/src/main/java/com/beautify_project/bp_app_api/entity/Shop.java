@@ -86,7 +86,7 @@ public class Shop implements Persistable<String> {
 
     private Shop(final String id, final String name, final String contact, final String url,
         final String introduction, final String rate, final Long likes, final Long registeredTime,
-        final Long updated, final Address shopAddress, final BusinessTime businessTime) {
+        final Long updated, final List<String> imageFileIds, final Address shopAddress, final BusinessTime businessTime) {
         this.id = id;
         this.name = name;
         this.contact = contact;
@@ -96,6 +96,7 @@ public class Shop implements Persistable<String> {
         this.likes = likes;
         this.registeredTime = registeredTime;
         this.updated = updated;
+        this.imageFileIds.addAll(imageFileIds);
         this.shopAddress = shopAddress;
         this.businessTime = businessTime;
     }
@@ -111,6 +112,7 @@ public class Shop implements Persistable<String> {
             0L, // likes
             System.currentTimeMillis(), // registeredTime
             System.currentTimeMillis(), // updated
+            registrationRequest.imageFileIds(),
             Address.builder()
                 .dongCode(registrationRequest.address().dongCode())
                 .siDoName(registrationRequest.address().siDoName())
