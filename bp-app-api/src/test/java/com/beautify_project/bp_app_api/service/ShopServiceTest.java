@@ -18,7 +18,6 @@ import com.beautify_project.bp_app_api.entity.Category;
 import com.beautify_project.bp_app_api.entity.Facility;
 import com.beautify_project.bp_app_api.entity.Operation;
 import com.beautify_project.bp_app_api.entity.Shop;
-import com.beautify_project.bp_app_api.entity.ShopOperation;
 import com.beautify_project.bp_app_api.enumeration.OrderType;
 import com.beautify_project.bp_app_api.enumeration.ShopSearchType;
 import com.beautify_project.bp_app_api.repository.ShopRepository;
@@ -50,17 +49,13 @@ class ShopServiceTest {
     private ShopRepository shopRepository;
 
     @Mock
-    private FacilityService facilityService;
-
-    @Mock
-    private OperationService operationService;
-
-    @Mock
     private ShopOperationService shopOperationService;
 
     @Mock
     private ShopFacilityService shopFacilityService;
 
+    @Mock
+    private ShopCategoryService shopCategoryService;
 
     @Test
     @DisplayName("Shop 등록 요청시 모든 필드값이 있는 경우 등록에 성공 후 ResponseMessage 를 리턴한다.")
@@ -115,8 +110,13 @@ class ShopServiceTest {
         );
 
         Shop mockedRegisteredShop = Shop.from(mockedRequest);
-
         when(shopRepository.save(any(Shop.class))).thenReturn(mockedRegisteredShop);
+        when(shopOperationService.registerShopOperations(any(String.class), anyList())).thenReturn(
+            null);
+        when(shopCategoryService.registerShopCategories(any(String.class), anyList())).thenReturn(
+            null);
+        when(shopFacilityService.registerShopFacilities(any(String.class), anyList())).thenReturn(
+            null);
 
         // when
         ResponseMessage responseMessage = shopService.registerShop(mockedRequest);
@@ -124,6 +124,9 @@ class ShopServiceTest {
         // then
         assertThat(responseMessage.getReturnValue()).isInstanceOf(ShopRegistrationResult.class);
         verify(shopRepository, times(1)).save(any(Shop.class));
+        verify(shopOperationService, times(1)).registerShopOperations(any(String.class), anyList());
+        verify(shopCategoryService, times(1)).registerShopCategories(any(String.class), anyList());
+        verify(shopFacilityService, times(1)).registerShopFacilities(any(String.class), anyList());
     }
 
     @Test
@@ -175,6 +178,8 @@ class ShopServiceTest {
         Shop mockedRegisteredShop = Shop.from(mockedRequest);
 
         when(shopRepository.save(any(Shop.class))).thenReturn(mockedRegisteredShop);
+        when(shopFacilityService.registerShopFacilities(any(String.class), anyList())).thenReturn(
+            null);
 
         // when
         ResponseMessage responseMessage = shopService.registerShop(mockedRequest);
@@ -182,6 +187,7 @@ class ShopServiceTest {
         // when & then
         assertThat(responseMessage.getReturnValue()).isInstanceOf(ShopRegistrationResult.class);
         verify(shopRepository, times(1)).save(any(Shop.class));
+        verify(shopFacilityService, times(1)).registerShopFacilities(any(String.class), anyList());
     }
 
     @Test
@@ -231,6 +237,10 @@ class ShopServiceTest {
         Shop mockedRegisteredShop = Shop.from(mockedRequest);
 
         when(shopRepository.save(any(Shop.class))).thenReturn(mockedRegisteredShop);
+        when(shopOperationService.registerShopOperations(any(String.class), anyList())).thenReturn(
+            null);
+        when(shopCategoryService.registerShopCategories(any(String.class), anyList())).thenReturn(
+            null);
 
         // when
         ResponseMessage responseMessage = shopService.registerShop(mockedRequest);
@@ -238,6 +248,8 @@ class ShopServiceTest {
         // then
         assertThat(responseMessage.getReturnValue()).isInstanceOf(ShopRegistrationResult.class);
         verify(shopRepository, times(1)).save(any(Shop.class));
+        verify(shopOperationService, times(1)).registerShopOperations(any(String.class), anyList());
+        verify(shopCategoryService, times(1)).registerShopCategories(any(String.class), anyList());
     }
 
     @ParameterizedTest
@@ -319,5 +331,4 @@ class ShopServiceTest {
             )
         );
     }
-
 }
