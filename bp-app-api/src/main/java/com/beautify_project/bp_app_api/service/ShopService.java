@@ -14,6 +14,7 @@ import com.beautify_project.bp_app_api.entity.ShopLike;
 import com.beautify_project.bp_app_api.entity.ShopOperation;
 import com.beautify_project.bp_app_api.exception.NotFoundException;
 import com.beautify_project.bp_app_api.repository.ShopRepository;
+import com.beautify_project.bp_app_api.utils.Validator;
 import jakarta.validation.constraints.NotBlank;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,12 +41,29 @@ public class ShopService {
     private final ShopFacilityService shopFacilityService;
     private final FacilityService facilityService;
     private final ShopLikeService shopLikeService;
+    private final ShopCategoryService shopCategoryService;
+    private final OperationCategoryService operationCategoryService;
 
     @Transactional(rollbackFor = Exception.class)
     public ResponseMessage registerShop(final ShopRegistrationRequest shopRegistrationRequest) {
+
         final Shop registeredShop = shopRepository.save(Shop.from(shopRegistrationRequest));
-        return ResponseMessage.createResponseMessage(
-            new ShopRegistrationResult(registeredShop.getId()));
+        final String registeredShopId = registeredShop.getId();
+        final List<String> operationIds = shopRegistrationRequest.operationIds();
+        final List<String> facilityIds = shopRegistrationRequest.facilityIds();
+
+        // 시술 ID가 포함되어 있을 경우에만 샵에 포함된 시술과 카테고리로 insert
+        if (!Validator.isNullOrEmpty(operationIds)) {
+            shopOperationService.registerShopOperations(registeredShopId, operationIds);
+            shopCategoryService.registerShopCategories(registeredShopId, operationIds);
+        }
+
+        // 편의시설 ID가 포함되어 있을 경우에만 샵에 포함된 편의시설로 insert
+        if (!Validator.isNullOrEmpty(facilityIds)) {
+            shopFacilityService.registerShopFacilities(registeredShopId, facilityIds);
+        }
+
+        return ResponseMessage.createResponseMessage(new ShopRegistrationResult(registeredShopId));
     }
 
     public ResponseMessage findShopList(final ShopListFindRequestParameters parameters) {
@@ -72,7 +90,8 @@ public class ShopService {
             final List<String> facilityNames = facilityNamesByShopId.get(shopId);
 
             shopListFindResults.add(
-                ShopListFindResult.createShopListFindResult(foundShop, operationNames, facilityNames));
+                ShopListFindResult.createShopListFindResult(foundShop, operationNames,
+                    facilityNames));
         }
 
         return shopListFindResults;
@@ -102,15 +121,15 @@ public class ShopService {
     private void addOperationIdsByShopId(final ShopOperation shopOperation,
         final Map<String, List<String>> operationIdsByShopId) {
 
-        final String shopId = shopOperation.getShopId();
+        final String shopId = shopOperation.getId().getShopId();
         List<String> operationIds;
 
         if (operationIdsByShopId.containsKey(shopId)) {
             operationIds = operationIdsByShopId.get(shopId);
-            operationIds.add(shopOperation.getOperationId());
+            operationIds.add(shopOperation.getId().getOperationId());
         } else {
             operationIds = new ArrayList<>();
-            operationIds.add(shopOperation.getOperationId());
+            operationIds.add(shopOperation.getId().getOperationId());
             operationIdsByShopId.put(shopId, operationIds);
         }
     }
@@ -139,15 +158,15 @@ public class ShopService {
     private void addFacilityIdsByShopId(final ShopFacility shopFacility,
         final Map<String, List<String>> facilityIdsByShopId) {
 
-        final String shopId = shopFacility.getShopId();
+        final String shopId = shopFacility.getId().getShopId();
         List<String> facilityIds;
 
         if (facilityIdsByShopId.containsKey(shopId)) {
             facilityIds = facilityIdsByShopId.get(shopId);
-            facilityIds.add(shopFacility.getFacilityId());
+            facilityIds.add(shopFacility.getId().getFacilityId());
         } else {
             facilityIds = new ArrayList<>();
-            facilityIds.add(shopFacility.getFacilityId());
+            facilityIds.add(shopFacility.getId().getFacilityId());
             facilityIdsByShopId.put(shopId, facilityIds);
         }
     }
@@ -157,7 +176,7 @@ public class ShopService {
             .orElseThrow(() -> new NotFoundException(ErrorCode.SH001));
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void likeShop(final @NotBlank String shopId, final @NotBlank String memberEmail) {
         if (shopLikeService.isLikePushed(shopId, memberEmail)) {
             throw new AlreadyProcessedException(ErrorCode.AL001);
@@ -172,7 +191,7 @@ public class ShopService {
         shopLikeService.registerShopLike(ShopLike.of(shopId, memberEmail));
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void cancelLikeShop(final @NotBlank String shopId, final @NotBlank String memberEmail) {
         if (!shopLikeService.isLikePushed(shopId, memberEmail)) {
             throw new AlreadyProcessedException(ErrorCode.AL002);

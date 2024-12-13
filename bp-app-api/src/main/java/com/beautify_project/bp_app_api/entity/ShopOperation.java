@@ -1,10 +1,11 @@
 package com.beautify_project.bp_app_api.entity;
 
-import com.beautify_project.bp_app_api.utils.UUIDGenerator;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.io.Serializable;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,29 +16,40 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ShopOperation {
 
-    @Id
-    @Column(name = "shop_operation_id")
-    private String id;
-
-    @Column(name = "shop_id")
-    private String shopId;
-
-    @Column(name = "operation_id")
-    private String operationId;
+    @EmbeddedId
+    private ShopOperationId id;
 
     @Column(name = "shop_operation_registered_time")
     private Long registeredTime;
 
-    public ShopOperation(final String id, final String shopId, final String operationId,
-        final Long registeredTime) {
+    private ShopOperation(final ShopOperationId id, final Long registeredTime) {
         this.id = id;
-        this.shopId = shopId;
-        this.operationId = operationId;
         this.registeredTime = registeredTime;
     }
 
     public static ShopOperation of(final String shopId, final String operationId) {
-        return new ShopOperation(UUIDGenerator.generate(), shopId, operationId,
+        return new ShopOperation(ShopOperationId.of(shopId, operationId),
             System.currentTimeMillis());
+    }
+
+    @Embeddable
+    @Getter
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    public static class ShopOperationId implements Serializable {
+
+        @Column(name = "shop_id")
+        private String shopId;
+
+        @Column(name = "operation_id")
+        private String operationId;
+
+        private ShopOperationId(final String shopId, final String operationId) {
+            this.shopId = shopId;
+            this.operationId = operationId;
+        }
+
+        public static ShopOperationId of(final String shopId, final String operationId) {
+            return new ShopOperationId(shopId, operationId);
+        }
     }
 }
