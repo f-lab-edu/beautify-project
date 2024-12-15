@@ -17,11 +17,9 @@ import com.beautify_project.bp_app_api.exception.NotFoundException;
 import com.beautify_project.bp_app_api.repository.ShopRepository;
 import com.beautify_project.bp_app_api.utils.Validator;
 import jakarta.validation.constraints.NotBlank;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -83,95 +81,49 @@ public class ShopService {
         final Map<String, List<String>> operationNamesByShopId = findOperationNamesByShops(shopIds);
         final Map<String, List<String>> facilityNamesByShopId = findFacilityNamesByShops(shopIds);
 
-        final List<ShopListFindResult> shopListFindResults = new ArrayList<>();
-
-        for (Shop foundShop : foundShops) {
-            final String shopId = foundShop.getId();
-            final List<String> operationNames = operationNamesByShopId.get(shopId);
-            final List<String> facilityNames = facilityNamesByShopId.get(shopId);
-            final String thumbnailLink = imageService.issuePreSignedGetUrl(
-                foundShop.getImageFileIds().get(0));
-
-            shopListFindResults.add(
-                ShopListFindResult.createShopListFindResult(foundShop, operationNames,
-                    facilityNames, thumbnailLink));
-        }
-
-        return shopListFindResults;
+        return foundShops.stream().map(foundShop -> {
+                final String shopId = foundShop.getId();
+                final List<String> operationNames = operationNamesByShopId.get(shopId);
+                final List<String> facilityNames = facilityNamesByShopId.get(shopId);
+                final String thumbnailLink = imageService.issuePreSignedGetUrl(
+                    foundShop.getImageFileIds().get(0));
+                return ShopListFindResult.createShopListFindResult(foundShop, operationNames,
+                    facilityNames, thumbnailLink);
+            })
+            .collect(Collectors.toList());
     }
 
     private Map<String, List<String>> findOperationNamesByShops(final List<String> shopIds) {
-        final List<ShopOperation> shopOperations = shopOperationService.findShopOperationsByShopIds(
+        final List<ShopOperation> foundShopOperations = shopOperationService.findShopOperationsByShopIds(
             shopIds);
 
-        final Map<String, List<String>> operationIdsByShopId = new HashMap<>();
-        for (ShopOperation shopOperation : shopOperations) {
-            addOperationIdsByShopId(shopOperation, operationIdsByShopId);
-        }
+        final Map<String, List<String>> operationIdsByShopId = foundShopOperations.stream()
+            .collect(Collectors.groupingBy(shopOperation -> shopOperation.getId().getShopId(),
+                Collectors.mapping(shopOperation -> shopOperation.getId().getOperationId(),
+                    Collectors.toList())));
 
-        final Map<String, List<String>> operationNamesByShopId = new HashMap<>();
-        for (Entry<String, List<String>> entry : operationIdsByShopId.entrySet()) {
-            final String shopId = entry.getKey();
-            final List<String> operationIds = operationIdsByShopId.get(shopId);
-            final List<String> operationNames = operationService.findOperationsByIds(operationIds)
-                .stream().map(Operation::getName).toList();
-            operationNamesByShopId.put(shopId, operationNames);
-        }
-
-        return operationNamesByShopId;
-    }
-
-    private void addOperationIdsByShopId(final ShopOperation shopOperation,
-        final Map<String, List<String>> operationIdsByShopId) {
-
-        final String shopId = shopOperation.getId().getShopId();
-        List<String> operationIds;
-
-        if (operationIdsByShopId.containsKey(shopId)) {
-            operationIds = operationIdsByShopId.get(shopId);
-            operationIds.add(shopOperation.getId().getOperationId());
-        } else {
-            operationIds = new ArrayList<>();
-            operationIds.add(shopOperation.getId().getOperationId());
-            operationIdsByShopId.put(shopId, operationIds);
-        }
+        return operationIdsByShopId.entrySet()
+            .stream()
+            .collect(Collectors.toMap(
+                Map.Entry::getKey,
+                entry -> operationService.findOperationsByIds(entry.getValue())
+                    .stream().map(Operation::getName).collect(Collectors.toList())));
     }
 
     private Map<String, List<String>> findFacilityNamesByShops(final List<String> shopIds) {
-        final List<ShopFacility> shopFacilities = shopFacilityService.findShopFacilitiesByShopIds(
+        final List<ShopFacility> foundShopFacilities = shopFacilityService.findShopFacilitiesByShopIds(
             shopIds);
 
-        final Map<String, List<String>> facilityIdsByShopId = new HashMap<>();
-        for (ShopFacility shopFacility : shopFacilities) {
-            addFacilityIdsByShopId(shopFacility, facilityIdsByShopId);
-        }
+        final Map<String, List<String>> facilityIdsByShopId = foundShopFacilities.stream()
+            .collect(Collectors.groupingBy(shopFacility -> shopFacility.getId().getShopId(),
+                Collectors.mapping(shopFacility -> shopFacility.getId().getFacilityId(),
+                    Collectors.toList())));
 
-        final Map<String, List<String>> facilityNamesByShopId = new HashMap<>();
-        for (Entry<String, List<String>> entry : facilityIdsByShopId.entrySet()) {
-            final String shopId = entry.getKey();
-            final List<String> facilityIds = facilityIdsByShopId.get(shopId);
-            final List<String> facilityNames = facilityService.findFacilitiesByIds(facilityIds)
-                .stream().map(Facility::getName).toList();
-            facilityNamesByShopId.put(shopId, facilityNames);
-        }
-
-        return facilityNamesByShopId;
-    }
-
-    private void addFacilityIdsByShopId(final ShopFacility shopFacility,
-        final Map<String, List<String>> facilityIdsByShopId) {
-
-        final String shopId = shopFacility.getId().getShopId();
-        List<String> facilityIds;
-
-        if (facilityIdsByShopId.containsKey(shopId)) {
-            facilityIds = facilityIdsByShopId.get(shopId);
-            facilityIds.add(shopFacility.getId().getFacilityId());
-        } else {
-            facilityIds = new ArrayList<>();
-            facilityIds.add(shopFacility.getId().getFacilityId());
-            facilityIdsByShopId.put(shopId, facilityIds);
-        }
+        return facilityIdsByShopId.entrySet()
+            .stream()
+            .collect(Collectors.toMap(Map.Entry::getKey, entry ->
+                facilityService.findFacilitiesByIds(entry.getValue()).stream()
+                    .map(Facility::getName).collect(Collectors.toList())));
     }
 
     public Shop findShopById(final @NotBlank String shopId) {
