@@ -1,16 +1,20 @@
 services:
   db:
-    image: postgres
+    image: mysql
     restart: always
-    container_name: bp_postgres
-    volumes:
-      - ./data/postgres:/var/lib/postgresql/data
+    container_name: bp_mysql
     ports:
-      - "5432:5432"
+      - 3306:3306
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: beautify_project
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: beautify_project
+      MYSQL_USER: bp
+      MYSQL_PASSWORD: bp
+      TZ: Asia/Seoul
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+      - ./data/mysql/init:/docker-entrypoint-initdb.d
+    platform: linux/arm64/v8
     deploy:
       resources:
         limits:
