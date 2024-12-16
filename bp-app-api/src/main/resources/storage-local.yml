@@ -1,0 +1,9 @@
+spring:
+  config:
+    activate:
+      on-profile: local
+    import:
+      - naver-cloud-platform-auth.yml
+
+storage:
+  type: naver-cloud-platform-object-storage

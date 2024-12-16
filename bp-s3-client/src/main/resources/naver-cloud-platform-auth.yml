@@ -1,0 +1,7 @@
+ncp:
+  enabled: true
+  end-point: https://kr.object.ncloudstorage.com
+  region-name: kr-standard
+  bucket-name: ENC(21gwF1d39z8cvyO4uY76ONBNRkrKAOtvpa/JTIb2rxg=)
+  access-key: ENC(NK7RQN0sjCa0j6Fs39E6egN9/vN+Rskcs6PNn8e+ghwSqUG4TCQyQw==)
+  secret-key: ENC(DsOAGAjCSjemnAUgVXcaahDDqTVRJqrWnBOlwuB0xz9n9qfWytIptVYM4lhGgCewB+0RH0w0T8s=)
