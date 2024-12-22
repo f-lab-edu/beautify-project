@@ -6,7 +6,7 @@ server:
 spring:
   config:
     activate:
-      on-profile: local
+      on-profile: prod
     import:
       - jasypt.yml
       - datasource-local.yml
@@ -15,4 +15,3 @@ spring:
 logging:
   level:
     org.hibernate.SQL: debug
-    com.beautify_project.bp_app_api: debug
