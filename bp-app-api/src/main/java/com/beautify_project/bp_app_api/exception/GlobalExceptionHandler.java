@@ -3,6 +3,7 @@ package com.beautify_project.bp_app_api.exception;
 import com.beautify_project.bp_app_api.dto.common.ErrorResponseMessage;
 import com.beautify_project.bp_app_api.dto.common.ErrorResponseMessage.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -146,6 +147,20 @@ public class GlobalExceptionHandler {
         return createResponse(exception.getErrorCode());
     }
 
+    @ExceptionHandler(AlreadyProcessedException.class)
+    private ResponseEntity<ErrorResponseMessage> handleAlreadyLikeException(
+        final AlreadyProcessedException exception) {
+        log.error("", exception);
+        return createResponse(exception.getErrorCode());
+    }
+
+    @ExceptionHandler(InvalidIdException.class)
+    private ResponseEntity<ErrorResponseMessage> handleInvalidIdException(
+        final InvalidIdException exception) {
+        log.error("", exception);
+        return createResponseWithCustomMessage(ErrorCode.II001, exception.getErrorMessage());
+    }
+
     private static ResponseEntity<ErrorResponseMessage> createResponse(final ErrorCode errorCode) {
         ErrorResponseMessage errorResponseMessage = ErrorResponseMessage.createErrorMessage(
             errorCode);
@@ -155,10 +170,13 @@ public class GlobalExceptionHandler {
     private static ResponseEntity<ErrorResponseMessage> createResponseWithCustomMessage(
         final ErrorCode errorCode, final String customMessage) {
 
-        ErrorResponseMessage customErrorResponseMessage = ErrorResponseMessage.createCustomErrorMessage(
-            errorCode, customMessage);
-
-        return new ResponseEntity<>(customErrorResponseMessage,
-            customErrorResponseMessage.getHttpStatus());
+        ErrorResponseMessage customErrorResponseMessage;
+        if (StringUtils.isEmpty(customMessage)) {
+            customErrorResponseMessage = ErrorResponseMessage.createErrorMessage(errorCode);
+        } else {
+            customErrorResponseMessage = ErrorResponseMessage.createCustomErrorMessage(errorCode,
+                customMessage);
+        }
+        return new ResponseEntity<>(customErrorResponseMessage, errorCode.getHttpStatus());
     }
 }

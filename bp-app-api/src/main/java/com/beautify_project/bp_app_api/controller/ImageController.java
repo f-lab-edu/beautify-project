@@ -20,6 +20,6 @@ public class ImageController {
     @GetMapping("/v1/images/presigned-put-url")
     @ResponseStatus(code = HttpStatus.OK)
     ResponseMessage issuePreSignedPutUrl() {
-        return imageService.issuePreSignedPutUrl();
+        return imageService.issuePreSignedPutUrlWrappingResponseMessage();
     }
 }

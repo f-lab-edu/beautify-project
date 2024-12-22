@@ -11,6 +11,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -50,6 +52,9 @@ public class Shop implements Persistable<String> {
     @Column(name = "shop_updated")
     private Long updated;
 
+    @Column(name = "shop_image_file_ids")
+    private final List<String> imageFileIds = new ArrayList<>();
+
     @Transient
     private Long objectCreated;
 
@@ -81,7 +86,7 @@ public class Shop implements Persistable<String> {
 
     private Shop(final String id, final String name, final String contact, final String url,
         final String introduction, final String rate, final Long likes, final Long registeredTime,
-        final Long updated, final Address shopAddress, final BusinessTime businessTime) {
+        final Long updated, final List<String> imageFileIds, final Address shopAddress, final BusinessTime businessTime) {
         this.id = id;
         this.name = name;
         this.contact = contact;
@@ -91,6 +96,7 @@ public class Shop implements Persistable<String> {
         this.likes = likes;
         this.registeredTime = registeredTime;
         this.updated = updated;
+        this.imageFileIds.addAll(imageFileIds);
         this.shopAddress = shopAddress;
         this.businessTime = businessTime;
     }
@@ -106,6 +112,7 @@ public class Shop implements Persistable<String> {
             0L, // likes
             System.currentTimeMillis(), // registeredTime
             System.currentTimeMillis(), // updated
+            registrationRequest.imageFileIds(),
             Address.builder()
                 .dongCode(registrationRequest.address().dongCode())
                 .siDoName(registrationRequest.address().siDoName())
@@ -130,6 +137,14 @@ public class Shop implements Persistable<String> {
                 .breakEndTime(registrationRequest.businessTime().breakEndTime())
                 .offDayOfWeek(registrationRequest.businessTime().offDayOfWeek()).build()
         );
+    }
+
+    public void increaseLikeCount() {
+        likes += 1;
+    }
+
+    public void decreaseLikeCount() {
+        likes -= 1;
     }
 
     @Override

@@ -39,7 +39,7 @@ class ImageControllerTest {
     void given_preSignedPutUrlRequest_when_succeed_then_getResponseMessageWrappingPreSignedPutUrlResult()
         throws Exception {
         // given
-        when(imageService.issuePreSignedPutUrl()).thenReturn(ResponseMessage.createResponseMessage(
+        when(imageService.issuePreSignedPutUrlWrappingResponseMessage()).thenReturn(ResponseMessage.createResponseMessage(
             new NCPPreSignedPutUrlResult("www.test.com", UUID.randomUUID().toString())));
 
         // when
@@ -62,7 +62,7 @@ class ImageControllerTest {
     void given_preSignedPutUrlRequest_when_failed_then_getErrorResponseMessageWrappingErrorCodeIS002()
         throws Exception {
         // given
-        when(imageService.issuePreSignedPutUrl()).thenThrow(new StorageException(ErrorCode.IS002));
+        when(imageService.issuePreSignedPutUrlWrappingResponseMessage()).thenThrow(new StorageException(ErrorCode.IS002));
 
         // when
         ResultActions resultActions = mockMvc.perform(

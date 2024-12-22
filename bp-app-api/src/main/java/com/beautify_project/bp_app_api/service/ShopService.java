@@ -10,15 +10,16 @@ import com.beautify_project.bp_app_api.entity.Facility;
 import com.beautify_project.bp_app_api.entity.Operation;
 import com.beautify_project.bp_app_api.entity.Shop;
 import com.beautify_project.bp_app_api.entity.ShopFacility;
+import com.beautify_project.bp_app_api.entity.ShopLike;
 import com.beautify_project.bp_app_api.entity.ShopOperation;
+import com.beautify_project.bp_app_api.exception.AlreadyProcessedException;
 import com.beautify_project.bp_app_api.exception.NotFoundException;
 import com.beautify_project.bp_app_api.repository.ShopRepository;
-import jakarta.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.HashMap;
+import com.beautify_project.bp_app_api.utils.Validator;
+import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -38,12 +39,30 @@ public class ShopService {
     private final OperationService operationService;
     private final ShopFacilityService shopFacilityService;
     private final FacilityService facilityService;
+    private final ShopLikeService shopLikeService;
+    private final ShopCategoryService shopCategoryService;
+    private final ImageService imageService;
 
     @Transactional(rollbackFor = Exception.class)
     public ResponseMessage registerShop(final ShopRegistrationRequest shopRegistrationRequest) {
+
         final Shop registeredShop = shopRepository.save(Shop.from(shopRegistrationRequest));
-        return ResponseMessage.createResponseMessage(
-            new ShopRegistrationResult(registeredShop.getId()));
+        final String registeredShopId = registeredShop.getId();
+        final List<String> operationIds = shopRegistrationRequest.operationIds();
+        final List<String> facilityIds = shopRegistrationRequest.facilityIds();
+
+        // 시술 ID가 포함되어 있을 경우에만 샵에 포함된 시술과 카테고리로 insert
+        if (!Validator.isNullOrEmpty(operationIds)) {
+            shopOperationService.registerShopOperations(registeredShopId, operationIds);
+            shopCategoryService.registerShopCategories(registeredShopId, operationIds);
+        }
+
+        // 편의시설 ID가 포함되어 있을 경우에만 샵에 포함된 편의시설로 insert
+        if (!Validator.isNullOrEmpty(facilityIds)) {
+            shopFacilityService.registerShopFacilities(registeredShopId, facilityIds);
+        }
+
+        return ResponseMessage.createResponseMessage(new ShopRegistrationResult(registeredShopId));
     }
 
     public ResponseMessage findShopList(final ShopListFindRequestParameters parameters) {
@@ -62,96 +81,83 @@ public class ShopService {
         final Map<String, List<String>> operationNamesByShopId = findOperationNamesByShops(shopIds);
         final Map<String, List<String>> facilityNamesByShopId = findFacilityNamesByShops(shopIds);
 
-        final List<ShopListFindResult> shopListFindResults = new ArrayList<>();
-
-        for (Shop foundShop : foundShops) {
-            final String shopId = foundShop.getId();
-            final List<String> operationNames = operationNamesByShopId.get(shopId);
-            final List<String> facilityNames = facilityNamesByShopId.get(shopId);
-
-            shopListFindResults.add(
-                ShopListFindResult.createShopListFindResult(foundShop, operationNames, facilityNames));
-        }
-
-        return shopListFindResults;
+        return foundShops.stream().map(foundShop -> {
+                final String shopId = foundShop.getId();
+                final List<String> operationNames = operationNamesByShopId.get(shopId);
+                final List<String> facilityNames = facilityNamesByShopId.get(shopId);
+                final String thumbnailLink = imageService.issuePreSignedGetUrl(
+                    foundShop.getImageFileIds().get(0));
+                return ShopListFindResult.createShopListFindResult(foundShop, operationNames,
+                    facilityNames, thumbnailLink);
+            })
+            .collect(Collectors.toList());
     }
 
     private Map<String, List<String>> findOperationNamesByShops(final List<String> shopIds) {
-        final List<ShopOperation> shopOperations = shopOperationService.findShopOperationsByShopIds(
+        final List<ShopOperation> foundShopOperations = shopOperationService.findShopOperationsByShopIds(
             shopIds);
 
-        final Map<String, List<String>> operationIdsByShopId = new HashMap<>();
-        for (ShopOperation shopOperation : shopOperations) {
-            addOperationIdsByShopId(shopOperation, operationIdsByShopId);
-        }
+        final Map<String, List<String>> operationIdsByShopId = foundShopOperations.stream()
+            .collect(Collectors.groupingBy(shopOperation -> shopOperation.getId().getShopId(),
+                Collectors.mapping(shopOperation -> shopOperation.getId().getOperationId(),
+                    Collectors.toList())));
 
-        final Map<String, List<String>> operationNamesByShopId = new HashMap<>();
-        for (Entry<String, List<String>> entry : operationIdsByShopId.entrySet()) {
-            final String shopId = entry.getKey();
-            final List<String> operationIds = operationIdsByShopId.get(shopId);
-            final List<String> operationNames = operationService.findOperationsByIds(operationIds)
-                .stream().map(Operation::getName).toList();
-            operationNamesByShopId.put(shopId, operationNames);
-        }
-
-        return operationNamesByShopId;
-    }
-
-    private void addOperationIdsByShopId(final ShopOperation shopOperation,
-        final Map<String, List<String>> operationIdsByShopId) {
-
-        final String shopId = shopOperation.getShopId();
-        List<String> operationIds;
-
-        if (operationIdsByShopId.containsKey(shopId)) {
-            operationIds = operationIdsByShopId.get(shopId);
-            operationIds.add(shopOperation.getOperationId());
-        } else {
-            operationIds = new ArrayList<>();
-            operationIds.add(shopOperation.getOperationId());
-            operationIdsByShopId.put(shopId, operationIds);
-        }
+        return operationIdsByShopId.entrySet()
+            .stream()
+            .collect(Collectors.toMap(
+                Map.Entry::getKey,
+                entry -> operationService.findOperationsByIds(entry.getValue())
+                    .stream().map(Operation::getName).collect(Collectors.toList())));
     }
 
     private Map<String, List<String>> findFacilityNamesByShops(final List<String> shopIds) {
-        final List<ShopFacility> shopFacilities = shopFacilityService.findShopFacilitiesByShopIds(
+        final List<ShopFacility> foundShopFacilities = shopFacilityService.findShopFacilitiesByShopIds(
             shopIds);
 
-        final Map<String, List<String>> facilityIdsByShopId = new HashMap<>();
-        for (ShopFacility shopFacility : shopFacilities) {
-            addFacilityIdsByShopId(shopFacility, facilityIdsByShopId);
-        }
+        final Map<String, List<String>> facilityIdsByShopId = foundShopFacilities.stream()
+            .collect(Collectors.groupingBy(shopFacility -> shopFacility.getId().getShopId(),
+                Collectors.mapping(shopFacility -> shopFacility.getId().getFacilityId(),
+                    Collectors.toList())));
 
-        final Map<String, List<String>> facilityNamesByShopId = new HashMap<>();
-        for (Entry<String, List<String>> entry : facilityIdsByShopId.entrySet()) {
-            final String shopId = entry.getKey();
-            final List<String> facilityIds = facilityIdsByShopId.get(shopId);
-            final List<String> facilityNames = facilityService.findFacilitiesByIds(facilityIds)
-                .stream().map(Facility::getName).toList();
-            facilityNamesByShopId.put(shopId, facilityNames);
-        }
-
-        return facilityNamesByShopId;
+        return facilityIdsByShopId.entrySet()
+            .stream()
+            .collect(Collectors.toMap(Map.Entry::getKey, entry ->
+                facilityService.findFacilitiesByIds(entry.getValue()).stream()
+                    .map(Facility::getName).collect(Collectors.toList())));
     }
 
-    private void addFacilityIdsByShopId(final ShopFacility shopFacility,
-        final Map<String, List<String>> facilityIdsByShopId) {
-
-        final String shopId = shopFacility.getShopId();
-        List<String> facilityIds;
-
-        if (facilityIdsByShopId.containsKey(shopId)) {
-            facilityIds = facilityIdsByShopId.get(shopId);
-            facilityIds.add(shopFacility.getFacilityId());
-        } else {
-            facilityIds = new ArrayList<>();
-            facilityIds.add(shopFacility.getFacilityId());
-            facilityIdsByShopId.put(shopId, facilityIds);
-        }
-    }
-
-    public Shop findShopById(final @NotNull String shopId) {
+    public Shop findShopById(final @NotBlank String shopId) {
         return shopRepository.findById(shopId)
             .orElseThrow(() -> new NotFoundException(ErrorCode.SH001));
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void likeShop(final @NotBlank String shopId, final @NotBlank String memberEmail) {
+        if (shopLikeService.isLikePushed(shopId, memberEmail)) {
+            throw new AlreadyProcessedException(ErrorCode.AL001);
+        }
+
+        Shop foundShop = findShopById(shopId);
+        log.debug("shop like count before add like: shopId - {}, likeCount - {}",
+            foundShop.getId(), foundShop.getLikes());
+        foundShop.increaseLikeCount();
+        shopRepository.save(foundShop);
+        // TODO: bearer token 에서 사용자 정보 추출하는 로직 필요
+        shopLikeService.registerShopLike(ShopLike.of(shopId, memberEmail));
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void cancelLikeShop(final @NotBlank String shopId, final @NotBlank String memberEmail) {
+        if (!shopLikeService.isLikePushed(shopId, memberEmail)) {
+            throw new AlreadyProcessedException(ErrorCode.AL002);
+        }
+
+        Shop foundShop = findShopById(shopId);
+        log.debug("shop like count before subtract like: shopId - {}, likeCount - {}",
+            foundShop.getId(), foundShop.getLikes());
+        foundShop.decreaseLikeCount();
+        shopRepository.save(foundShop);
+        // TODO: bearer token 에서 사용자 정보 추출하는 로직 필요
+        shopLikeService.deleteShopLike(ShopLike.of(shopId, memberEmail));
     }
 }

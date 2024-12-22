@@ -15,13 +15,14 @@ public record ShopListFindResult(
     List<String> facilities,
     String rate,
     Long likes,
-    Boolean likePushed
+    Boolean likePushed,
+    String thumbnailLink
 ) {
 
     public static ShopListFindResult createShopListFindResult(final Shop shop,
-        final List<String> operationNames, final List<String> facilityNames) {
+        final List<String> operationNames, final List<String> facilityNames, final String thumbnailLink) {
         return new ShopListFindResult(shop.getId(), shop.getName(), operationNames, facilityNames,
-            shop.getRate(), shop.getLikes(), null); // TODO: 사용자 엔티티 구현 후 세팅 추가 필요
+            shop.getRate(), shop.getLikes(), null, thumbnailLink); // TODO: 사용자 엔티티 구현 후 세팅 추가 필요
     }
 
     @Override

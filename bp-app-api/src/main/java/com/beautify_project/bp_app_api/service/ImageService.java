@@ -14,13 +14,18 @@ public class ImageService {
 
     private final ImageRepository imageRepository;
 
-    public ResponseMessage issuePreSignedPutUrl() {
+    public ResponseMessage issuePreSignedPutUrlWrappingResponseMessage() {
 
         return ResponseMessage.createResponseMessage(imageRepository.createPutUrlResult());
     }
 
-    public ResponseMessage issuePreSignedGetUrl(final String fileId) {
+    public ResponseMessage issuePreSignedGetUrlWrappingResponseMessage(final String fileId) {
         return ResponseMessage.createResponseMessage(imageRepository.findImageLinkByFileId(fileId));
+    }
+
+    public String issuePreSignedGetUrl(final String fileId) {
+        PreSignedGetUrlResult preSignedGetUrlResult = imageRepository.findImageLinkByFileId(fileId);
+        return preSignedGetUrlResult.preSignedUrl();
     }
 
     public List<String> issuePreSignedGetUrls(final List<String> fileIds) {
