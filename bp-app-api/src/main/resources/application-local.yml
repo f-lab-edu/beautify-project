@@ -12,6 +12,7 @@ spring:
       - datasource-local.yml
       - storage-local.yml
       - auth.yml
+      - mail.yml
 
 logging:
   level:

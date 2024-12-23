@@ -170,6 +170,13 @@ public class GlobalExceptionHandler {
         return createResponse(ErrorCode.II002);
     }
 
+    @ExceptionHandler(InvalidRequestException.class)
+    private ResponseEntity<ErrorResponseMessage> handleInvalidRequestException(
+        final InvalidRequestException exception) {
+        log.error("", exception);
+        return createResponse(exception.getErrorCode());
+    }
+
     private static ResponseEntity<ErrorResponseMessage> createResponse(final ErrorCode errorCode) {
         ErrorResponseMessage errorResponseMessage = ErrorResponseMessage.createErrorMessage(
             errorCode);

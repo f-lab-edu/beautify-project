@@ -64,6 +64,8 @@ public class ErrorResponseMessage {
         SH001(HttpStatus.NOT_FOUND, "SH001", "등록되지 않은 샵 입니다."),
         SH002(HttpStatus.INTERNAL_SERVER_ERROR, "SH002", "샵 등록에 실패했습니다."),
 
+        EC001(HttpStatus.BAD_REQUEST, "EC001", "인증 메일 유효 시간이 지나지 않았습니다. 잠시후에 다시 시도해주세요."),
+
         RE001(HttpStatus.NOT_FOUND, "RE001", "등록되지 않은 리뷰입니다."),
 
         OP001(HttpStatus.NOT_FOUND, "OP001", "등록되지 않은 시술입니다."),
