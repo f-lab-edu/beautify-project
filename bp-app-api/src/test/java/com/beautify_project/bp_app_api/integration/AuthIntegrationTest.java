@@ -1,10 +1,12 @@
 package com.beautify_project.bp_app_api.integration;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.beautify_project.bp_app_api.dto.auth.EmailCertificationRequest;
+import com.beautify_project.bp_app_api.dto.auth.EmailCertificationVerificationRequest;
 import com.beautify_project.bp_app_api.dto.auth.EmailDuplicatedRequest;
 import com.beautify_project.bp_app_api.dto.member.UserRoleMemberRegistrationRequest;
 import com.beautify_project.bp_app_api.entity.EmailCertification;
@@ -35,6 +37,7 @@ public class AuthIntegrationTest {
 
     private static final String AUTH_EMAIL_DUPLICATED_URL = "/v1/auth/email/duplicated";
     private static final String AUTH_EMAIL_CERTIFICATION_URL = "/v1/auth/email/certification";
+    private static final String AUTH_EMAIL_CERTIFICATION_VERIFICATION_URL = "/v1/auth/email/certification/verification";
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -176,6 +179,117 @@ public class AuthIntegrationTest {
         // then
         resultActions
             .andExpect(status().isNoContent())
+            .andDo(print());
+    }
+
+    @Test
+    @DisplayName("이메일 인증 번호 전송 요청시 유효 시간이 지나지 않은 이전 요청 이력이 있다면, 메일을 전송하지 않고, EC001 에러 코드 응답을 받는다.")
+    void given_sendingCertificationEmailRequest_when_validation_time_not_exceeded_request_record_exist_then_getEC001ErrorMessage() throws Exception{
+        // given
+        final String insertedEmail = "dev.sssukho@gmail.com";
+        final EmailCertification insertedEmailCertificationEntity = EmailCertification.of(
+            insertedEmail, UUIDGenerator.generateEmailCertificationNumber(), System.currentTimeMillis());
+
+        emailCertificationRepository.saveAndFlush(insertedEmailCertificationEntity);
+
+        final EmailCertificationRequest mockedRequest = new EmailCertificationRequest(insertedEmail);
+
+        // when
+        final ResultActions resultActions = mockMvc.perform(
+            MockMvcRequestBuilders.post(AUTH_EMAIL_CERTIFICATION_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(mockedRequest))
+        );
+
+        // then
+        resultActions
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.errorCode").exists())
+            .andExpect(jsonPath("$.errorCode").value("EC001"))
+            .andDo(print());
+    }
+
+    @Test
+    @DisplayName("이메일 인증 확인 요청시 DB 에 있는 요청 번호와 요청으로 넘어온 인증 번호와 동일한 경우 NO_CONTENT 로 응답을 받는다.")
+    void given_emailCertificationRequest_when_certificationNumberInDB_match_with_certificationNumberFromRequest_then_getNoContent() throws Exception{
+        // given
+        final String insertedEmail = "dev.sssukho@gmail.com";
+        final String insertedCertificationNumber = UUIDGenerator.generateEmailCertificationNumber();
+        final EmailCertification insertedEmailCertificationEntity = EmailCertification.of(
+            insertedEmail, insertedCertificationNumber, System.currentTimeMillis());
+
+        emailCertificationRepository.saveAndFlush(insertedEmailCertificationEntity);
+
+        final EmailCertificationVerificationRequest mockedRequest = new EmailCertificationVerificationRequest(
+            insertedEmail, insertedCertificationNumber);
+
+        // when
+        final ResultActions resultActions = mockMvc.perform(
+            MockMvcRequestBuilders.post(AUTH_EMAIL_CERTIFICATION_VERIFICATION_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(mockedRequest))
+        );
+
+        // then
+        resultActions
+            .andExpect(status().isNoContent())
+            .andDo(print());
+
+        assertThat(emailCertificationRepository.findByEmail(
+            insertedEmailCertificationEntity.getEmail())).isNull();
+    }
+
+    @Test
+    @DisplayName("이메일 인증 확인 요청시 인증 번호 이메일 전송 이력 자체가 없는 경우 EC002 으로 응답을 받는다.")
+    void given_emailCertificationRequest_when_certificationNumberInDB_not_match_with_certificationNumberFromRequest_then_getEC002ErrorMessage() throws Exception{
+        // given
+        final String notExistedEmail = "dev.sssukho@gmail.com";
+        final String notExistedCertificationNumber = UUIDGenerator.generateEmailCertificationNumber();
+
+        final EmailCertificationVerificationRequest mockedRequest = new EmailCertificationVerificationRequest(
+            notExistedEmail, notExistedCertificationNumber);
+
+        // when
+        final ResultActions resultActions = mockMvc.perform(
+            MockMvcRequestBuilders.post(AUTH_EMAIL_CERTIFICATION_VERIFICATION_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(mockedRequest))
+        );
+
+        // then
+        resultActions
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.errorCode").exists())
+            .andExpect(jsonPath("$.errorCode").value("EC002"))
+            .andDo(print());
+    }
+
+    @Test
+    @DisplayName("이메일 인증 확인 요청시 DB 에 있는 요청 번호와 요청으로 넘어온 인증 번호와 동일하지 않은 경우 EC003 으로 응답을 받는다.")
+    void given_emailCertificationRequest_when_emailCertificationRecord_does_not_exist_then_getEC003ErrorMessage() throws Exception{
+        // given
+        final String insertedEmail = "dev.sssukho@gmail.com";
+        final String insertedCertificationNumber = UUIDGenerator.generateEmailCertificationNumber();
+        final EmailCertification insertedEmailCertificationEntity = EmailCertification.of(
+            insertedEmail, insertedCertificationNumber, System.currentTimeMillis());
+
+        emailCertificationRepository.saveAndFlush(insertedEmailCertificationEntity);
+
+        final EmailCertificationVerificationRequest mockedRequest = new EmailCertificationVerificationRequest(
+            insertedEmail, "WRONGNUMBER");
+
+        // when
+        final ResultActions resultActions = mockMvc.perform(
+            MockMvcRequestBuilders.post(AUTH_EMAIL_CERTIFICATION_VERIFICATION_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(mockedRequest))
+        );
+
+        // then
+        resultActions
+            .andExpect(status().isUnauthorized())
+            .andExpect(jsonPath("$.errorCode").exists())
+            .andExpect(jsonPath("$.errorCode").value("EC003"))
             .andDo(print());
     }
 }
