@@ -6,13 +6,10 @@ server:
 spring:
   config:
     activate:
-      on-profile: prod
+      on-profile: test
     import:
       - jasypt.yml
       - datasource-local.yml
       - storage-local.yml
+      - mail.yml
       - auth.yml
-
-logging:
-  level:
-    org.hibernate.SQL: debug

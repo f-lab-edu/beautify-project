@@ -11,6 +11,7 @@ spring:
       - jasypt.yml
       - datasource-local.yml
       - storage-local.yml
+      - auth.yml
 
 logging:
   level:

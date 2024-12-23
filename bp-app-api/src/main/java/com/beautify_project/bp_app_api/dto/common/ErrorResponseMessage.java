@@ -69,6 +69,7 @@ public class ErrorResponseMessage {
         OP001(HttpStatus.NOT_FOUND, "OP001", "등록되지 않은 시술입니다."),
 
         ME001(HttpStatus.NOT_FOUND, "ME001", "등록되지 않은 회원입니다."),
+        ME002(HttpStatus.BAD_REQUEST, "SH003", "이미 등록된 회원입니다."),
 
         RS001(HttpStatus.NOT_FOUND, "RS001", "등록되지 않은 예약입니다."),
 
@@ -84,6 +85,7 @@ public class ErrorResponseMessage {
         AL002(HttpStatus.BAD_REQUEST, "AL002", "좋아요를 하지 않은 샵 입니다."),
 
         II001(HttpStatus.NOT_FOUND, "II001", "유효하지 않은 식별자 입니다."),
+        II002(HttpStatus.BAD_REQUEST, "II002", "이미 처리된 식별자 입니다."),
 
         IS001(HttpStatus.INTERNAL_SERVER_ERROR, "IS001", "시스템 에러가 발생하였습니다. 관리자에게 문의해주세요."),
         IS002(HttpStatus.INTERNAL_SERVER_ERROR, "IS002", "외부 시스템에서 에러가 발생하였습니다.")

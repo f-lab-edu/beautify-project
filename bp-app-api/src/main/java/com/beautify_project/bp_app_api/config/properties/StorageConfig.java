@@ -1,4 +1,4 @@
-package com.beautify_project.bp_app_api.config;
+package com.beautify_project.bp_app_api.config.properties;
 
 import com.beautify_project.bp_app_api.dto.common.ErrorResponseMessage.ErrorCode;
 import com.beautify_project.bp_app_api.exception.ConfigurationException;

@@ -1,8 +1,8 @@
 package com.beautify_project.bp_app_api.bean;
 
 
-import com.beautify_project.bp_app_api.config.NaverCloudPlatformObjectStorageConfig;
-import com.beautify_project.bp_app_api.config.StorageConfig;
+import com.beautify_project.bp_app_api.config.properties.NaverCloudPlatformObjectStorageConfig;
+import com.beautify_project.bp_app_api.config.properties.StorageConfig;
 import com.beautify_project.bp_app_api.dto.common.ErrorResponseMessage.ErrorCode;
 import com.beautify_project.bp_app_api.exception.ConfigurationException;
 import com.beautify_project.bp_app_api.repository.image.ImageRepository;
