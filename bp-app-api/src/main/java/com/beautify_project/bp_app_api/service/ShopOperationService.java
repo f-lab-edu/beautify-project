@@ -46,4 +46,9 @@ public class ShopOperationService {
         Validator.throwIfNullOrEmpty(shopOperations, new NotFoundException(ErrorCode.SO001));
         return shopOperations;
     }
+
+    @Transactional
+    public void remove(final ShopOperation shopOperationToRemove) {
+        shopOperationRepository.delete(shopOperationToRemove);
+    }
 }

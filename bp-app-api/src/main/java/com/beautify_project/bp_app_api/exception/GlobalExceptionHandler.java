@@ -161,6 +161,13 @@ public class GlobalExceptionHandler {
         return createResponseWithCustomMessage(ErrorCode.II001, exception.getErrorMessage());
     }
 
+    @ExceptionHandler(UnableToProcessException.class)
+    private ResponseEntity<ErrorResponseMessage> handleUnableToProcessException(
+        final UnableToProcessException exception) {
+        log.error("", exception);
+        return createResponse(exception.getErrorCode());
+    }
+
     private static ResponseEntity<ErrorResponseMessage> createResponse(final ErrorCode errorCode) {
         ErrorResponseMessage errorResponseMessage = ErrorResponseMessage.createErrorMessage(
             errorCode);

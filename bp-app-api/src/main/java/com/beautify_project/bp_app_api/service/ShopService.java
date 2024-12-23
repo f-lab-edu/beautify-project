@@ -1,5 +1,6 @@
 package com.beautify_project.bp_app_api.service;
 
+import com.beautify_project.bp_app_api.config.IOBoundAsyncThreadPoolConfiguration;
 import com.beautify_project.bp_app_api.dto.common.ErrorResponseMessage.ErrorCode;
 import com.beautify_project.bp_app_api.dto.common.ResponseMessage;
 import com.beautify_project.bp_app_api.dto.shop.ShopListFindRequestParameters;
@@ -9,16 +10,21 @@ import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationResult;
 import com.beautify_project.bp_app_api.entity.Facility;
 import com.beautify_project.bp_app_api.entity.Operation;
 import com.beautify_project.bp_app_api.entity.Shop;
+import com.beautify_project.bp_app_api.entity.ShopCategory;
 import com.beautify_project.bp_app_api.entity.ShopFacility;
 import com.beautify_project.bp_app_api.entity.ShopLike;
 import com.beautify_project.bp_app_api.entity.ShopOperation;
 import com.beautify_project.bp_app_api.exception.AlreadyProcessedException;
 import com.beautify_project.bp_app_api.exception.NotFoundException;
+import com.beautify_project.bp_app_api.exception.UnableToProcessException;
 import com.beautify_project.bp_app_api.repository.ShopRepository;
 import com.beautify_project.bp_app_api.utils.Validator;
 import jakarta.validation.constraints.NotBlank;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +48,7 @@ public class ShopService {
     private final ShopLikeService shopLikeService;
     private final ShopCategoryService shopCategoryService;
     private final ImageService imageService;
+    private final IOBoundAsyncThreadPoolConfiguration ioBoundAsyncThreadPoolConfig;
 
     @Transactional(rollbackFor = Exception.class)
     public ResponseMessage registerShop(final ShopRegistrationRequest shopRegistrationRequest) {
@@ -63,6 +70,82 @@ public class ShopService {
         }
 
         return ResponseMessage.createResponseMessage(new ShopRegistrationResult(registeredShopId));
+    }
+
+    public ResponseMessage registerShopAsync(final ShopRegistrationRequest request) {
+        final List<CompletableFuture<?>> completableFutures = new ArrayList<>();
+
+        final Shop shopToSave = Shop.from(request);
+        final CompletableFuture<Shop> saveShopAsyncResult = CompletableFuture.supplyAsync(
+            () -> shopRepository.save(shopToSave),
+            ioBoundAsyncThreadPoolConfig.getAsyncExecutor());
+        completableFutures.add(saveShopAsyncResult);
+
+        // 시술 ID가 포함되어 있을 경우에만 샵에 포함된 시술과 카테고리로 insert
+        registerShopOperationAndShopCategoriesAsyncIfOperationIdsExist(request.operationIds(),
+            shopToSave, completableFutures);
+        // 편의시설 ID가 포함되어 있을 경우에만 샵에 포함된 편의시설로 insert
+        registerShopFacilityAsyncIfFacilityIdsExist(request.facilityIds(), shopToSave, completableFutures);
+
+        // 모든 비동기 작업 완료는 확인 필요
+        try {
+            CompletableFuture.allOf(completableFutures.toArray(new CompletableFuture[0])).join();
+            return ResponseMessage.createResponseMessage(new ShopRegistrationResult(
+                shopToSave.getId()));
+        } catch (CompletionException exception) {
+            rollbackAll(completableFutures);
+            throw new UnableToProcessException(ErrorCode.SH002);
+        }
+    }
+
+    private void registerShopOperationAndShopCategoriesAsyncIfOperationIdsExist(final List<String> operationIds,
+        final Shop shopToSave, final List<CompletableFuture<?>> completableFutures) {
+
+        if (Validator.isNullOrEmpty(operationIds)) {
+            return;
+        }
+
+        final CompletableFuture<List<ShopOperation>> saveShopOperationsResult = CompletableFuture.supplyAsync(
+            () -> shopOperationService.registerShopOperations(shopToSave.getId(), operationIds),
+            ioBoundAsyncThreadPoolConfig.getAsyncExecutor());
+        final CompletableFuture<List<ShopCategory>> saveShopCategoriesResult = CompletableFuture.supplyAsync(
+            () -> shopCategoryService.registerShopCategories(shopToSave.getId(), operationIds),
+            ioBoundAsyncThreadPoolConfig.getAsyncExecutor());
+
+        completableFutures.add(saveShopOperationsResult);
+        completableFutures.add(saveShopCategoriesResult);
+    }
+
+    private void registerShopFacilityAsyncIfFacilityIdsExist(final List<String> facilityIds,
+        final Shop shopToSave, final List<CompletableFuture<?>> completableFutures) {
+
+        if (Validator.isNullOrEmpty(facilityIds)) {
+            return;
+        }
+
+        final CompletableFuture<List<ShopFacility>> saveShopFacilitiesResult = CompletableFuture.supplyAsync(
+            () -> shopFacilityService.registerShopFacilities(shopToSave.getId(), facilityIds),
+            ioBoundAsyncThreadPoolConfig.getAsyncExecutor());
+        completableFutures.add(saveShopFacilitiesResult);
+    }
+
+    private void rollbackAll(final List<CompletableFuture<?>> completableFutures) {
+        for (CompletableFuture<?> completableFuture : completableFutures) {
+            try {
+                Object object = completableFuture.join();
+                if (object instanceof Shop) {
+                    shopRepository.delete((Shop) object);
+                } else if (object instanceof ShopOperation) {
+                    shopOperationService.remove((ShopOperation) object);
+                } else if (object instanceof ShopCategory) {
+                    shopCategoryService.remove((ShopCategory) object);
+                } else {
+                    shopFacilityService.remove((ShopFacility) object);
+                }
+            } catch (Exception exception) {
+                log.error("Failed to rollback: {}", completableFuture.join(), exception);
+            }
+        }
     }
 
     public ResponseMessage findShopList(final ShopListFindRequestParameters parameters) {
