@@ -65,6 +65,8 @@ public class ErrorResponseMessage {
         SH002(HttpStatus.INTERNAL_SERVER_ERROR, "SH002", "샵 등록에 실패했습니다."),
 
         EC001(HttpStatus.BAD_REQUEST, "EC001", "인증 메일 유효 시간이 지나지 않았습니다. 잠시후에 다시 시도해주세요."),
+        EC002(HttpStatus.NOT_FOUND, "EC002", "인증 요청 이력이 없습니다."),
+        EC003(HttpStatus.UNAUTHORIZED, "EC003", "인증 번호가 맞지 않습니다. 확인 후 다시 요청해주세요."),
 
         RE001(HttpStatus.NOT_FOUND, "RE001", "등록되지 않은 리뷰입니다."),
 

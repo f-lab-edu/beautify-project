@@ -13,3 +13,8 @@ spring:
       - storage-local.yml
       - mail.yml
       - auth.yml
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    com.beautify_project.bp_app_api: debug

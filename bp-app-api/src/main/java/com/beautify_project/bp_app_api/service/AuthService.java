@@ -1,16 +1,19 @@
 package com.beautify_project.bp_app_api.service;
 
 import com.beautify_project.bp_app_api.dto.auth.EmailCertificationRequest;
+import com.beautify_project.bp_app_api.dto.auth.EmailCertificationVerificationRequest;
 import com.beautify_project.bp_app_api.dto.auth.EmailDuplicatedRequest;
 import com.beautify_project.bp_app_api.dto.auth.EmailDuplicatedResult;
 import com.beautify_project.bp_app_api.dto.common.ErrorResponseMessage.ErrorCode;
 import com.beautify_project.bp_app_api.dto.common.ResponseMessage;
 import com.beautify_project.bp_app_api.entity.EmailCertification;
 import com.beautify_project.bp_app_api.exception.InvalidRequestException;
+import com.beautify_project.bp_app_api.exception.NotFoundException;
 import com.beautify_project.bp_app_api.provider.EmailProvider;
 import com.beautify_project.bp_app_api.repository.EmailCertificationRepository;
 import com.beautify_project.bp_app_api.utils.UUIDGenerator;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,5 +71,26 @@ public class AuthService {
         }
 
         throw new InvalidRequestException(ErrorCode.EC001);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void verifyCertificationEmail(final EmailCertificationVerificationRequest request) {
+        final EmailCertification foundEmailCertification = emailCertificationRepository.findById(
+            request.email()).orElseThrow(() -> new NotFoundException(ErrorCode.EC002));
+
+        verifyEmailCertificationRequest(request.certificationNumber(),
+            foundEmailCertification.getCertificationNumber());
+
+        emailCertificationRepository.delete(foundEmailCertification);
+    }
+
+    private void verifyEmailCertificationRequest(final String requestedCertificationNumber,
+        final String registeredCertificationNumber) {
+
+        if (StringUtils.equals(registeredCertificationNumber,
+            requestedCertificationNumber.toUpperCase())) {
+            return;
+        }
+        throw new InvalidRequestException(ErrorCode.EC003);
     }
 }
