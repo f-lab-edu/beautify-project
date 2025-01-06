@@ -3,6 +3,7 @@ package com.beautify_project.bp_app_api.service;
 import com.beautify_project.bp_app_api.entity.ShopLike;
 import com.beautify_project.bp_app_api.entity.ShopLike.ShopLikeId;
 import com.beautify_project.bp_app_api.repository.ShopLikeRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,11 @@ public class ShopLikeService {
     @Transactional
     public ShopLike registerShopLike(final ShopLike shopLikeToRegister) {
         return shopLikeRepository.save(shopLikeToRegister);
+    }
+
+    @Transactional
+    public void registerAllShopLikes(final List<ShopLike> shopLikesToRegister) {
+        shopLikeRepository.saveAll(shopLikesToRegister);
     }
 
     @Transactional

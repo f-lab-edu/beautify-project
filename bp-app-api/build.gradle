@@ -5,12 +5,12 @@ plugins {
 }
 
 dependencies {
-    implementation project(':bp-kafka-event-publisher')
     implementation project(':bp-utils')
     implementation project(':bp-s3-client')
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.kafka:spring-kafka'
     implementation 'org.apache.commons:commons-lang3:3.14.0'
     implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5'
 
@@ -19,6 +19,7 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.junit.jupiter:junit-jupiter-api'
     testImplementation 'commons-io:commons-io:2.18.0'
+    testImplementation 'org.springframework.kafka:spring-kafka-test'
 
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

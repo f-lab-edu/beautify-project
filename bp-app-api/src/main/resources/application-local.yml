@@ -11,6 +11,7 @@ spring:
       - jasypt.yml
       - datasource-local.yml
       - storage-local.yml
+      - kafka-local.yml
 
 logging:
   level:

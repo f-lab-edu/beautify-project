@@ -2,6 +2,7 @@ package com.beautify_project.bp_app_api.service;
 
 import com.beautify_project.bp_app_api.dto.common.ErrorResponseMessage.ErrorCode;
 import com.beautify_project.bp_app_api.dto.common.ResponseMessage;
+import com.beautify_project.bp_app_api.dto.event.ShopLikeEvent;
 import com.beautify_project.bp_app_api.dto.shop.ShopListFindRequestParameters;
 import com.beautify_project.bp_app_api.dto.shop.ShopListFindResult;
 import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest;
@@ -14,6 +15,7 @@ import com.beautify_project.bp_app_api.entity.ShopLike;
 import com.beautify_project.bp_app_api.entity.ShopOperation;
 import com.beautify_project.bp_app_api.exception.AlreadyProcessedException;
 import com.beautify_project.bp_app_api.exception.NotFoundException;
+import com.beautify_project.bp_app_api.producer.KafkaEventProducer;
 import com.beautify_project.bp_app_api.repository.ShopRepository;
 import com.beautify_project.bp_app_api.utils.Validator;
 import jakarta.validation.constraints.NotBlank;
@@ -42,6 +44,7 @@ public class ShopService {
     private final ShopLikeService shopLikeService;
     private final ShopCategoryService shopCategoryService;
     private final ImageService imageService;
+    private final KafkaEventProducer kafkaEventProducer;
 
     @Transactional(rollbackFor = Exception.class)
     public ResponseMessage registerShop(final ShopRegistrationRequest shopRegistrationRequest) {
@@ -61,6 +64,8 @@ public class ShopService {
         if (!Validator.isNullOrEmpty(facilityIds)) {
             shopFacilityService.registerShopFacilities(registeredShopId, facilityIds);
         }
+
+        log.debug("Registered Shop: {}", registeredShop);
 
         return ResponseMessage.createResponseMessage(new ShopRegistrationResult(registeredShopId));
     }
@@ -133,17 +138,15 @@ public class ShopService {
 
     @Transactional(rollbackFor = Exception.class)
     public void likeShop(final @NotBlank String shopId, final @NotBlank String memberEmail) {
+        if (!shopRepository.existsById(shopId)) {
+            throw new NotFoundException(ErrorCode.SH001);
+        }
+
         if (shopLikeService.isLikePushed(shopId, memberEmail)) {
             throw new AlreadyProcessedException(ErrorCode.AL001);
         }
-
-        Shop foundShop = findShopById(shopId);
-        log.debug("shop like count before add like: shopId - {}, likeCount - {}",
-            foundShop.getId(), foundShop.getLikes());
-        foundShop.increaseLikeCount();
-        shopRepository.save(foundShop);
-        // TODO: bearer token 에서 사용자 정보 추출하는 로직 필요
-        shopLikeService.registerShopLike(ShopLike.of(shopId, memberEmail));
+        log.debug("shop like requested: shopId - {}, memberEmail - {}", shopId, memberEmail);
+        kafkaEventProducer.publishShopLikeEvent(new ShopLikeEvent(shopId, memberEmail));
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -159,5 +162,17 @@ public class ShopService {
         shopRepository.save(foundShop);
         // TODO: bearer token 에서 사용자 정보 추출하는 로직 필요
         shopLikeService.deleteShopLike(ShopLike.of(shopId, memberEmail));
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void batchLikeShops(final List<ShopLikeEvent> shopLikeEvents) {
+        final List<String> shopIds = shopLikeEvents.stream().map(ShopLikeEvent::shopId).toList();
+        final List<Shop> foundShops = shopRepository.findByIdIn(shopIds);
+        foundShops.forEach(Shop::increaseLikeCount);
+        shopRepository.saveAll(foundShops);
+
+        List<ShopLike> shopLikesToRegister = shopLikeEvents.stream()
+            .map(event -> ShopLike.of(event.shopId(), event.memberEmail())).toList();
+        shopLikeService.registerAllShopLikes(shopLikesToRegister);
     }
 }

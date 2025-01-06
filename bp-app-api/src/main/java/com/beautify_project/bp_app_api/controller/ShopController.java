@@ -1,6 +1,7 @@
 package com.beautify_project.bp_app_api.controller;
 
 import com.beautify_project.bp_app_api.dto.common.ResponseMessage;
+import com.beautify_project.bp_app_api.dto.event.ShopLikeEvent;
 import com.beautify_project.bp_app_api.dto.shop.ShopListFindRequestParameters;
 import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest;
 import com.beautify_project.bp_app_api.enumeration.OrderType;
@@ -8,6 +9,7 @@ import com.beautify_project.bp_app_api.enumeration.ShopSearchType;
 import com.beautify_project.bp_app_api.service.ShopService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -63,6 +65,12 @@ public class ShopController {
     public void likeShop(@PathVariable(value = "id") @NotBlank final String shopId) {
         // TODO: spring security 통해서 토큰 넘겨주는 방식으로 개선 필요
         shopService.likeShop(shopId, "sssukho@gmail.com");
+    }
+
+    @PostMapping("/v1/shops/likes")
+    @ResponseStatus(code = HttpStatus.OK)
+    public void batchLikeShops(@Valid @RequestBody final List<ShopLikeEvent> shopLikeEvents) {
+        shopService.batchLikeShops(shopLikeEvents);
     }
 
     /**
