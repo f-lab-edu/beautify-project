@@ -1,0 +1,30 @@
+server:
+  port: 8081
+  tomcat:
+    uri-encoding: UTF-8
+
+spring:
+  config:
+    activate:
+      on-profile: local
+    import:
+      - jasypt.yml
+      - kafka-local.yml
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            connect-timeout: 3000
+            read-timeout: 30000
+            logger-level: BASIC
+          openFeignClient:
+            connect-timeout: 1000
+            read-timeout: 20000
+            logger-level: BASIC
+
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    com.beautify_project.bp_kafka_event_consumer: debug
