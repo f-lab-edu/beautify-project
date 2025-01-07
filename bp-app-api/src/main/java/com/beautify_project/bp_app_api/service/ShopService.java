@@ -15,7 +15,6 @@ import com.beautify_project.bp_app_api.entity.Shop;
 import com.beautify_project.bp_app_api.entity.ShopFacility;
 import com.beautify_project.bp_app_api.entity.ShopLike;
 import com.beautify_project.bp_app_api.entity.ShopOperation;
-import com.beautify_project.bp_app_api.exception.AlreadyProcessedException;
 import com.beautify_project.bp_app_api.exception.NotFoundException;
 import com.beautify_project.bp_app_api.producer.KafkaEventProducer;
 import com.beautify_project.bp_app_api.repository.ShopRepository;
@@ -175,6 +174,7 @@ public class ShopService {
         return true;
     }
 
+    @Async(value = "ioBoundExecutor")
     public void produceShopLikeCancelEvent(final DeferredResult<Object> deferredResult,
         final String shopId, final String memberEmail) {
 
@@ -189,7 +189,6 @@ public class ShopService {
         kafkaEventProducer.publishShopLikeCancelEvent(new ShopLikeCancelEvent(shopId, memberEmail));
         deferredResult.setResult(
             new ResponseEntity<>(HttpStatusCode.valueOf(HttpStatus.NO_CONTENT.value())));
-
     }
 
     private boolean validateShopLikeCancelEventRequest(final String shopId, final String memberEmail) {
