@@ -1,7 +1,9 @@
 package com.beautify_project.bp_app_api.service;
 
+import com.beautify_project.bp_app_api.dto.common.ErrorResponseMessage;
 import com.beautify_project.bp_app_api.dto.common.ErrorResponseMessage.ErrorCode;
 import com.beautify_project.bp_app_api.dto.common.ResponseMessage;
+import com.beautify_project.bp_app_api.dto.event.ShopLikeCancelEvent;
 import com.beautify_project.bp_app_api.dto.event.ShopLikeEvent;
 import com.beautify_project.bp_app_api.dto.shop.ShopListFindRequestParameters;
 import com.beautify_project.bp_app_api.dto.shop.ShopListFindResult;
@@ -21,14 +23,20 @@ import com.beautify_project.bp_app_api.utils.Validator;
 import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.async.DeferredResult;
 
 @Service
 @Slf4j
@@ -136,43 +144,108 @@ public class ShopService {
             .orElseThrow(() -> new NotFoundException(ErrorCode.SH001));
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    public void likeShop(final @NotBlank String shopId, final @NotBlank String memberEmail) {
+    @Async(value = "ioBoundExecutor")
+    public void produceShopLikeEvent(final DeferredResult<Object> deferredResult,
+        final String shopId, final String memberEmail) {
+
+        if (!validateShopLikeEventRequest(shopId, memberEmail)) {
+            final ErrorResponseMessage errorResponseMessage = ErrorResponseMessage.createErrorMessage(
+                ErrorCode.SL001);
+            deferredResult.setErrorResult(
+                new ResponseEntity<>(errorResponseMessage, errorResponseMessage.getHttpStatus()));
+            return;
+        }
+
+        kafkaEventProducer.publishShopLikeEvent(new ShopLikeEvent(shopId, memberEmail));
+        deferredResult.setResult(
+            new ResponseEntity<>(HttpStatusCode.valueOf(HttpStatus.NO_CONTENT.value())));
+    }
+
+    private boolean validateShopLikeEventRequest(final String shopId, final String memberEmail) {
         if (!shopRepository.existsById(shopId)) {
-            throw new NotFoundException(ErrorCode.SH001);
+            log.error("Failed to find shop: shopId - {}", shopId);
+            return false;
         }
 
         if (shopLikeService.isLikePushed(shopId, memberEmail)) {
-            throw new AlreadyProcessedException(ErrorCode.AL001);
+            log.error("Like is already pushed: shopId - {} memberEmail - {}", shopId, memberEmail);
+            return false;
         }
-        log.debug("shop like requested: shopId - {}, memberEmail - {}", shopId, memberEmail);
-        kafkaEventProducer.publishShopLikeEvent(new ShopLikeEvent(shopId, memberEmail));
+
+        return true;
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    public void cancelLikeShop(final @NotBlank String shopId, final @NotBlank String memberEmail) {
+    public void produceShopLikeCancelEvent(final DeferredResult<Object> deferredResult,
+        final String shopId, final String memberEmail) {
+
+        if (!validateShopLikeCancelEventRequest(shopId, memberEmail)) {
+            final ErrorResponseMessage errorResponseMessage = ErrorResponseMessage.createErrorMessage(
+                ErrorCode.SL002);
+            deferredResult.setErrorResult(
+                new ResponseEntity<>(errorResponseMessage, errorResponseMessage.getHttpStatus()));
+            return;
+        }
+
+        kafkaEventProducer.publishShopLikeCancelEvent(new ShopLikeCancelEvent(shopId, memberEmail));
+        deferredResult.setResult(
+            new ResponseEntity<>(HttpStatusCode.valueOf(HttpStatus.NO_CONTENT.value())));
+
+    }
+
+    private boolean validateShopLikeCancelEventRequest(final String shopId, final String memberEmail) {
+        if (!shopRepository.existsById(shopId)) {
+            log.error("Failed to find shop: shopId - {}", shopId);
+            return false;
+        }
+
         if (!shopLikeService.isLikePushed(shopId, memberEmail)) {
-            throw new AlreadyProcessedException(ErrorCode.AL002);
+            return false;
         }
 
-        Shop foundShop = findShopById(shopId);
-        log.debug("shop like count before subtract like: shopId - {}, likeCount - {}",
-            foundShop.getId(), foundShop.getLikes());
-        foundShop.decreaseLikeCount();
-        shopRepository.save(foundShop);
-        // TODO: bearer token 에서 사용자 정보 추출하는 로직 필요
-        shopLikeService.deleteShopLike(ShopLike.of(shopId, memberEmail));
+        return true;
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void batchLikeShops(final List<ShopLikeEvent> shopLikeEvents) {
-        final List<String> shopIds = shopLikeEvents.stream().map(ShopLikeEvent::shopId).toList();
+    public void batchShopLikes(final List<ShopLikeEvent> shopLikeEvents) {
+        final Map<String, Integer> countToIncreaseByShopId = shopLikeEvents.stream().collect(
+            Collectors.toMap(
+                ShopLikeEvent::shopId,
+                event -> 1,
+                Integer::sum
+            )
+        );
+
+        final Set<String> shopIds = countToIncreaseByShopId.keySet();
         final List<Shop> foundShops = shopRepository.findByIdIn(shopIds);
-        foundShops.forEach(Shop::increaseLikeCount);
+
+        foundShops.forEach(foundShop -> foundShop.increaseLikeCount(
+            countToIncreaseByShopId.get(foundShop.getId())));
         shopRepository.saveAll(foundShops);
 
         List<ShopLike> shopLikesToRegister = shopLikeEvents.stream()
             .map(event -> ShopLike.of(event.shopId(), event.memberEmail())).toList();
-        shopLikeService.registerAllShopLikes(shopLikesToRegister);
+        shopLikeService.saveAllShopLikes(shopLikesToRegister);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void batchShopLikesCancel(final List<ShopLikeCancelEvent> shopLikeEventCancels) {
+        final Map<String, Integer> countToDecreaseByShopId = shopLikeEventCancels.stream().collect(
+            Collectors.toMap(
+                ShopLikeCancelEvent::shopId,
+                event -> 1,
+                Integer::sum
+            )
+        );
+
+        final Set<String> shopIds = countToDecreaseByShopId.keySet();
+        final List<Shop> foundShops = shopRepository.findByIdIn(shopIds);
+
+        foundShops.forEach(foundShop -> foundShop.decreaseLikeCount(
+            countToDecreaseByShopId.get(foundShop.getId())));
+        shopRepository.saveAll(foundShops);
+
+        List<ShopLike> shopLikesToDelete = shopLikeEventCancels.stream()
+            .map(event -> ShopLike.of(event.shopId(), event.memberEmail())).toList();
+        shopLikeService.deleteAllShopLikes(shopLikesToDelete);
     }
 }

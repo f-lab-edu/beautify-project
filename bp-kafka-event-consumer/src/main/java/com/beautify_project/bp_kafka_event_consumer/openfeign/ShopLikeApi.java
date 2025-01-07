@@ -12,6 +12,5 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public interface ShopLikeApi {
 
     @PostMapping("/v1/shops/likes")
-    @ResponseStatus(HttpStatus.OK)
     void batchLikeShops(@RequestBody List<ShopLikeEvent> shopLikeEvents);
 }

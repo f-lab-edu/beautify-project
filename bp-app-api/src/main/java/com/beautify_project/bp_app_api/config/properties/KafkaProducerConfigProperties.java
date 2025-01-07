@@ -32,12 +32,20 @@ public class KafkaProducerConfigProperties {
     @Getter
     public static class Topic {
         private String shopLikeEvent;
+        private String shopLikeCancelEvent;
 
         public void setShopLikeEvent(final String shopLikeEvent) {
             if (Validator.isEmptyOrBlank(shopLikeEvent)) {
                 throw new ConfigurationException("shop-like-event 설정값이 올바르지 않습니다.", ErrorCode.IS001);
             }
             this.shopLikeEvent = shopLikeEvent;
+        }
+
+        public void setShopLikeCancelEvent(final String shopLikeCancelEvent) {
+            if (Validator.isEmptyOrBlank(shopLikeCancelEvent)) {
+                throw new ConfigurationException("shop-like-cancel-event 설정값이 올바르지 않습니다.", ErrorCode.IS001);
+            }
+            this.shopLikeCancelEvent = shopLikeCancelEvent;
         }
     }
 }

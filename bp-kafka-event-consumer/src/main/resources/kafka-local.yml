@@ -7,3 +7,8 @@ kafka:
         group-id: shop-like-event-consumer-group
         batch-size: 10
         fetch-max-wait: 500
+      SHOP-LIKE-CANCEL-EVENT:
+        topic-name: shop-like-cancel
+        group-id: shop-like-cancel-event-consumer-group
+        batch-size: 10
+        fetch-max-wait: 500

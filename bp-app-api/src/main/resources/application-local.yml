@@ -17,3 +17,4 @@ logging:
   level:
     org.hibernate.SQL: debug
     com.beautify_project.bp_app_api: debug
+    org.apache.kafka: debug

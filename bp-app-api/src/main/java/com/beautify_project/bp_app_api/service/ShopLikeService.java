@@ -29,12 +29,16 @@ public class ShopLikeService {
     }
 
     @Transactional
-    public void registerAllShopLikes(final List<ShopLike> shopLikesToRegister) {
+    public void saveAllShopLikes(final List<ShopLike> shopLikesToRegister) {
         shopLikeRepository.saveAll(shopLikesToRegister);
     }
 
     @Transactional
     public void deleteShopLike(final ShopLike shopLikeToDelete) {
         shopLikeRepository.delete(shopLikeToDelete);
+    }
+
+    public void deleteAllShopLikes(final List<ShopLike> shopLikesToDelete) {
+        shopLikeRepository.deleteAllInBatch(shopLikesToDelete);
     }
 }

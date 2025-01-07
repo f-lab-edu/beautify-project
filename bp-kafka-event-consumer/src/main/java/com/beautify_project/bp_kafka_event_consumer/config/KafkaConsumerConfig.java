@@ -1,6 +1,7 @@
 package com.beautify_project.bp_kafka_event_consumer.config;
 
 import com.beautify_project.bp_kafka_event_consumer.config.properties.KafkaConsumerConfigProperties;
+import com.beautify_project.bp_kafka_event_consumer.event.ShopLikeCancelEvent;
 import com.beautify_project.bp_kafka_event_consumer.event.ShopLikeEvent;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -23,10 +24,11 @@ public class KafkaConsumerConfig {
 
     private static final String TRUSTED_PACKAGES = "com.beautify_project.bp_kafka_event_consumer.event";
     private static final String TOPIC_CONFIG_NAME_SHOP_LIKE_EVENT = "SHOP-LIKE-EVENT";
+    private static final String TOPIC_CONFIG_NAME_SHOP_LIKE_CANCEL_EVENT = "SHOP-LIKE-CANCEL-EVENT";
 
     private final KafkaConsumerConfigProperties configProperties;
 
-    @Bean
+    @Bean("shopLikeEventConsumerConfig")
     public Map<String, Object> shopLikeEventConsumerConfig() {
         return Map.of(
             ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, configProperties.getBroker(),
@@ -51,7 +53,6 @@ public class KafkaConsumerConfig {
 
     @Bean(name = "shopLikeEventConsumerFactory")
     public ConsumerFactory<String, ShopLikeEvent> shopLikeEventConsumerFactory() {
-
         // 들어오는 record 를 객체로 받기 위한 deserializer
         final JsonDeserializer<ShopLikeEvent> deserializer = new JsonDeserializer<>(
             ShopLikeEvent.class, false);
@@ -68,4 +69,44 @@ public class KafkaConsumerConfig {
         return factory;
     }
 
+    @Bean(name = "shopLikeCancelEventConsumerConfig")
+    public Map<String, Object> shopLikeCancelEventConsumerConfig() {
+        return Map.of(
+            ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, configProperties.getBroker(),
+            ConsumerConfig.GROUP_ID_CONFIG,
+            configProperties.getTopic().get(TOPIC_CONFIG_NAME_SHOP_LIKE_CANCEL_EVENT).getGroupId(),
+
+            ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
+            // 역직렬화 실패 무한 로그 방지
+            ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS, ErrorHandlingDeserializer.class,
+
+            ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonSerializer.class,
+            // 역직렬화 실패 무한 로그 방지
+            ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, ErrorHandlingDeserializer.class,
+
+            ConsumerConfig.MAX_POLL_RECORDS_CONFIG,
+            configProperties.getTopic().get(TOPIC_CONFIG_NAME_SHOP_LIKE_CANCEL_EVENT).getBatchSize(),
+
+            JsonDeserializer.VALUE_DEFAULT_TYPE, ShopLikeCancelEvent.class,
+            JsonDeserializer.TRUSTED_PACKAGES, TRUSTED_PACKAGES
+        );
+    }
+
+    @Bean(name = "shopLikeCancelEventConsumerFactory")
+    public ConsumerFactory<String, ShopLikeCancelEvent> shopLikeCancelEventConsumerFactory() {
+        // 들어오는 record 를 객체로 받기 위한 deserializer
+        final JsonDeserializer<ShopLikeCancelEvent> deserializer = new JsonDeserializer<>(
+            ShopLikeCancelEvent.class, false);
+
+        return new DefaultKafkaConsumerFactory<>(shopLikeCancelEventConsumerConfig(),
+            new StringDeserializer(), deserializer);
+    }
+
+    @Bean(name = "shopLikeCancelEventListenerContainerFactory")
+    public ConcurrentKafkaListenerContainerFactory<String, ShopLikeCancelEvent> shopLikeCancelEventConcurrentKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, ShopLikeCancelEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(shopLikeCancelEventConsumerFactory());
+        factory.setBatchListener(true);
+        return factory;
+    }
 }

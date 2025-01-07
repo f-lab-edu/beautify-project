@@ -1,6 +1,7 @@
 package com.beautify_project.bp_app_api.config;
 
 import com.beautify_project.bp_app_api.config.properties.KafkaProducerConfigProperties;
+import com.beautify_project.bp_app_api.dto.event.ShopLikeCancelEvent;
 import com.beautify_project.bp_app_api.dto.event.ShopLikeEvent;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -37,5 +38,15 @@ public class KafkaProducerConfig {
     @Bean(name = "ShopLikeEventKafkaTemplate")
     public KafkaTemplate<String, ShopLikeEvent> shopLikeEventKafkaTemplate() {
         return new KafkaTemplate<>(shopLikeEventProducerFactory());
+    }
+
+    @Bean(name = "ShopLikeCancelEventProducerFactory")
+    public ProducerFactory<String, ShopLikeCancelEvent> shopLikeCancelEventProducerFactory() {
+        return new DefaultKafkaProducerFactory<>(producerConfig());
+    }
+
+    @Bean(name = "ShopLikeCancelEventKafkaTemplate")
+    public KafkaTemplate<String, ShopLikeCancelEvent> shopLikeCancelEventKafkaTemplate() {
+        return new KafkaTemplate<>(shopLikeCancelEventProducerFactory());
     }
 }
