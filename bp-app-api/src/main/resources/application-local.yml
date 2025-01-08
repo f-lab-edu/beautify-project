@@ -13,6 +13,13 @@ spring:
       - storage-local.yml
       - kafka-local.yml
 
+thread-pool:
+  async:
+    core-pool-size: 16
+    max-pool-size: 32
+    queue-capacity: 100
+    thread-name-prefix: IO-Async-Executor
+
 logging:
   level:
     org.hibernate.SQL: info

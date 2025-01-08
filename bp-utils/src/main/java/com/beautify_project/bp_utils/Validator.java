@@ -6,6 +6,10 @@ import org.apache.commons.lang3.StringUtils;
 
 public class Validator {
 
+    public static boolean isNullOrZero(final Integer input) {
+        return input == null || input == 0;
+    }
+
     public static boolean isNullOrEmpty(final List<?> input) {
         return input == null || input.isEmpty();
     }
