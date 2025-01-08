@@ -15,6 +15,7 @@ spring:
 
 logging:
   level:
-    org.hibernate.SQL: debug
+    org.hibernate.SQL: info
     com.beautify_project.bp_app_api: debug
     org.apache.kafka: debug
+    com.p6spy.engine: trace

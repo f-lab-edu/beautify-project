@@ -1,13 +1,15 @@
 spring:
-  config:
-    activate:
-      on-profile: local
-
   datasource:
-    url: ENC(WYQa+sbvAKaZjBGjG3eJYe0zs57sLmydUoHWy3+5K2uIzOX7L0s5Z+eqNqOUB10OkbVNmB7mANhO1LaL4Q1599kNNmzAiII0j93edJCVWErUtIc7hgEV+2L3CexhYg/FRcUBL1vMC4ejtLmgZ+P3NePq/v9EWTE7)
+    url: ENC(aXwS74A+g4qqI/fd7JlW3pqBuhE/i4HG8lV9ixGpnUB0x0R89UtyqfyczlnKoNfQ9yf80aYgGe7k9T0Chb1ts2e48qcJO+0sV4t/O4QnNRK7+Kg9U+ZAUAxhwL5N69Xj5mke6zw4lzUdUTz9Q1NtkJJzLj3CaL0MJHWGTJ8WprEqtsMFz7z7chLMynop59YSzbSCCdP+ycA=)
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: ENC(NewqJfs9tcn1CanlMbtBcw==)
     password: ENC(NewqJfs9tcn1CanlMbtBcw==)
+    hikari:
+      data-source-properties:
+        rewriteBatchedStatements: true
+    p6spy:
+      enable-logging: true
+      logging: slf4j
 
   jpa:
     hibernate:
@@ -15,7 +17,9 @@ spring:
       ddl-auto: create
     properties:
       hibernate:
-        format_sql: true
-        batch_size: 100
+        jdbc:
+          batch_size: 100
+#        format_sql: true
         order_inserts: true
         order_updates: true
+        default_batch_fetch_size: 100
