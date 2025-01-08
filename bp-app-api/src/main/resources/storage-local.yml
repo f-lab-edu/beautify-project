@@ -1,7 +1,5 @@
 spring:
   config:
-    activate:
-      on-profile: local
     import:
       - naver-cloud-platform-auth.yml
 

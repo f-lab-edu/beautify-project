@@ -219,10 +219,13 @@ public class ShopService {
 
         foundShops.forEach(foundShop -> foundShop.increaseLikeCount(
             countToIncreaseByShopId.get(foundShop.getId())));
+        log.info("{} counts of shops save all called", foundShops.size());
         shopRepository.saveAll(foundShops);
 
         List<ShopLike> shopLikesToRegister = shopLikeEvents.stream()
             .map(event -> ShopLike.of(event.shopId(), event.memberEmail())).toList();
+        log.info("{} counts of shopLikes save all called", shopLikesToRegister.size());
+
         shopLikeService.saveAllShopLikes(shopLikesToRegister);
     }
 
