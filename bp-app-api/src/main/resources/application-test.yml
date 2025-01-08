@@ -1,0 +1,26 @@
+server:
+  port: 9090
+  tomcat:
+    uri-encoding: UTF-8
+
+spring:
+  config:
+    activate:
+      on-profile: test
+    import:
+      - jasypt.yml
+      - datasource-local.yml
+      - storage-local.yml
+      - kafka-local.yml
+
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: true
+
+logging:
+  level:
+    org.hibernate.SQL: info
+    com.beautify_project.bp_app_api: debug
+    org.apache.kafka: debug
+    com.p6spy.engine: trace
