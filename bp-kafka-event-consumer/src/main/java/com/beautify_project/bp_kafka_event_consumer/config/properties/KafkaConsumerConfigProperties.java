@@ -6,7 +6,9 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
 
+@Configuration
 @ConfigurationProperties(prefix = "kafka.consumer")
 @Slf4j
 @Getter
@@ -31,16 +33,16 @@ public class KafkaConsumerConfigProperties {
 
     @Getter
     public static class TopicProperties {
-        private String name;
+        private String topicName;
         private String groupId;
         private Integer batchSize;
         private Long fetchMaxWait;
 
-        public void setName(final String name) {
-            if (Validator.isEmptyOrBlank(name)) {
+        public void setTopicName(final String topicName) {
+            if (Validator.isEmptyOrBlank(topicName)) {
                 throw new CustomException("topic 이름 설정값이 올바르지 않습니다.");
             }
-            this.name = name;
+            this.topicName = topicName;
         }
 
         public void setGroupId(final String groupId) {
