@@ -30,7 +30,9 @@ public class ShopLikeService {
 
     @Transactional
     public void saveAllShopLikes(final List<ShopLike> shopLikesToRegister) {
-        shopLikeRepository.saveAll(shopLikesToRegister);
+        // TODO: jdbc 사용하는 방식으로 변경?
+        shopLikeRepository.bulkInsert(shopLikesToRegister);
+//        shopLikeRepository.saveAll(shopLikesToRegister);
     }
 
     @Transactional
