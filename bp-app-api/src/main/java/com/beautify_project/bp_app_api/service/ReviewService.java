@@ -37,7 +37,7 @@ public class ReviewService {
         final Review foundReview = reviewRepository.findById(reviewId)
             .orElseThrow(() -> new NotFoundException(ErrorCode.RE001));
 
-        final Member reviewedWriter = memberService.findMemberByEmail(foundReview.getMemberEmail());
+        final Member reviewedWriter = memberService.findMemberByEmailOrElseThrow(foundReview.getMemberEmail());
         final Operation reviewedOperation = operationService.findOperationById(
             foundReview.getOperationId());
         final Shop reviewedShop = shopService.findShopById(foundReview.getShopId());
@@ -65,7 +65,7 @@ public class ReviewService {
         final List<ReviewListFindResult> result =  foundReviews.stream().map(review ->
                 new ReviewListFindResult(review.getId(),
                     review.getRate(), review.getRegisteredTime(),
-                    memberService.findMemberByEmail(review.getMemberEmail()).getName(),
+                    memberService.findMemberByEmailOrElseThrow(review.getMemberEmail()).getName(),
                     operationService.findOperationById(
                         review.getOperationId()).getName(),
                     reservationService.findReservationById(review.getReservationId()).getDate()))

@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.beautify_project.bp_app_api.dto.common.ResponseMessage;
+import com.beautify_project.bp_app_api.dto.member.UserRoleMemberRegistrationRequest;
 import com.beautify_project.bp_app_api.dto.review.FindReviewListRequestParameters;
 import com.beautify_project.bp_app_api.dto.review.ReviewFindResult;
 import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest;
@@ -65,7 +66,9 @@ class ReviewServiceTest {
     @DisplayName("Review 상세 조회 성공시 ReviewFindResult 를 wrapping 한 ResponseMessage 객체를 리턴한다.")
     void given_reviewFindRequest_when_succeed_then_returnResponseMessageWrappingReviewFindResult() {
         // given
-        final Member mockedMember = Member.of("dev.sssukho@gmail.com", "임석호", "010-1234-5678");
+        final UserRoleMemberRegistrationRequest userRoleMemberRegistrationRequest = new UserRoleMemberRegistrationRequest(
+            "dev.sssukho@mgail.com", "password", "임석호", "010-1234-5678");
+        final Member mockedMember = Member.createSelfAuthMember(userRoleMemberRegistrationRequest);
         final Operation mockedOperation = Operation.of("시술명", "시술 설명");
         final ShopRegistrationRequest requestForMockedShop = new ShopRegistrationRequest(
             "미용시술소1",
@@ -109,7 +112,7 @@ class ReviewServiceTest {
         final String mockedReviewId = mockedReview.getId();
 
         when(reviewRepository.findById(any(String.class))).thenReturn(Optional.of(mockedReview));
-        when(memberService.findMemberByEmail(any(String.class))).thenReturn(mockedMember);
+        when(memberService.findMemberByEmailOrElseThrow(any(String.class))).thenReturn(mockedMember);
         when(operationService.findOperationById(any(String.class))).thenReturn(mockedOperation);
         when(shopService.findShopById(any(String.class))).thenReturn(mockedShop);
         when(reservationService.findReservationById(any(String.class))).thenReturn(
@@ -121,7 +124,7 @@ class ReviewServiceTest {
         // then
         assertThat(responseMessage.getReturnValue()).isInstanceOf(ReviewFindResult.class);
         verify(reviewRepository, times(1)).findById(any(String.class));
-        verify(memberService, times(1)).findMemberByEmail(any(String.class));
+        verify(memberService, times(1)).findMemberByEmailOrElseThrow(any(String.class));
         verify(operationService, times(1)).findOperationById(any(String.class));
         verify(shopService, times(1)).findShopById(any(String.class));
         verify(reservationService, times(1)).findReservationById(any(String.class));
@@ -142,7 +145,9 @@ class ReviewServiceTest {
     @DisplayName("Review 리스트 조회 성공시 List<ReviewListFindResult> 를 wrapping 한 ResponseMessage 객체를 리턴한다.")
     void given_reviewFindListRequest_when_succeed_then_getResponseMessageWRappingReviewListFindResult() {
         // given
-        final Member mockedMember = Member.of("dev.sssukho@gmail.com", "임석호", "010-1234-5678");
+        final UserRoleMemberRegistrationRequest userRoleMemberRegistrationRequest = new UserRoleMemberRegistrationRequest(
+            "dev.sssukho@mgail.com", "password", "임석호", "010-1234-5678");
+        final Member mockedMember = Member.createSelfAuthMember(userRoleMemberRegistrationRequest);
         final Operation mockedOperation = Operation.of("시술명", "시술 설명");
         final ShopRegistrationRequest requestForMockedShop = new ShopRegistrationRequest(
             "미용시술소1",
@@ -189,7 +194,7 @@ class ReviewServiceTest {
         final Page<Review> mockedPage = new PageImpl<>(Arrays.asList(mockedReview1, mockedReview2));
         when(reviewRepository.findAll(any(Pageable.class))).thenReturn(
             mockedPage);
-        when(memberService.findMemberByEmail(any(String.class))).thenReturn(mockedMember);
+        when(memberService.findMemberByEmailOrElseThrow(any(String.class))).thenReturn(mockedMember);
         when(operationService.findOperationById(any(String.class))).thenReturn(mockedOperation);
         when(reservationService.findReservationById(any(String.class))).thenReturn(
             mockedReservation);
@@ -204,7 +209,7 @@ class ReviewServiceTest {
         // then
         assertThat(responseMessage.getReturnValue()).isInstanceOf(List.class);
         verify(reviewRepository, times(1)).findAll(any(Pageable.class));
-        verify(memberService, times(2)).findMemberByEmail(any(String.class));
+        verify(memberService, times(2)).findMemberByEmailOrElseThrow(any(String.class));
         verify(operationService, times(2)).findOperationById(any(String.class));
         verify(reservationService, times(2)).findReservationById(any(String.class));
     }

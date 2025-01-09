@@ -1,4 +1,4 @@
-package com.beautify_project.bp_app_api.bean;
+package com.beautify_project.bp_app_api.config;
 
 import lombok.RequiredArgsConstructor;
 import org.jasypt.encryption.StringEncryptor;
@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Primary;
 
 @Configuration
 @RequiredArgsConstructor
-public class JasyptConfigBean {
+public class JasyptConfiguration {
 
     @Primary
     @Bean(name = "encryptorBean")

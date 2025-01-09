@@ -64,11 +64,16 @@ public class ErrorResponseMessage {
         SH001(HttpStatus.NOT_FOUND, "SH001", "등록되지 않은 샵 입니다."),
         SH002(HttpStatus.INTERNAL_SERVER_ERROR, "SH002", "샵 등록에 실패했습니다."),
 
+        EC001(HttpStatus.BAD_REQUEST, "EC001", "인증 메일 유효 시간이 지나지 않았습니다. 잠시후에 다시 시도해주세요."),
+        EC002(HttpStatus.NOT_FOUND, "EC002", "인증 요청 이력이 없습니다."),
+        EC003(HttpStatus.UNAUTHORIZED, "EC003", "인증 번호가 맞지 않습니다. 확인 후 다시 요청해주세요."),
+
         RE001(HttpStatus.NOT_FOUND, "RE001", "등록되지 않은 리뷰입니다."),
 
         OP001(HttpStatus.NOT_FOUND, "OP001", "등록되지 않은 시술입니다."),
 
         ME001(HttpStatus.NOT_FOUND, "ME001", "등록되지 않은 회원입니다."),
+        ME002(HttpStatus.BAD_REQUEST, "SH003", "이미 등록된 회원입니다."),
 
         RS001(HttpStatus.NOT_FOUND, "RS001", "등록되지 않은 예약입니다."),
 
@@ -84,6 +89,7 @@ public class ErrorResponseMessage {
         AL002(HttpStatus.BAD_REQUEST, "AL002", "좋아요를 하지 않은 샵 입니다."),
 
         II001(HttpStatus.NOT_FOUND, "II001", "유효하지 않은 식별자 입니다."),
+        II002(HttpStatus.BAD_REQUEST, "II002", "이미 처리된 식별자 입니다."),
 
         IS001(HttpStatus.INTERNAL_SERVER_ERROR, "IS001", "시스템 에러가 발생하였습니다. 관리자에게 문의해주세요."),
         IS002(HttpStatus.INTERNAL_SERVER_ERROR, "IS002", "외부 시스템에서 에러가 발생하였습니다.")

@@ -2,8 +2,10 @@ package com.beautify_project.bp_app_api.exception;
 
 import com.beautify_project.bp_app_api.dto.common.ErrorResponseMessage;
 import com.beautify_project.bp_app_api.dto.common.ErrorResponseMessage.ErrorCode;
+import java.sql.SQLIntegrityConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -161,6 +163,21 @@ public class GlobalExceptionHandler {
         return createResponseWithCustomMessage(ErrorCode.II001, exception.getErrorMessage());
     }
 
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    private ResponseEntity<ErrorResponseMessage> handleSQLIntegrityConstraintViolationException(
+        final DataIntegrityViolationException exception) {
+        log.error("", exception);
+        return createResponse(ErrorCode.II002);
+    }
+
+    @ExceptionHandler(InvalidRequestException.class)
+    private ResponseEntity<ErrorResponseMessage> handleInvalidRequestException(
+        final InvalidRequestException exception) {
+        log.error("", exception);
+        return createResponse(exception.getErrorCode());
+    }
+      
     @ExceptionHandler(UnableToProcessException.class)
     private ResponseEntity<ErrorResponseMessage> handleUnableToProcessException(
         final UnableToProcessException exception) {
