@@ -41,4 +41,9 @@ public class ShopCategoryService {
     public ShopCategory registerShopCategory(final ShopCategory shopCategory) {
         return shopCategoryRepository.save(shopCategory);
     }
+
+    @Transactional
+    public void remove(final ShopCategory shopCategoryToRemove) {
+        shopCategoryRepository.delete(shopCategoryToRemove);
+    }
 }

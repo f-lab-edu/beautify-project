@@ -12,7 +12,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 @Slf4j
 @Configuration
 @EnableAsync
-public class IOBoundAsyncThreadPoolConfiguration implements AsyncConfigurer {
+public class IOBoundAsyncThreadPoolConfiguration implements AsyncConfigurer{
 
     private static final int CORE_COUNT = Runtime.getRuntime().availableProcessors();
     private static final int IO_THREAD_POOL_SIZE = CORE_COUNT * 2;

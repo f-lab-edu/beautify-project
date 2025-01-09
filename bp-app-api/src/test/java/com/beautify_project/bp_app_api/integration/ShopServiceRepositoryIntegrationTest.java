@@ -2,6 +2,9 @@ package com.beautify_project.bp_app_api.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.beautify_project.bp_app_api.dto.common.ErrorResponseMessage.ErrorCode;
 import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest;
@@ -30,7 +33,6 @@ import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -75,11 +77,6 @@ class ShopServiceRepositoryIntegrationTest {
 
     @BeforeEach
     void beforeEach() {
-        deleteAll();
-    }
-
-    @AfterEach
-    void afterEach() {
         deleteAll();
     }
 
@@ -446,7 +443,9 @@ class ShopServiceRepositoryIntegrationTest {
 
         // when
         log.debug("=====================");
+        long callStartedTime = System.currentTimeMillis();
         shopService.registerShop(registrationRequest);
+        log.info("shop registration processed time: {} ms", System.currentTimeMillis() - callStartedTime); // 62ms
 
         // then
         final Shop insertedShop = shopRepository.findAll().get(0);
@@ -498,5 +497,122 @@ class ShopServiceRepositoryIntegrationTest {
     @DisplayName("Shop 등록 요청 데이터에 지원 시설 아이디가 없는 경우에도 등록에 성공하고, ShopFacility 에는 데이터가 존재하지 않아야 한다.")
     void given_shopRegistrationWithoutFacilities_when_succeed_then_allFieldsAreStoredInDB_and_ShopFacility_count_isZero() {
         // TODO: 구현
+    }
+
+    @Test
+    @DisplayName("Shop 비동기 등록시 모든 필드값이 있는 경우 등록에 성공 후 DB 에 모든 필드가 정상적으로 저장되어 있다.")
+    void given_shopRegistrationAsyncWithAllFields_when_succeed_then_allFieldsAreStoredInDB() {
+        // given
+        final List<Operation> insertedOperations = Arrays.asList(
+            Operation.of("시술1","시술1설명"),
+            Operation.of("시술2", "시술2설명")
+        );
+        operationRepository.saveAllAndFlush(insertedOperations);
+
+        final List<Category> insertedCategories = Arrays.asList(
+            Category.of("카테고리1", "카테고리1설명"),
+            Category.of("카테고리2", "카테고리2설명"),
+            Category.of("카테고리3", "카테고리3설명")
+        );
+        categoryRepository.saveAllAndFlush(insertedCategories);
+
+        final List<OperationCategory> insertedOperationCategories = Arrays.asList(
+            // 시술1 => 카테고리1, 카테고리2 에 속함
+            OperationCategory.of(insertedOperations.get(0).getId(),
+                insertedCategories.get(0).getId()),
+            OperationCategory.of(insertedOperations.get(0).getId(),
+                insertedCategories.get(1).getId()),
+            // 시술2 => 카테고리3 에 속함
+            OperationCategory.of(insertedOperations.get(1).getId(),
+                insertedCategories.get(2).getId()));
+        operationCategoryRepository.saveAllAndFlush(insertedOperationCategories);
+
+        final List<Facility> insertedFacilities = Arrays.asList(
+            Facility.withName("편의시설1"), Facility.withName("편의시설2")
+        );
+        facilityRepository.saveAllAndFlush(insertedFacilities);
+
+        final List<String> operationIds = insertedOperations.stream()
+            .map(operation -> operation.getId()).toList();
+
+        final List<String> facilityIds = insertedFacilities.stream()
+            .map((facility -> facility.getId())).toList();
+
+        final ShopRegistrationRequest registrationRequest = new ShopRegistrationRequest(
+            "미용시술소1",
+            "010-1234-5678",
+            "www.naver.com",
+            "안녕하세요 미용시술소입니다.",
+            operationIds,
+            facilityIds,
+            Arrays.asList("preSigned-url1", "preSigned-url2"),
+            new BusinessTime(
+                LocalTime.of(9, 0),
+                LocalTime.of(18, 0),
+                LocalTime.of(13, 0),
+                LocalTime.of(14, 0),
+                Arrays.asList("monday", "tuesday")),
+            new Address(
+                "111",
+                "서울시",
+                "마포구",
+                "상암동",
+                "481",
+                "월드컵북로",
+                "true",
+                "131",
+                "707",
+                "오벨리스크",
+                "134-070",
+                "주상복합",
+                "12345678",
+                "34",
+                "90"
+            )
+        );
+
+        // when
+        long callStartedTime = System.currentTimeMillis();
+        shopService.registerShopAsync(registrationRequest);
+        log.info("shop registration processed time: {} ms", System.currentTimeMillis() - callStartedTime); // 39 ms
+
+        // then
+        final Shop insertedShop = shopRepository.findAll().get(0);
+        assert insertedShop != null;
+
+        assertThat(insertedShop.getId()).isNotBlank();
+        assertThat(insertedShop.getName()).isNotBlank();
+        assertThat(insertedShop.getContact()).isNotBlank();
+        assertThat(insertedShop.getUrl()).isNotBlank();
+        assertThat(insertedShop.getIntroduction()).isNotBlank();
+        assertThat(insertedShop.getRate()).isEqualTo("0.0");
+        assertThat(insertedShop.getLikes()).isZero();
+        assertThat(insertedShop.getRegisteredTime()).isLessThan(System.currentTimeMillis());
+        assertThat(insertedShop.getUpdated()).isLessThan(System.currentTimeMillis());
+
+        assertThat(insertedShop.getBusinessTime().openTime()).hasHour(9);
+        assertThat(insertedShop.getBusinessTime().closeTime()).hasHour(18);
+        assertThat(insertedShop.getBusinessTime().breakBeginTime()).hasHour(13);
+        assertThat(insertedShop.getBusinessTime().breakEndTime()).hasHour(14);
+        assertThat(insertedShop.getBusinessTime().offDayOfWeek()).hasSize(2);
+
+        assertThat(insertedShop.getShopAddress().getDongCode()).isNotBlank();
+        assertThat(insertedShop.getShopAddress().getSiDoName()).isNotBlank();
+        assertThat(insertedShop.getShopAddress().getSiGoonGooName()).isNotBlank();
+        assertThat(insertedShop.getShopAddress().getEubMyunDongName()).isNotBlank();
+        assertThat(insertedShop.getShopAddress().getRoadNameCode()).isNotBlank();
+        assertThat(insertedShop.getShopAddress().getUnderGround()).isNotBlank();
+        assertThat(insertedShop.getShopAddress().getRoadMainNum()).isNotBlank();
+        assertThat(insertedShop.getShopAddress().getRoadSubNum()).isNotBlank();
+        assertThat(insertedShop.getShopAddress().getSiGoonGooBuildingName()).isNotBlank();
+        assertThat(insertedShop.getShopAddress().getZipCode()).isNotBlank();
+        assertThat(insertedShop.getShopAddress().getApartComplex()).isNotBlank();
+        assertThat(insertedShop.getShopAddress().getEubMyunDongSerialNumber()).isNotBlank();
+        assertThat(insertedShop.getShopAddress().getLatitude()).isNotBlank();
+        assertThat(insertedShop.getShopAddress().getLongitude()).isNotBlank();
+
+        assertThat(shopCategoryRepository.count()).isEqualTo(3);
+        assertThat(shopFacilityRepository.count()).isEqualTo(2);
+        assertThat(shopOperationRepository.count()).isEqualTo(2);
     }
 }

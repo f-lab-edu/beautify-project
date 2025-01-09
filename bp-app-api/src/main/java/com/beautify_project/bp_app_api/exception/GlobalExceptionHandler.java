@@ -163,6 +163,7 @@ public class GlobalExceptionHandler {
         return createResponseWithCustomMessage(ErrorCode.II001, exception.getErrorMessage());
     }
 
+
     @ExceptionHandler(DataIntegrityViolationException.class)
     private ResponseEntity<ErrorResponseMessage> handleSQLIntegrityConstraintViolationException(
         final DataIntegrityViolationException exception) {
@@ -173,6 +174,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidRequestException.class)
     private ResponseEntity<ErrorResponseMessage> handleInvalidRequestException(
         final InvalidRequestException exception) {
+        log.error("", exception);
+        return createResponse(exception.getErrorCode());
+    }
+      
+    @ExceptionHandler(UnableToProcessException.class)
+    private ResponseEntity<ErrorResponseMessage> handleUnableToProcessException(
+        final UnableToProcessException exception) {
         log.error("", exception);
         return createResponse(exception.getErrorCode());
     }
