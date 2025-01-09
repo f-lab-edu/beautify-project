@@ -46,4 +46,9 @@ public class ShopFacilityService {
             new InvalidIdException(EntityType.SHOP, "shopId", "null"));
         return shopFacilityRepository.findByIdShopIdIn(shopIds);
     }
+
+    @Transactional
+    public void remove(final ShopFacility shopFacilityToRemove) {
+        shopFacilityRepository.delete(shopFacilityToRemove);
+    }
 }
