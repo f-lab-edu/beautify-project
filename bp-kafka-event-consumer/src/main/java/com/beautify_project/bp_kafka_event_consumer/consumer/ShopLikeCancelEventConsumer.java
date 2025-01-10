@@ -15,10 +15,14 @@ public class ShopLikeCancelEventConsumer {
 
     private final ShopLikeCancelApi shopLikeCancelApi;
 
-    @KafkaListener(
-        topics = "shop-like-cancel",
-        groupId = "shop-like-cancel-event-consumer-group",
-        containerFactory = "shopLikeCancelEventListenerContainerFactory")
+//    @KafkaListener(
+//        topics = "shop-like-cancel",
+//        groupId = "shop-like-cancel-event-consumer-group",
+//        containerFactory = "shopLikeCancelEventListenerContainerFactory")
+@KafkaListener(
+    topics = "#{kafkaConsumerConfigProperties.topic['SHOP-LIKE-CANCEL-EVENT'].topicName}",
+    groupId = "#{kafkaConsumerConfigProperties.topic['SHOP-LIKE-CANCEL-EVENT'].groupId}",
+    containerFactory = "shopLikeCancelEventListenerContainerFactory")
     public void listenShopLikeCancelEvent(final List<ShopLikeCancelEvent> events) {
         // TODO: consume 은 성공하였으나 외부 api 호출 실패시에 대한 예외 처리 추가 필요
         log.debug("event consumed: {}", events.toString());

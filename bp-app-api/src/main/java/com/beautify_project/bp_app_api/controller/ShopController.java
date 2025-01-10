@@ -63,10 +63,9 @@ public class ShopController {
      * Shop 좋아요 이벤트 producer
      */
     @PostMapping("/v1/shops/likes/{id}")
-    public DeferredResult<?> likeShop(@PathVariable(value = "id") @NotBlank final String shopId) {
-        final DeferredResult<Object> deferredResult = new DeferredResult<>();
-        shopService.produceShopLikeEvent(deferredResult, shopId, "sssukho@gmail.com");
-        return deferredResult;
+    @ResponseStatus(code = HttpStatus.OK)
+    public void likeShop(@PathVariable(value = "id") @NotBlank final String shopId) {
+        shopService.produceShopLikeEvent(shopId, "sssukho@gmail.com");
     }
 
     /**
@@ -82,10 +81,9 @@ public class ShopController {
      * Shop 좋아요 취소 이벤트 producer
      */
     @DeleteMapping("/v1/shops/likes/{id}")
-    public DeferredResult<?> cancelLikeShop(@PathVariable(value = "id") @NotBlank final String shopId) {
-        final DeferredResult<Object> deferredResult = new DeferredResult<>();
-        shopService.produceShopLikeCancelEvent(deferredResult, shopId, "sssukho@gmail.com");
-        return deferredResult;
+    @ResponseStatus(code = HttpStatus.OK)
+    public void cancelLikeShop(@PathVariable(value = "id") @NotBlank final String shopId) {
+        shopService.produceShopLikeCancelEvent(shopId, "sssukho@gmail.com");
     }
 
     /**

@@ -1,6 +1,5 @@
 package com.beautify_project.bp_app_api.service;
 
-import com.beautify_project.bp_app_api.dto.common.ErrorResponseMessage;
 import com.beautify_project.bp_app_api.dto.common.ErrorResponseMessage.ErrorCode;
 import com.beautify_project.bp_app_api.dto.common.ResponseMessage;
 import com.beautify_project.bp_app_api.dto.event.ShopLikeCancelEvent;
@@ -29,13 +28,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.context.request.async.DeferredResult;
 
 @Service
 @Slf4j
@@ -144,64 +139,13 @@ public class ShopService {
     }
 
     @Async(value = "ioBoundExecutor")
-    public void produceShopLikeEvent(final DeferredResult<Object> deferredResult,
-        final String shopId, final String memberEmail) {
-
-        if (!validateShopLikeEventRequest(shopId, memberEmail)) {
-            final ErrorResponseMessage errorResponseMessage = ErrorResponseMessage.createErrorMessage(
-                ErrorCode.SL001);
-            deferredResult.setErrorResult(
-                new ResponseEntity<>(errorResponseMessage, errorResponseMessage.getHttpStatus()));
-            return;
-        }
-
+    public void produceShopLikeEvent(final String shopId, final String memberEmail) {
         kafkaEventProducer.publishShopLikeEvent(new ShopLikeEvent(shopId, memberEmail));
-        deferredResult.setResult(
-            new ResponseEntity<>(HttpStatusCode.valueOf(HttpStatus.NO_CONTENT.value())));
-    }
-
-    private boolean validateShopLikeEventRequest(final String shopId, final String memberEmail) {
-        if (!shopRepository.existsById(shopId)) {
-            log.error("Failed to find shop: shopId - {}", shopId);
-            return false;
-        }
-
-        if (shopLikeService.isLikePushed(shopId, memberEmail)) {
-            log.error("Like is already pushed: shopId - {} memberEmail - {}", shopId, memberEmail);
-            return false;
-        }
-
-        return true;
     }
 
     @Async(value = "ioBoundExecutor")
-    public void produceShopLikeCancelEvent(final DeferredResult<Object> deferredResult,
-        final String shopId, final String memberEmail) {
-
-        if (!validateShopLikeCancelEventRequest(shopId, memberEmail)) {
-            final ErrorResponseMessage errorResponseMessage = ErrorResponseMessage.createErrorMessage(
-                ErrorCode.SL002);
-            deferredResult.setErrorResult(
-                new ResponseEntity<>(errorResponseMessage, errorResponseMessage.getHttpStatus()));
-            return;
-        }
-
+    public void produceShopLikeCancelEvent(final String shopId, final String memberEmail) {
         kafkaEventProducer.publishShopLikeCancelEvent(new ShopLikeCancelEvent(shopId, memberEmail));
-        deferredResult.setResult(
-            new ResponseEntity<>(HttpStatusCode.valueOf(HttpStatus.NO_CONTENT.value())));
-    }
-
-    private boolean validateShopLikeCancelEventRequest(final String shopId, final String memberEmail) {
-        if (!shopRepository.existsById(shopId)) {
-            log.error("Failed to find shop: shopId - {}", shopId);
-            return false;
-        }
-
-        if (!shopLikeService.isLikePushed(shopId, memberEmail)) {
-            return false;
-        }
-
-        return true;
     }
 
     @Transactional(rollbackFor = Exception.class)
