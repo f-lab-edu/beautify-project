@@ -1,17 +1,16 @@
 package com.beautify_project.bp_app_api.service;
 
-import com.beautify_project.bp_app_api.dto.auth.EmailCertificationRequest;
-import com.beautify_project.bp_app_api.dto.auth.EmailCertificationVerificationRequest;
-import com.beautify_project.bp_app_api.dto.auth.EmailDuplicatedRequest;
-import com.beautify_project.bp_app_api.dto.auth.EmailDuplicatedResult;
-import com.beautify_project.bp_app_api.dto.common.ErrorResponseMessage.ErrorCode;
-import com.beautify_project.bp_app_api.dto.common.ResponseMessage;
-import com.beautify_project.bp_app_api.entity.EmailCertification;
-import com.beautify_project.bp_app_api.exception.InvalidRequestException;
-import com.beautify_project.bp_app_api.exception.NotFoundException;
+import com.beautify_project.bp_app_api.exception.BpCustomException;
 import com.beautify_project.bp_app_api.provider.EmailProvider;
-import com.beautify_project.bp_app_api.repository.EmailCertificationRepository;
-import com.beautify_project.bp_app_api.utils.UUIDGenerator;
+import com.beautify_project.bp_app_api.request.auth.EmailCertificationRequest;
+import com.beautify_project.bp_app_api.request.auth.EmailCertificationVerificationRequest;
+import com.beautify_project.bp_app_api.request.auth.EmailDuplicatedRequest;
+import com.beautify_project.bp_app_api.response.ErrorResponseMessage.ErrorCode;
+import com.beautify_project.bp_app_api.response.ResponseMessage;
+import com.beautify_project.bp_app_api.response.auth.EmailDuplicatedResult;
+import com.beautify_project.bp_mysql.entity.EmailCertification;
+import com.beautify_project.bp_mysql.repository.EmailCertificationRepository;
+import com.beautify_project.bp_utils.UUIDGenerator;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -70,13 +69,13 @@ public class AuthService {
             return;
         }
 
-        throw new InvalidRequestException(ErrorCode.EC001);
+        throw new BpCustomException(ErrorCode.EC001);
     }
 
     @Transactional(rollbackFor = Exception.class)
     public void verifyCertificationEmail(final EmailCertificationVerificationRequest request) {
         final EmailCertification foundEmailCertification = emailCertificationRepository.findById(
-            request.email()).orElseThrow(() -> new NotFoundException(ErrorCode.EC002));
+            request.email()).orElseThrow(() -> new BpCustomException(ErrorCode.EC002));
 
         verifyEmailCertificationRequest(request.certificationNumber(),
             foundEmailCertification.getCertificationNumber());
@@ -91,6 +90,6 @@ public class AuthService {
             requestedCertificationNumber.toUpperCase())) {
             return;
         }
-        throw new InvalidRequestException(ErrorCode.EC003);
+        throw new BpCustomException(ErrorCode.EC003);
     }
 }

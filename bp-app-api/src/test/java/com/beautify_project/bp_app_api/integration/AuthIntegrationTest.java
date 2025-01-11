@@ -5,15 +5,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.beautify_project.bp_app_api.dto.auth.EmailCertificationRequest;
-import com.beautify_project.bp_app_api.dto.auth.EmailCertificationVerificationRequest;
-import com.beautify_project.bp_app_api.dto.auth.EmailDuplicatedRequest;
-import com.beautify_project.bp_app_api.dto.member.UserRoleMemberRegistrationRequest;
-import com.beautify_project.bp_app_api.entity.EmailCertification;
-import com.beautify_project.bp_app_api.entity.Member;
-import com.beautify_project.bp_app_api.repository.EmailCertificationRepository;
-import com.beautify_project.bp_app_api.repository.MemberRepository;
-import com.beautify_project.bp_app_api.utils.UUIDGenerator;
+import com.beautify_project.bp_app_api.request.auth.EmailCertificationRequest;
+import com.beautify_project.bp_app_api.request.auth.EmailCertificationVerificationRequest;
+import com.beautify_project.bp_app_api.request.auth.EmailDuplicatedRequest;
+import com.beautify_project.bp_app_api.request.member.UserRoleMemberRegistrationRequest;
+import com.beautify_project.bp_app_api.service.MemberService;
+import com.beautify_project.bp_mysql.entity.EmailCertification;
+import com.beautify_project.bp_mysql.entity.Member;
+import com.beautify_project.bp_mysql.repository.EmailCertificationRepository;
+import com.beautify_project.bp_mysql.repository.MemberRepository;
+import com.beautify_project.bp_utils.UUIDGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -67,7 +68,7 @@ public class AuthIntegrationTest {
         // given
         final UserRoleMemberRegistrationRequest mockedRequest = new UserRoleMemberRegistrationRequest(
             "dev.sssukho@gmail.com", "1234", "이름", "010-1234-5678");
-        final Member insertedMember = Member.createSelfAuthMember(mockedRequest);
+        final Member insertedMember = MemberService.createNewSelfAuthMember(mockedRequest);
         memberRepository.saveAndFlush(insertedMember);
 
         final EmailDuplicatedRequest request = new EmailDuplicatedRequest(
@@ -93,7 +94,7 @@ public class AuthIntegrationTest {
         final UserRoleMemberRegistrationRequest mockedRequest = new UserRoleMemberRegistrationRequest(
             "dev.sssukho@gmail.com", "1234", "이름", "010-1234-5678");
 
-        final Member insertedMember = Member.createSelfAuthMember(mockedRequest);
+        final Member insertedMember = MemberService.createNewSelfAuthMember(mockedRequest);
         memberRepository.saveAndFlush(insertedMember);
 
         final EmailDuplicatedRequest request = new EmailDuplicatedRequest(

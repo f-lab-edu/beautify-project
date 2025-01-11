@@ -6,21 +6,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.beautify_project.bp_app_api.dto.common.ResponseMessage;
-import com.beautify_project.bp_app_api.dto.shop.ShopListFindRequestParameters;
-import com.beautify_project.bp_app_api.dto.shop.ShopListFindResult;
-import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest;
-import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest.Address;
-import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest.BusinessTime;
-import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationResult;
-import com.beautify_project.bp_app_api.entity.Facility;
-import com.beautify_project.bp_app_api.entity.Operation;
-import com.beautify_project.bp_app_api.entity.Shop;
-import com.beautify_project.bp_app_api.repository.ShopRepository;
+import com.beautify_project.bp_app_api.response.ResponseMessage;
 import com.beautify_project.bp_app_api.service.FacilityService;
 import com.beautify_project.bp_app_api.service.OperationService;
 import com.beautify_project.bp_app_api.service.ShopService;
-import com.beautify_project.bp_app_api.utils.UUIDGenerator;
+import com.beautify_project.bp_mysql.entity.Facility;
+import com.beautify_project.bp_mysql.entity.Operation;
+import com.beautify_project.bp_mysql.entity.Shop;
+import com.beautify_project.bp_mysql.repository.ShopRepository;
+import com.beautify_project.bp_utils.UUIDGenerator;
+import com.beautify_project.bp_app_api.request.shop.ShopListFindRequestParameters;
+import com.beautify_project.bp_app_api.response.shop.ShopListFindResult;
+import com.beautify_project.bp_app_api.request.shop.ShopRegistrationRequest;
+import com.beautify_project.bp_app_api.request.shop.ShopRegistrationRequest.Address;
+import com.beautify_project.bp_app_api.request.shop.ShopRegistrationRequest.BusinessTime;
+import com.beautify_project.bp_app_api.response.shop.ShopRegistrationResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.time.LocalTime;
@@ -115,7 +115,7 @@ class ShopControllerTest {
             )
         );
 
-        Shop mockedShop = Shop.from(mockedRequest);
+        Shop mockedShop = ShopService.createShopEntityFromShopRegistrationRequest(mockedRequest);
         when(shopService.registerShop(mockedRequest)).thenReturn(
             ResponseMessage.createResponseMessage(new ShopRegistrationResult(mockedShop.getId())));
 

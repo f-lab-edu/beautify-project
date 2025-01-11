@@ -1,7 +1,7 @@
 package com.beautify_project.bp_app_api.controller;
 
-import com.beautify_project.bp_app_api.dto.common.ResponseMessage;
-import com.beautify_project.bp_app_api.dto.member.UserRoleMemberRegistrationRequest;
+import com.beautify_project.bp_app_api.request.member.UserRoleMemberRegistrationRequest;
+import com.beautify_project.bp_app_api.response.ResponseMessage;
 import com.beautify_project.bp_app_api.service.MemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

@@ -1,17 +1,17 @@
 package com.beautify_project.bp_app_api.service;
 
-import com.beautify_project.bp_app_api.dto.common.ErrorResponseMessage.ErrorCode;
-import com.beautify_project.bp_app_api.dto.common.ResponseMessage;
-import com.beautify_project.bp_app_api.dto.review.FindReviewListRequestParameters;
-import com.beautify_project.bp_app_api.dto.review.ReviewFindResult;
-import com.beautify_project.bp_app_api.dto.review.ReviewListFindResult;
-import com.beautify_project.bp_app_api.entity.Member;
-import com.beautify_project.bp_app_api.entity.Operation;
-import com.beautify_project.bp_app_api.entity.Reservation;
-import com.beautify_project.bp_app_api.entity.Review;
-import com.beautify_project.bp_app_api.entity.Shop;
-import com.beautify_project.bp_app_api.exception.NotFoundException;
-import com.beautify_project.bp_app_api.repository.ReviewRepository;
+import com.beautify_project.bp_app_api.exception.BpCustomException;
+import com.beautify_project.bp_app_api.response.ErrorResponseMessage.ErrorCode;
+import com.beautify_project.bp_app_api.response.ResponseMessage;
+import com.beautify_project.bp_mysql.entity.Member;
+import com.beautify_project.bp_mysql.entity.Operation;
+import com.beautify_project.bp_mysql.entity.Reservation;
+import com.beautify_project.bp_mysql.entity.Review;
+import com.beautify_project.bp_mysql.entity.Shop;
+import com.beautify_project.bp_mysql.repository.ReviewRepository;
+import com.beautify_project.bp_app_api.request.review.FindReviewListRequestParameters;
+import com.beautify_project.bp_app_api.response.review.ReviewFindResult;
+import com.beautify_project.bp_app_api.response.review.ReviewListFindResult;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +35,7 @@ public class ReviewService {
 
     public ResponseMessage findReview(final String reviewId) {
         final Review foundReview = reviewRepository.findById(reviewId)
-            .orElseThrow(() -> new NotFoundException(ErrorCode.RE001));
+            .orElseThrow(() -> new BpCustomException(ErrorCode.RE001));
 
         final Member reviewedWriter = memberService.findMemberByEmailOrElseThrow(foundReview.getMemberEmail());
         final Operation reviewedOperation = operationService.findOperationById(
@@ -59,7 +59,7 @@ public class ReviewService {
 
         List<Review> foundReviews = reviewRepository.findAll(pageable).getContent();
         if (foundReviews.isEmpty()) {
-            throw new NotFoundException(ErrorCode.RE001);
+            throw new BpCustomException(ErrorCode.RE001);
         }
 
         final List<ReviewListFindResult> result =  foundReviews.stream().map(review ->

@@ -5,12 +5,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.beautify_project.bp_app_api.dto.common.ErrorResponseMessage.ErrorCode;
-import com.beautify_project.bp_app_api.dto.common.ResponseMessage;
-import com.beautify_project.bp_app_api.exception.StorageException;
-import com.beautify_project.bp_app_api.service.ImageService;
+import com.beautify_project.bp_app_api.exception.BpCustomException;
+import com.beautify_project.bp_app_api.provider.image.ImageProvider;
+import com.beautify_project.bp_app_api.response.ErrorResponseMessage.ErrorCode;
+import com.beautify_project.bp_app_api.response.image.PreSignedPutUrlResult;
 import com.beautify_project.bp_s3_client.naver.NCPObjectStorageClient;
-import com.beautify_project.bp_s3_client.naver.NCPPreSignedPutUrlResult;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,7 +28,7 @@ class ImageControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private ImageService imageService;
+    ImageProvider imageProvider;
 
     @MockBean
     private NCPObjectStorageClient ncpClient;
@@ -39,8 +38,8 @@ class ImageControllerTest {
     void given_preSignedPutUrlRequest_when_succeed_then_getResponseMessageWrappingPreSignedPutUrlResult()
         throws Exception {
         // given
-        when(imageService.issuePreSignedPutUrlWrappingResponseMessage()).thenReturn(ResponseMessage.createResponseMessage(
-            new NCPPreSignedPutUrlResult("www.test.com", UUID.randomUUID().toString())));
+        when(imageProvider.providePreSignedPutUrl()).thenReturn(
+            new PreSignedPutUrlResult("www.test.com", UUID.randomUUID().toString()));
 
         // when
         ResultActions resultActions = mockMvc.perform(
@@ -62,7 +61,8 @@ class ImageControllerTest {
     void given_preSignedPutUrlRequest_when_failed_then_getErrorResponseMessageWrappingErrorCodeIS002()
         throws Exception {
         // given
-        when(imageService.issuePreSignedPutUrlWrappingResponseMessage()).thenThrow(new StorageException(ErrorCode.IS002));
+        when(imageProvider.providePreSignedPutUrl()).thenThrow(
+            new BpCustomException(ErrorCode.IS002));
 
         // when
         ResultActions resultActions = mockMvc.perform(

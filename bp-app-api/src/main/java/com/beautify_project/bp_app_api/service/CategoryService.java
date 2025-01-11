@@ -1,7 +1,7 @@
 package com.beautify_project.bp_app_api.service;
 
-import com.beautify_project.bp_app_api.entity.Category;
-import com.beautify_project.bp_app_api.repository.CategoryRepository;
+import com.beautify_project.bp_mysql.entity.Category;
+import com.beautify_project.bp_mysql.repository.CategoryRepository;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

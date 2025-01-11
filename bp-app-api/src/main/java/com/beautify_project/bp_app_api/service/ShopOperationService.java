@@ -1,11 +1,11 @@
 package com.beautify_project.bp_app_api.service;
 
-import com.beautify_project.bp_app_api.dto.common.ErrorResponseMessage.ErrorCode;
-import com.beautify_project.bp_app_api.entity.Operation;
-import com.beautify_project.bp_app_api.entity.ShopOperation;
-import com.beautify_project.bp_app_api.exception.NotFoundException;
-import com.beautify_project.bp_app_api.repository.ShopOperationRepository;
-import com.beautify_project.bp_app_api.utils.Validator;
+import com.beautify_project.bp_app_api.exception.BpCustomException;
+import com.beautify_project.bp_app_api.response.ErrorResponseMessage.ErrorCode;
+import com.beautify_project.bp_mysql.entity.Operation;
+import com.beautify_project.bp_mysql.entity.ShopOperation;
+import com.beautify_project.bp_mysql.repository.ShopOperationRepository;
+import com.beautify_project.bp_utils.Validator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -43,7 +43,7 @@ public class ShopOperationService {
 
     public List<ShopOperation> findShopOperationsByShopIds(final List<String> shopIds) {
         final List<ShopOperation> shopOperations = shopOperationRepository.findByIdShopIdIn(shopIds);
-        Validator.throwIfNullOrEmpty(shopOperations, new NotFoundException(ErrorCode.SO001));
+        Validator.throwIfNullOrEmpty(shopOperations, new BpCustomException(ErrorCode.SO001));
         return shopOperations;
     }
 

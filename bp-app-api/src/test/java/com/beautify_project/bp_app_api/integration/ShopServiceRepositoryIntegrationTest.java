@@ -2,33 +2,29 @@ package com.beautify_project.bp_app_api.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-import com.beautify_project.bp_app_api.dto.common.ErrorResponseMessage.ErrorCode;
-import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest;
-import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest.Address;
-import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest.BusinessTime;
-import com.beautify_project.bp_app_api.entity.Category;
-import com.beautify_project.bp_app_api.entity.Facility;
-import com.beautify_project.bp_app_api.entity.Operation;
-import com.beautify_project.bp_app_api.entity.OperationCategory;
-import com.beautify_project.bp_app_api.entity.Shop;
-import com.beautify_project.bp_app_api.entity.ShopLike;
-import com.beautify_project.bp_app_api.entity.ShopLike.ShopLikeId;
-import com.beautify_project.bp_app_api.exception.AlreadyProcessedException;
-import com.beautify_project.bp_app_api.exception.NotFoundException;
-import com.beautify_project.bp_app_api.repository.CategoryRepository;
-import com.beautify_project.bp_app_api.repository.FacilityRepository;
-import com.beautify_project.bp_app_api.repository.OperationCategoryRepository;
-import com.beautify_project.bp_app_api.repository.OperationRepository;
-import com.beautify_project.bp_app_api.repository.ShopCategoryRepository;
-import com.beautify_project.bp_app_api.repository.ShopFacilityRepository;
-import com.beautify_project.bp_app_api.repository.ShopLikeRepository;
-import com.beautify_project.bp_app_api.repository.ShopOperationRepository;
-import com.beautify_project.bp_app_api.repository.ShopRepository;
+import com.beautify_project.bp_app_api.exception.BpCustomException;
+import com.beautify_project.bp_app_api.response.ErrorResponseMessage.ErrorCode;
 import com.beautify_project.bp_app_api.service.ShopService;
+import com.beautify_project.bp_mysql.entity.Category;
+import com.beautify_project.bp_mysql.entity.Facility;
+import com.beautify_project.bp_mysql.entity.Operation;
+import com.beautify_project.bp_mysql.entity.OperationCategory;
+import com.beautify_project.bp_mysql.entity.Shop;
+import com.beautify_project.bp_mysql.entity.ShopLike;
+import com.beautify_project.bp_mysql.entity.ShopLike.ShopLikeId;
+import com.beautify_project.bp_mysql.repository.CategoryRepository;
+import com.beautify_project.bp_mysql.repository.FacilityRepository;
+import com.beautify_project.bp_mysql.repository.OperationCategoryRepository;
+import com.beautify_project.bp_mysql.repository.OperationRepository;
+import com.beautify_project.bp_mysql.repository.ShopCategoryRepository;
+import com.beautify_project.bp_mysql.repository.ShopFacilityRepository;
+import com.beautify_project.bp_mysql.repository.ShopLikeRepository;
+import com.beautify_project.bp_mysql.repository.ShopOperationRepository;
+import com.beautify_project.bp_mysql.repository.ShopRepository;
+import com.beautify_project.bp_app_api.request.shop.ShopRegistrationRequest;
+import com.beautify_project.bp_app_api.request.shop.ShopRegistrationRequest.Address;
+import com.beautify_project.bp_app_api.request.shop.ShopRegistrationRequest.BusinessTime;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
@@ -142,7 +138,8 @@ class ShopServiceRepositoryIntegrationTest {
             )
         );
 
-        final Shop testShop = Shop.from(requestForTest);
+        final Shop testShop = ShopService.createShopEntityFromShopRegistrationRequest(
+            requestForTest);
         shopRepository.saveAndFlush(testShop); // DB 에 있는 상태 가정
 
         final String memberEmail = "sssukho@gmail.com";
@@ -152,8 +149,7 @@ class ShopServiceRepositoryIntegrationTest {
 
         // then
         final Shop shopFromDb = shopRepository.findById(testShop.getId())
-            .orElseThrow(() -> new NotFoundException(
-                ErrorCode.SH001));
+            .orElseThrow(() -> new BpCustomException(ErrorCode.SH001));
 
         final Long previousLikeCount = testShop.getLikes();
         final Long postLikeCount = shopFromDb.getLikes();
@@ -219,7 +215,8 @@ class ShopServiceRepositoryIntegrationTest {
             )
         );
 
-        final Shop testShop = Shop.from(requestForTest);
+        final Shop testShop = ShopService.createShopEntityFromShopRegistrationRequest(
+            requestForTest);
         testShop.increaseLikeCount();
         shopRepository.saveAndFlush(testShop);
 
@@ -234,7 +231,7 @@ class ShopServiceRepositoryIntegrationTest {
         // then
         assert testShop.getId() != null;
         final Shop shopFromDB = shopRepository.findById(testShop.getId())
-            .orElseThrow(() -> new NotFoundException(ErrorCode.SH001));
+            .orElseThrow(() -> new BpCustomException(ErrorCode.SH001));
 
         final Long previousLikeCount = testShop.getLikes();
         final Long postLikeCount = shopFromDB.getLikes();
@@ -244,8 +241,8 @@ class ShopServiceRepositoryIntegrationTest {
     }
 
     @Test
-    @DisplayName("Shop 좋아요시 기존에 좋아요 한 이력이 있으면 AlreadyProcessedException 을 던진다")
-    void given_shopLike_when_already_shop_like_exists_then_throw_alreadyProcessedException() {
+    @DisplayName("Shop 좋아요시 기존에 좋아요 한 이력이 있으면 BpException 을 던진다")
+    void given_shopLike_when_already_shop_like_exists_then_throw_BpException() {
         // given
         final List<Operation> mockedOperationEntities = Arrays.asList(
             Operation.of("두피 문신 시술", "두피 문신 시술 설명"),
@@ -295,19 +292,20 @@ class ShopServiceRepositoryIntegrationTest {
             )
         );
 
-        final Shop testShop = Shop.from(requestForTest);
+        final Shop testShop = ShopService.createShopEntityFromShopRegistrationRequest(
+            requestForTest);
         final String memberEmail = "sssukho@gmail.com";
         shopRepository.saveAndFlush(testShop);
         shopService.likeShop(testShop.getId(), memberEmail);
 
         // when & then
         assertThatThrownBy(() -> shopService.likeShop(testShop.getId(), memberEmail)).isInstanceOf(
-            AlreadyProcessedException.class);
+            BpCustomException.class);
     }
 
     @Test
-    @DisplayName("Shop 좋아요 취소시 기존에 좋아요 했던 이력이 없으면 AlreadyProcessedException 을 던진다")
-    void given_shopLikeCancel_when_shop_like_not_exists_then_throw_alreadyProcessedException() {
+    @DisplayName("Shop 좋아요 취소시 기존에 좋아요 했던 이력이 없으면 BpException 을 던진다")
+    void given_shopLikeCancel_when_shop_like_not_exists_then_throw_BpException() {
         // given
         final List<Operation> mockedOperationEntities = Arrays.asList(
             Operation.of("두피 문신 시술", "두피 문신 시술 설명"),
@@ -357,7 +355,8 @@ class ShopServiceRepositoryIntegrationTest {
             )
         );
 
-        final Shop testShop = Shop.from(requestForTest);
+        final Shop testShop = ShopService.createShopEntityFromShopRegistrationRequest(
+            requestForTest);
         testShop.increaseLikeCount();
         shopRepository.saveAndFlush(testShop);
 
@@ -366,7 +365,7 @@ class ShopServiceRepositoryIntegrationTest {
         // when & then
         assertThatThrownBy(
             () -> shopService.cancelLikeShop(testShop.getId(), memberEmail)).isInstanceOf(
-            AlreadyProcessedException.class);
+            BpCustomException.class);
     }
 
     @Test
@@ -461,11 +460,12 @@ class ShopServiceRepositoryIntegrationTest {
         assertThat(insertedShop.getRegisteredTime()).isLessThan(System.currentTimeMillis());
         assertThat(insertedShop.getUpdated()).isLessThan(System.currentTimeMillis());
 
-        assertThat(insertedShop.getBusinessTime().openTime()).hasHour(9);
-        assertThat(insertedShop.getBusinessTime().closeTime()).hasHour(18);
-        assertThat(insertedShop.getBusinessTime().breakBeginTime()).hasHour(13);
-        assertThat(insertedShop.getBusinessTime().breakEndTime()).hasHour(14);
-        assertThat(insertedShop.getBusinessTime().offDayOfWeek()).hasSize(2);
+
+        assertThat(insertedShop.getBusinessTime().getOpenTime()).hasHour(9);
+        assertThat(insertedShop.getBusinessTime().getCloseTime()).hasHour(18);
+        assertThat(insertedShop.getBusinessTime().getBreakBeginTime()).hasHour(13);
+        assertThat(insertedShop.getBusinessTime().getBreakEndTime()).hasHour(14);
+        assertThat(insertedShop.getBusinessTime().getOffDayOfWeek()).hasSize(2);
 
         assertThat(insertedShop.getShopAddress().getDongCode()).isNotBlank();
         assertThat(insertedShop.getShopAddress().getSiDoName()).isNotBlank();
@@ -590,11 +590,11 @@ class ShopServiceRepositoryIntegrationTest {
         assertThat(insertedShop.getRegisteredTime()).isLessThan(System.currentTimeMillis());
         assertThat(insertedShop.getUpdated()).isLessThan(System.currentTimeMillis());
 
-        assertThat(insertedShop.getBusinessTime().openTime()).hasHour(9);
-        assertThat(insertedShop.getBusinessTime().closeTime()).hasHour(18);
-        assertThat(insertedShop.getBusinessTime().breakBeginTime()).hasHour(13);
-        assertThat(insertedShop.getBusinessTime().breakEndTime()).hasHour(14);
-        assertThat(insertedShop.getBusinessTime().offDayOfWeek()).hasSize(2);
+        assertThat(insertedShop.getBusinessTime().getOpenTime()).hasHour(9);
+        assertThat(insertedShop.getBusinessTime().getCloseTime()).hasHour(18);
+        assertThat(insertedShop.getBusinessTime().getBreakBeginTime()).hasHour(13);
+        assertThat(insertedShop.getBusinessTime().getBreakEndTime()).hasHour(14);
+        assertThat(insertedShop.getBusinessTime().getOffDayOfWeek()).hasSize(2);
 
         assertThat(insertedShop.getShopAddress().getDongCode()).isNotBlank();
         assertThat(insertedShop.getShopAddress().getSiDoName()).isNotBlank();

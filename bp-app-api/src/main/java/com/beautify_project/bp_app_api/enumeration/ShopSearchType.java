@@ -1,6 +1,7 @@
 package com.beautify_project.bp_app_api.enumeration;
 
-import com.beautify_project.bp_app_api.exception.EnumMismatchException;
+import com.beautify_project.bp_app_api.exception.BpCustomException;
+import com.beautify_project.bp_app_api.response.ErrorResponseMessage.ErrorCode;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 
@@ -28,7 +29,8 @@ public enum ShopSearchType {
         try {
             return valueOf(inputUpperCase);
         } catch (IllegalArgumentException e) {
-            throw new EnumMismatchException("ShopSearchType", input);
+            throw new BpCustomException("ShopSearchType 에 해당하는 값 '" + input + "' 은 올바르지 않습니다.",
+                ErrorCode.BR001);
         }
     }
 }

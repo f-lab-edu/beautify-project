@@ -1,9 +1,9 @@
 package com.beautify_project.bp_app_api.controller;
 
-import com.beautify_project.bp_app_api.dto.auth.EmailCertificationRequest;
-import com.beautify_project.bp_app_api.dto.auth.EmailCertificationVerificationRequest;
-import com.beautify_project.bp_app_api.dto.auth.EmailDuplicatedRequest;
-import com.beautify_project.bp_app_api.dto.common.ResponseMessage;
+import com.beautify_project.bp_app_api.request.auth.EmailCertificationRequest;
+import com.beautify_project.bp_app_api.request.auth.EmailCertificationVerificationRequest;
+import com.beautify_project.bp_app_api.request.auth.EmailDuplicatedRequest;
+import com.beautify_project.bp_app_api.response.ResponseMessage;
 import com.beautify_project.bp_app_api.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

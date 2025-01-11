@@ -1,5 +1,4 @@
 ## BP 서비스 내 발급할 jwt secret key
----
 jwt:
   secret-key: ENC(kA951a0P++xefWrbSQ1YIZn5aep0rBnJXcmRqLSyvhPf/xyHF241qQ==)
   expired-minute: 60

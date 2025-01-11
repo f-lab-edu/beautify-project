@@ -9,23 +9,23 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.beautify_project.bp_app_api.dto.common.ResponseMessage;
-import com.beautify_project.bp_app_api.dto.member.UserRoleMemberRegistrationRequest;
-import com.beautify_project.bp_app_api.dto.review.FindReviewListRequestParameters;
-import com.beautify_project.bp_app_api.dto.review.ReviewFindResult;
-import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest;
-import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest.Address;
-import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest.BusinessTime;
-import com.beautify_project.bp_app_api.entity.Member;
-import com.beautify_project.bp_app_api.entity.Operation;
-import com.beautify_project.bp_app_api.entity.Reservation;
-import com.beautify_project.bp_app_api.entity.Review;
-import com.beautify_project.bp_app_api.entity.Shop;
-import com.beautify_project.bp_app_api.enumeration.OrderType;
-import com.beautify_project.bp_app_api.enumeration.ReviewSortBy;
-import com.beautify_project.bp_app_api.exception.NotFoundException;
-import com.beautify_project.bp_app_api.repository.ReviewRepository;
-import com.beautify_project.bp_app_api.utils.UUIDGenerator;
+import com.beautify_project.bp_app_api.exception.BpCustomException;
+import com.beautify_project.bp_app_api.request.member.UserRoleMemberRegistrationRequest;
+import com.beautify_project.bp_app_api.request.review.FindReviewListRequestParameters;
+import com.beautify_project.bp_app_api.request.shop.ShopRegistrationRequest;
+import com.beautify_project.bp_app_api.request.shop.ShopRegistrationRequest.Address;
+import com.beautify_project.bp_app_api.request.shop.ShopRegistrationRequest.BusinessTime;
+import com.beautify_project.bp_app_api.response.ResponseMessage;
+import com.beautify_project.bp_app_api.response.review.ReviewFindResult;
+import com.beautify_project.bp_mysql.entity.Member;
+import com.beautify_project.bp_mysql.entity.Operation;
+import com.beautify_project.bp_mysql.entity.Reservation;
+import com.beautify_project.bp_mysql.entity.Review;
+import com.beautify_project.bp_mysql.entity.Shop;
+import com.beautify_project.bp_mysql.enums.OrderType;
+import com.beautify_project.bp_mysql.enums.ReviewSortBy;
+import com.beautify_project.bp_mysql.repository.ReviewRepository;
+import com.beautify_project.bp_utils.UUIDGenerator;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -68,7 +68,7 @@ class ReviewServiceTest {
         // given
         final UserRoleMemberRegistrationRequest userRoleMemberRegistrationRequest = new UserRoleMemberRegistrationRequest(
             "dev.sssukho@mgail.com", "password", "임석호", "010-1234-5678");
-        final Member mockedMember = Member.createSelfAuthMember(userRoleMemberRegistrationRequest);
+        final Member mockedMember = MemberService.createNewSelfAuthMember(userRoleMemberRegistrationRequest);
         final Operation mockedOperation = Operation.of("시술명", "시술 설명");
         final ShopRegistrationRequest requestForMockedShop = new ShopRegistrationRequest(
             "미용시술소1",
@@ -102,7 +102,8 @@ class ReviewServiceTest {
                 "90"
             )
         );
-        final Shop mockedShop = Shop.from(requestForMockedShop);
+        final Shop mockedShop = ShopService.createShopEntityFromShopRegistrationRequest(
+            requestForMockedShop);
         final Reservation mockedReservation = Reservation.of(System.currentTimeMillis(),
             mockedMember.getEmail(), mockedShop.getId(), mockedOperation.getId());
         final Review mockedReview = Review.of("4.5", "리뷰 내용", mockedMember.getEmail(),
@@ -138,7 +139,7 @@ class ReviewServiceTest {
 
         // when & then
         assertThatThrownBy(() -> reviewService.findReview(notExistedReviewId)).isInstanceOf(
-            NotFoundException.class);
+            BpCustomException.class);
     }
 
     @Test
@@ -147,7 +148,7 @@ class ReviewServiceTest {
         // given
         final UserRoleMemberRegistrationRequest userRoleMemberRegistrationRequest = new UserRoleMemberRegistrationRequest(
             "dev.sssukho@mgail.com", "password", "임석호", "010-1234-5678");
-        final Member mockedMember = Member.createSelfAuthMember(userRoleMemberRegistrationRequest);
+        final Member mockedMember = MemberService.createNewSelfAuthMember(userRoleMemberRegistrationRequest);
         final Operation mockedOperation = Operation.of("시술명", "시술 설명");
         final ShopRegistrationRequest requestForMockedShop = new ShopRegistrationRequest(
             "미용시술소1",
@@ -181,7 +182,7 @@ class ReviewServiceTest {
                 "90"
             )
         );
-        final Shop mockedShop = Shop.from(requestForMockedShop);
+        final Shop mockedShop = ShopService.createShopEntityFromShopRegistrationRequest(requestForMockedShop);
         final Reservation mockedReservation = Reservation.of(System.currentTimeMillis(),
             mockedMember.getEmail(), mockedShop.getId(), mockedOperation.getId());
         final Review mockedReview1 = Review.of("4.5", "리뷰 내용", mockedMember.getEmail(),
@@ -228,7 +229,7 @@ class ReviewServiceTest {
         // when & then
         assertThatThrownBy(
             () -> reviewService.findReviewListInShop(requestParameters)).isInstanceOf(
-            NotFoundException.class);
+            BpCustomException.class);
     }
 
     @Test

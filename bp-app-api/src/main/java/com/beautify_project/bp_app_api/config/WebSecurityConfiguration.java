@@ -1,7 +1,7 @@
 package com.beautify_project.bp_app_api.config;
 
-import com.beautify_project.bp_app_api.dto.common.ErrorResponseMessage;
-import com.beautify_project.bp_app_api.dto.common.ErrorResponseMessage.ErrorCode;
+import com.beautify_project.bp_app_api.response.ErrorResponseMessage;
+import com.beautify_project.bp_app_api.response.ErrorResponseMessage.ErrorCode;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
