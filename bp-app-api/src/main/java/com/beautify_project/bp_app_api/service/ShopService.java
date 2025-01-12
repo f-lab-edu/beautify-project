@@ -1,24 +1,25 @@
 package com.beautify_project.bp_app_api.service;
 
 import com.beautify_project.bp_app_api.config.IOBoundAsyncThreadPoolConfiguration;
-import com.beautify_project.bp_app_api.dto.common.ErrorResponseMessage.ErrorCode;
-import com.beautify_project.bp_app_api.dto.common.ResponseMessage;
-import com.beautify_project.bp_app_api.dto.shop.ShopListFindRequestParameters;
-import com.beautify_project.bp_app_api.dto.shop.ShopListFindResult;
-import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest;
-import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationResult;
-import com.beautify_project.bp_app_api.entity.Facility;
-import com.beautify_project.bp_app_api.entity.Operation;
-import com.beautify_project.bp_app_api.entity.Shop;
-import com.beautify_project.bp_app_api.entity.ShopCategory;
-import com.beautify_project.bp_app_api.entity.ShopFacility;
-import com.beautify_project.bp_app_api.entity.ShopLike;
-import com.beautify_project.bp_app_api.entity.ShopOperation;
-import com.beautify_project.bp_app_api.exception.AlreadyProcessedException;
-import com.beautify_project.bp_app_api.exception.NotFoundException;
-import com.beautify_project.bp_app_api.exception.UnableToProcessException;
-import com.beautify_project.bp_app_api.repository.ShopRepository;
-import com.beautify_project.bp_app_api.utils.Validator;
+import com.beautify_project.bp_app_api.exception.BpCustomException;
+import com.beautify_project.bp_app_api.provider.image.ImageProvider;
+import com.beautify_project.bp_app_api.request.shop.ShopListFindRequestParameters;
+import com.beautify_project.bp_app_api.request.shop.ShopRegistrationRequest;
+import com.beautify_project.bp_app_api.response.ErrorResponseMessage.ErrorCode;
+import com.beautify_project.bp_app_api.response.ResponseMessage;
+import com.beautify_project.bp_app_api.response.shop.ShopListFindResult;
+import com.beautify_project.bp_app_api.response.shop.ShopRegistrationResult;
+import com.beautify_project.bp_mysql.entity.Facility;
+import com.beautify_project.bp_mysql.entity.Operation;
+import com.beautify_project.bp_mysql.entity.Shop;
+import com.beautify_project.bp_mysql.entity.ShopCategory;
+import com.beautify_project.bp_mysql.entity.ShopFacility;
+import com.beautify_project.bp_mysql.entity.ShopLike;
+import com.beautify_project.bp_mysql.entity.ShopOperation;
+import com.beautify_project.bp_mysql.entity.embedded.Address;
+import com.beautify_project.bp_mysql.entity.embedded.BusinessTime;
+import com.beautify_project.bp_mysql.repository.ShopRepository;
+import com.beautify_project.bp_utils.Validator;
 import jakarta.validation.constraints.NotBlank;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,13 +48,14 @@ public class ShopService {
     private final FacilityService facilityService;
     private final ShopLikeService shopLikeService;
     private final ShopCategoryService shopCategoryService;
-    private final ImageService imageService;
+    private final ImageProvider imageProvider;
     private final IOBoundAsyncThreadPoolConfiguration ioBoundAsyncThreadPoolConfig;
 
     @Transactional(rollbackFor = Exception.class)
     public ResponseMessage registerShop(final ShopRegistrationRequest shopRegistrationRequest) {
 
-        final Shop registeredShop = shopRepository.save(Shop.from(shopRegistrationRequest));
+        final Shop registeredShop = shopRepository.save(
+            createShopEntityFromShopRegistrationRequest(shopRegistrationRequest));
         final String registeredShopId = registeredShop.getId();
         final List<String> operationIds = shopRegistrationRequest.operationIds();
         final List<String> facilityIds = shopRegistrationRequest.facilityIds();
@@ -72,10 +74,28 @@ public class ShopService {
         return ResponseMessage.createResponseMessage(new ShopRegistrationResult(registeredShopId));
     }
 
+    public static Shop createShopEntityFromShopRegistrationRequest(
+        final ShopRegistrationRequest request) {
+
+        return Shop.newShop(request.name(), request.contact(), request.url(),
+            request.introduction(), request.imageFileIds(),
+            Address.of(request.address().dongCode(), request.address().siDoName(),
+                request.address().siGoonGooName(), request.address().eubMyunDongName(),
+                request.address().roadNameCode(), request.address().roadName(),
+                request.address().underGround(), request.address().roadMainNum(),
+                request.address().roadSubNum(), request.address().siGoonGooBuildingName(),
+                request.address().zipCode(), request.address().apartComplex(),
+                request.address().eubMyunDongSerialNumber(), request.address().latitude(),
+                request.address().longitude()),
+            BusinessTime.of(request.businessTime().openTime(), request.businessTime().closeTime(),
+                request.businessTime().breakBeginTime(), request.businessTime().breakEndTime(),
+                request.businessTime().offDayOfWeek()));
+    }
+
     public ResponseMessage registerShopAsync(final ShopRegistrationRequest request) {
         final List<CompletableFuture<?>> completableFutures = new ArrayList<>();
 
-        final Shop shopToSave = Shop.from(request);
+        final Shop shopToSave = createShopEntityFromShopRegistrationRequest(request);
         final CompletableFuture<Shop> saveShopAsyncResult = CompletableFuture.supplyAsync(
             () -> shopRepository.save(shopToSave),
             ioBoundAsyncThreadPoolConfig.getAsyncExecutor());
@@ -94,7 +114,7 @@ public class ShopService {
                 shopToSave.getId()));
         } catch (CompletionException exception) {
             rollbackAll(completableFutures);
-            throw new UnableToProcessException(ErrorCode.SH002);
+            throw new BpCustomException(ErrorCode.SH002);
         }
     }
 
@@ -168,8 +188,9 @@ public class ShopService {
                 final String shopId = foundShop.getId();
                 final List<String> operationNames = operationNamesByShopId.get(shopId);
                 final List<String> facilityNames = facilityNamesByShopId.get(shopId);
-                final String thumbnailLink = imageService.issuePreSignedGetUrl(
-                    foundShop.getImageFileIds().get(0));
+                final String thumbnailFileId = foundShop.getImageFileIds().get(0);
+                final String thumbnailLink = imageProvider.providePreSignedGetUrlByFileId(thumbnailFileId).preSignedUrl();
+
                 return ShopListFindResult.createShopListFindResult(foundShop, operationNames,
                     facilityNames, thumbnailLink);
             })
@@ -211,13 +232,13 @@ public class ShopService {
 
     public Shop findShopById(final @NotBlank String shopId) {
         return shopRepository.findById(shopId)
-            .orElseThrow(() -> new NotFoundException(ErrorCode.SH001));
+            .orElseThrow(() -> new BpCustomException(ErrorCode.SH001));
     }
 
     @Transactional(rollbackFor = Exception.class)
     public void likeShop(final @NotBlank String shopId, final @NotBlank String memberEmail) {
         if (shopLikeService.isLikePushed(shopId, memberEmail)) {
-            throw new AlreadyProcessedException(ErrorCode.AL001);
+            throw new BpCustomException(ErrorCode.AL001);
         }
 
         Shop foundShop = findShopById(shopId);
@@ -232,7 +253,7 @@ public class ShopService {
     @Transactional(rollbackFor = Exception.class)
     public void cancelLikeShop(final @NotBlank String shopId, final @NotBlank String memberEmail) {
         if (!shopLikeService.isLikePushed(shopId, memberEmail)) {
-            throw new AlreadyProcessedException(ErrorCode.AL002);
+            throw new BpCustomException(ErrorCode.AL002);
         }
 
         Shop foundShop = findShopById(shopId);

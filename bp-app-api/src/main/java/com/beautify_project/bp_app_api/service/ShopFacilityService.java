@@ -1,11 +1,11 @@
 package com.beautify_project.bp_app_api.service;
 
-import com.beautify_project.bp_app_api.entity.Facility;
-import com.beautify_project.bp_app_api.entity.ShopFacility;
-import com.beautify_project.bp_app_api.enumeration.EntityType;
-import com.beautify_project.bp_app_api.exception.InvalidIdException;
-import com.beautify_project.bp_app_api.repository.ShopFacilityRepository;
-import com.beautify_project.bp_app_api.utils.Validator;
+import com.beautify_project.bp_app_api.exception.BpCustomException;
+import com.beautify_project.bp_app_api.response.ErrorResponseMessage.ErrorCode;
+import com.beautify_project.bp_mysql.entity.Facility;
+import com.beautify_project.bp_mysql.entity.ShopFacility;
+import com.beautify_project.bp_mysql.repository.ShopFacilityRepository;
+import com.beautify_project.bp_utils.Validator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -42,8 +42,7 @@ public class ShopFacilityService {
     }
 
     public List<ShopFacility> findShopFacilitiesByShopIds(final List<String> shopIds) {
-        Validator.throwIfNullOrEmpty(shopIds,
-            new InvalidIdException(EntityType.SHOP, "shopId", "null"));
+        Validator.throwIfNullOrEmpty(shopIds, new BpCustomException(ErrorCode.BR001));
         return shopFacilityRepository.findByIdShopIdIn(shopIds);
     }
 

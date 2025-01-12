@@ -2,6 +2,7 @@ server:
   port: 8080
   tomcat:
     uri-encoding: UTF-8
+  shutdown: graceful
 
 spring:
   config:
@@ -9,10 +10,10 @@ spring:
       on-profile: test
     import:
       - jasypt.yml
-      - datasource-local.yml
-      - storage-local.yml
-      - mail.yml
       - auth.yml
+      - mail.yml
+      - classpath:mysql-config/application-local.yml
+      - classpath:s3-client-config/application-local.yml
 
 logging:
   level:

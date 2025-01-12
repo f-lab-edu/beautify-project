@@ -2,6 +2,7 @@ server:
   port: 8080
   tomcat:
     uri-encoding: UTF-8
+  shutdown: graceful
 
 spring:
   config:
@@ -9,10 +10,12 @@ spring:
       on-profile: prod
     import:
       - jasypt.yml
-      - datasource-local.yml
-      - storage-local.yml
       - auth.yml
+      - mail.yml
+      - classpath:mysql-config/application-prod.yml
+      - classpath:s3-client-config/application-prod.yml
 
 logging:
   level:
     org.hibernate.SQL: debug
+    com.beautify_project.bp_app_api: debug

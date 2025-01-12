@@ -1,8 +1,8 @@
 package com.beautify_project.bp_app_api.service;
 
-import com.beautify_project.bp_app_api.entity.ShopLike;
-import com.beautify_project.bp_app_api.entity.ShopLike.ShopLikeId;
-import com.beautify_project.bp_app_api.repository.ShopLikeRepository;
+import com.beautify_project.bp_mysql.entity.ShopLike;
+import com.beautify_project.bp_mysql.entity.ShopLike.ShopLikeId;
+import com.beautify_project.bp_mysql.repository.ShopLikeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

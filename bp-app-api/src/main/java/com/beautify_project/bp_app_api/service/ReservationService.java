@@ -1,9 +1,9 @@
 package com.beautify_project.bp_app_api.service;
 
-import com.beautify_project.bp_app_api.dto.common.ErrorResponseMessage.ErrorCode;
-import com.beautify_project.bp_app_api.entity.Reservation;
-import com.beautify_project.bp_app_api.exception.NotFoundException;
-import com.beautify_project.bp_app_api.repository.ReservationRepository;
+import com.beautify_project.bp_app_api.exception.BpCustomException;
+import com.beautify_project.bp_app_api.response.ErrorResponseMessage.ErrorCode;
+import com.beautify_project.bp_mysql.entity.Reservation;
+import com.beautify_project.bp_mysql.repository.ReservationRepository;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,7 +16,6 @@ public class ReservationService {
 
     public Reservation findReservationById(final @NotNull String reservationId) {
         return reservationRepository.findById(reservationId)
-            .orElseThrow(() -> new NotFoundException(
-                ErrorCode.RS001));
+            .orElseThrow(() -> new BpCustomException(ErrorCode.RS001));
     }
 }

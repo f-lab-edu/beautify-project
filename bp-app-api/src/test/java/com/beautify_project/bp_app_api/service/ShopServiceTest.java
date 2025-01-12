@@ -7,18 +7,20 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.beautify_project.bp_app_api.dto.common.ResponseMessage;
-import com.beautify_project.bp_app_api.dto.shop.ShopListFindRequestParameters;
-import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest;
-import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest.Address;
-import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest.BusinessTime;
-import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationResult;
-import com.beautify_project.bp_app_api.entity.Facility;
-import com.beautify_project.bp_app_api.entity.Operation;
-import com.beautify_project.bp_app_api.entity.Shop;
-import com.beautify_project.bp_app_api.enumeration.OrderType;
 import com.beautify_project.bp_app_api.enumeration.ShopSearchType;
-import com.beautify_project.bp_app_api.repository.ShopRepository;
+import com.beautify_project.bp_app_api.provider.image.ImageProvider;
+import com.beautify_project.bp_app_api.request.shop.ShopListFindRequestParameters;
+import com.beautify_project.bp_app_api.request.shop.ShopRegistrationRequest;
+import com.beautify_project.bp_app_api.request.shop.ShopRegistrationRequest.Address;
+import com.beautify_project.bp_app_api.request.shop.ShopRegistrationRequest.BusinessTime;
+import com.beautify_project.bp_app_api.response.ResponseMessage;
+import com.beautify_project.bp_app_api.response.image.PreSignedGetUrlResult;
+import com.beautify_project.bp_app_api.response.shop.ShopRegistrationResult;
+import com.beautify_project.bp_mysql.entity.Facility;
+import com.beautify_project.bp_mysql.entity.Operation;
+import com.beautify_project.bp_mysql.entity.Shop;
+import com.beautify_project.bp_mysql.enums.OrderType;
+import com.beautify_project.bp_mysql.repository.ShopRepository;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
@@ -55,7 +57,7 @@ class ShopServiceTest {
     private ShopCategoryService shopCategoryService;
 
     @Mock
-    private ImageService imageService;
+    private ImageProvider imageProvider;
 
     @Test
     @DisplayName("Shop 등록 요청시 모든 필드값이 있는 경우 등록에 성공 후 ResponseMessage 를 리턴한다.")
@@ -109,7 +111,7 @@ class ShopServiceTest {
             )
         );
 
-        Shop mockedRegisteredShop = Shop.from(mockedRequest);
+        Shop mockedRegisteredShop = ShopService.createShopEntityFromShopRegistrationRequest(mockedRequest);
         when(shopRepository.save(any(Shop.class))).thenReturn(mockedRegisteredShop);
         when(shopOperationService.registerShopOperations(any(String.class), anyList())).thenReturn(
             null);
@@ -175,7 +177,7 @@ class ShopServiceTest {
             )
         );
 
-        Shop mockedRegisteredShop = Shop.from(mockedRequest);
+        Shop mockedRegisteredShop = ShopService.createShopEntityFromShopRegistrationRequest(mockedRequest);
 
         when(shopRepository.save(any(Shop.class))).thenReturn(mockedRegisteredShop);
         when(shopFacilityService.registerShopFacilities(any(String.class), anyList())).thenReturn(
@@ -234,7 +236,7 @@ class ShopServiceTest {
             )
         );
 
-        Shop mockedRegisteredShop = Shop.from(mockedRequest);
+        Shop mockedRegisteredShop = ShopService.createShopEntityFromShopRegistrationRequest(mockedRequest);
 
         when(shopRepository.save(any(Shop.class))).thenReturn(mockedRegisteredShop);
         when(shopOperationService.registerShopOperations(any(String.class), anyList())).thenReturn(
@@ -306,12 +308,13 @@ class ShopServiceTest {
             )
         );
 
-        Shop mockedRegisteredShop = Shop.from(mockedRequest);
+        Shop mockedRegisteredShop = ShopService.createShopEntityFromShopRegistrationRequest(mockedRequest);
 
         List<Shop> mockedShopList = List.of(mockedRegisteredShop);
         Page<Shop> mockedPage = new PageImpl<>(mockedShopList);
         when(shopRepository.findAll(any(Pageable.class))).thenReturn(mockedPage);
-        when(imageService.issuePreSignedGetUrl(any(String.class))).thenReturn("presigned-get-url");
+        when(imageProvider.providePreSignedGetUrlByFileId(any(String.class))).thenReturn(
+            new PreSignedGetUrlResult("presigned-get-url"));
 
         // when
         ResponseMessage responseMessage = shopService.findShopList(parameters);

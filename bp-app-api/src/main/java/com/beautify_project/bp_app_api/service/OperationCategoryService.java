@@ -1,11 +1,11 @@
 package com.beautify_project.bp_app_api.service;
 
-import com.beautify_project.bp_app_api.dto.common.ErrorResponseMessage.ErrorCode;
-import com.beautify_project.bp_app_api.entity.Category;
-import com.beautify_project.bp_app_api.entity.OperationCategory;
-import com.beautify_project.bp_app_api.exception.NotFoundException;
-import com.beautify_project.bp_app_api.repository.OperationCategoryRepository;
-import com.beautify_project.bp_app_api.utils.Validator;
+import com.beautify_project.bp_app_api.exception.BpCustomException;
+import com.beautify_project.bp_app_api.response.ErrorResponseMessage.ErrorCode;
+import com.beautify_project.bp_mysql.entity.Category;
+import com.beautify_project.bp_mysql.entity.OperationCategory;
+import com.beautify_project.bp_mysql.repository.OperationCategoryRepository;
+import com.beautify_project.bp_utils.Validator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,7 +33,7 @@ public class OperationCategoryService {
         final List<String> operationIds) {
         final List<OperationCategory> operationCategories = operationCategoryRepository.findByIdOperationIdIn(
             operationIds);
-        Validator.throwIfNullOrEmpty(operationCategories, new NotFoundException(ErrorCode.OC001));
+        Validator.throwIfNullOrEmpty(operationCategories, new BpCustomException(ErrorCode.OC001));
         return operationCategoryRepository.findByIdOperationIdIn(operationIds);
     }
 }

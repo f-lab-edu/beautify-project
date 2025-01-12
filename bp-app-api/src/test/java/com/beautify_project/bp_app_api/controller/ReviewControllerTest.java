@@ -6,14 +6,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.beautify_project.bp_app_api.dto.common.ErrorResponseMessage.ErrorCode;
-import com.beautify_project.bp_app_api.dto.common.ResponseMessage;
-import com.beautify_project.bp_app_api.dto.review.FindReviewListRequestParameters;
-import com.beautify_project.bp_app_api.dto.review.ReviewFindResult;
-import com.beautify_project.bp_app_api.dto.review.ReviewListFindResult;
-import com.beautify_project.bp_app_api.exception.NotFoundException;
+import com.beautify_project.bp_app_api.exception.BpCustomException;
+import com.beautify_project.bp_app_api.response.ErrorResponseMessage.ErrorCode;
+import com.beautify_project.bp_app_api.response.ResponseMessage;
 import com.beautify_project.bp_app_api.service.ReviewService;
-import com.beautify_project.bp_app_api.utils.UUIDGenerator;
+import com.beautify_project.bp_utils.UUIDGenerator;
+import com.beautify_project.bp_app_api.request.review.FindReviewListRequestParameters;
+import com.beautify_project.bp_app_api.response.review.ReviewFindResult;
+import com.beautify_project.bp_app_api.response.review.ReviewListFindResult;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -155,8 +155,7 @@ class ReviewControllerTest {
         final String mockedShopId = UUIDGenerator.generate();
 
         when(reviewService.findReviewListInShop(any(FindReviewListRequestParameters.class))).thenThrow(
-            new NotFoundException(
-                ErrorCode.SH001));
+            new BpCustomException(ErrorCode.SH001));
 
         // when
         ResultActions resultActions = mockMvc.perform(

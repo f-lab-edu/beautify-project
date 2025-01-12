@@ -1,12 +1,9 @@
 package com.beautify_project.bp_app_api.exception;
 
-import com.beautify_project.bp_app_api.dto.common.ErrorResponseMessage;
-import com.beautify_project.bp_app_api.dto.common.ErrorResponseMessage.ErrorCode;
-import java.sql.SQLIntegrityConstraintViolationException;
+import com.beautify_project.bp_app_api.response.ErrorResponseMessage;
+import com.beautify_project.bp_app_api.response.ErrorResponseMessage.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindingResult;
@@ -25,7 +22,6 @@ public class GlobalExceptionHandler {
 
     private static final String MSG_FORMAT_PARAMETER_INVALID = "파라미터 '%s' 가 잘못되었습니다.";
     private static final String MSG_FORMAT_PARAMETER_TYPE_MISMATCH = "파라미터 '%s' 의 데이터 타입이 잘못되었습니다.";
-    private static final String MSG_FORMAT_MISSING_PARAMETER = "본문 내 '%s' 은 필수값입니다.";
     private static final String MSG_FORMAT_PARAMETER_OUT_OF_RANGE = "파라미터 '%s' 의 값이 범위에 벗어났습니다.";
 
     /**
@@ -70,16 +66,6 @@ public class GlobalExceptionHandler {
         return createResponseWithCustomMessage(ErrorCode.BR001, customMessage);
     }
 
-    @ExceptionHandler(EnumMismatchException.class)
-    private ResponseEntity<ErrorResponseMessage> handleQueryStringException(final EnumMismatchException exception) {
-        log.error("", exception);
-
-        final String customMessage = String.format(MSG_FORMAT_PARAMETER_INVALID,
-            exception.getValue());
-
-        return createResponseWithCustomMessage(ErrorCode.BR001, customMessage);
-    }
-
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     private ResponseEntity<ErrorResponseMessage> handleMethodArgumentTypeMismatchException(
         final MethodArgumentTypeMismatchException exception) {
@@ -105,33 +91,10 @@ public class GlobalExceptionHandler {
         return createResponse(ErrorCode.BR001);
     }
 
-    @ExceptionHandler(ParameterOutOfRangeException.class)
-    private ResponseEntity<ErrorResponseMessage> handleParameterOutOfRangeException(
-        final ParameterOutOfRangeException exception) {
+    @ExceptionHandler(BpCustomException.class)
+    private ResponseEntity<ErrorResponseMessage> handleBpException(final BpCustomException exception) {
         log.error("", exception);
-
-        final String customMessage = String.format(MSG_FORMAT_PARAMETER_OUT_OF_RANGE,
-            exception.getParameterName());
-        return createResponseWithCustomMessage(ErrorCode.BR001, customMessage);
-    }
-
-    @ExceptionHandler(EmptyResultDataAccessException.class)
-    private ResponseEntity<ErrorResponseMessage> handleEmptyResultDataAccessException(
-        final EmptyResultDataAccessException exception) {
-        log.error("", exception);
-        return createResponse(ErrorCode.NF002);
-    }
-
-    @ExceptionHandler(NotFoundException.class)
-    private ResponseEntity<ErrorResponseMessage> handleNotFoundException(final NotFoundException exception) {
-        log.error("", exception);
-        return createResponse(exception.getErrorCode());
-    }
-
-    @ExceptionHandler(StorageException.class)
-    private ResponseEntity<ErrorResponseMessage> handleStorageException(final StorageException exception) {
-        log.error("", exception);
-        return createResponse(exception.getErrorCode());
+        return createResponseWithCustomMessage(exception.getErrorCode(), exception.getMessage());
     }
 
     @ExceptionHandler(MissingPathVariableException.class)
@@ -140,49 +103,6 @@ public class GlobalExceptionHandler {
     ) {
         log.error("", exception);
         return createResponse(ErrorCode.BR001);
-    }
-
-    @ExceptionHandler(ConfigurationException.class)
-    private ResponseEntity<ErrorResponseMessage> handleConfigurationException(
-        final ConfigurationException exception) {
-        log.error("", exception);
-        return createResponse(exception.getErrorCode());
-    }
-
-    @ExceptionHandler(AlreadyProcessedException.class)
-    private ResponseEntity<ErrorResponseMessage> handleAlreadyLikeException(
-        final AlreadyProcessedException exception) {
-        log.error("", exception);
-        return createResponse(exception.getErrorCode());
-    }
-
-    @ExceptionHandler(InvalidIdException.class)
-    private ResponseEntity<ErrorResponseMessage> handleInvalidIdException(
-        final InvalidIdException exception) {
-        log.error("", exception);
-        return createResponseWithCustomMessage(ErrorCode.II001, exception.getErrorMessage());
-    }
-
-
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    private ResponseEntity<ErrorResponseMessage> handleSQLIntegrityConstraintViolationException(
-        final DataIntegrityViolationException exception) {
-        log.error("", exception);
-        return createResponse(ErrorCode.II002);
-    }
-
-    @ExceptionHandler(InvalidRequestException.class)
-    private ResponseEntity<ErrorResponseMessage> handleInvalidRequestException(
-        final InvalidRequestException exception) {
-        log.error("", exception);
-        return createResponse(exception.getErrorCode());
-    }
-      
-    @ExceptionHandler(UnableToProcessException.class)
-    private ResponseEntity<ErrorResponseMessage> handleUnableToProcessException(
-        final UnableToProcessException exception) {
-        log.error("", exception);
-        return createResponse(exception.getErrorCode());
     }
 
     private static ResponseEntity<ErrorResponseMessage> createResponse(final ErrorCode errorCode) {

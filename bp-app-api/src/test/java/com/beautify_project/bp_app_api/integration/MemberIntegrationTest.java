@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.beautify_project.bp_app_api.dto.member.UserRoleMemberRegistrationRequest;
-import com.beautify_project.bp_app_api.repository.MemberRepository;
+import com.beautify_project.bp_app_api.request.member.UserRoleMemberRegistrationRequest;
+import com.beautify_project.bp_mysql.repository.MemberRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;

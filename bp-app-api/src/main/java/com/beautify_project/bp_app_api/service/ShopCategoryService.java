@@ -1,8 +1,8 @@
 package com.beautify_project.bp_app_api.service;
 
-import com.beautify_project.bp_app_api.entity.Category;
-import com.beautify_project.bp_app_api.entity.ShopCategory;
-import com.beautify_project.bp_app_api.repository.ShopCategoryRepository;
+import com.beautify_project.bp_mysql.entity.Category;
+import com.beautify_project.bp_mysql.entity.ShopCategory;
+import com.beautify_project.bp_mysql.repository.ShopCategoryRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

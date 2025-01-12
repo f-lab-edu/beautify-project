@@ -1,9 +1,9 @@
 package com.beautify_project.bp_app_api.controller;
 
-import com.beautify_project.bp_app_api.dto.common.ResponseMessage;
-import com.beautify_project.bp_app_api.dto.shop.ShopListFindRequestParameters;
-import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest;
-import com.beautify_project.bp_app_api.enumeration.OrderType;
+import com.beautify_project.bp_app_api.request.shop.ShopListFindRequestParameters;
+import com.beautify_project.bp_app_api.request.shop.ShopRegistrationRequest;
+import com.beautify_project.bp_app_api.response.ResponseMessage;
+import com.beautify_project.bp_mysql.enums.OrderType;
 import com.beautify_project.bp_app_api.enumeration.ShopSearchType;
 import com.beautify_project.bp_app_api.service.ShopService;
 import jakarta.validation.Valid;
