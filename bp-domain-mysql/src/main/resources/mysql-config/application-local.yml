@@ -4,6 +4,9 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: ENC(NewqJfs9tcn1CanlMbtBcw==)
     password: ENC(NewqJfs9tcn1CanlMbtBcw==)
+    hikari:
+      maximum-pool-size: 10
+      idle-timeout: 30000
 
   jpa:
     hibernate:

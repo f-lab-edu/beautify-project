@@ -1,7 +1,7 @@
 package com.beautify_project.bp_app_api.provider.image;
 
-import com.beautify_project.bp_app_api.response.image.PreSignedGetUrlResult;
-import com.beautify_project.bp_app_api.response.image.PreSignedPutUrlResult;
+import com.beautify_project.bp_app_api.dto.image.PreSignedGetUrlResult;
+import com.beautify_project.bp_app_api.dto.image.PreSignedPutUrlResult;
 import java.util.List;
 
 public interface ImageProvider {

@@ -7,8 +7,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.beautify_project.bp_app_api.exception.BpCustomException;
 import com.beautify_project.bp_app_api.provider.image.ImageProvider;
-import com.beautify_project.bp_app_api.response.ErrorResponseMessage.ErrorCode;
-import com.beautify_project.bp_app_api.response.image.PreSignedPutUrlResult;
+import com.beautify_project.bp_app_api.dto.ErrorResponseMessage.ErrorCode;
+import com.beautify_project.bp_app_api.dto.image.PreSignedPutUrlResult;
 import com.beautify_project.bp_s3_client.naver.NCPObjectStorageClient;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;

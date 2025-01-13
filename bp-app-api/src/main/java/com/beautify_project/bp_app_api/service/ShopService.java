@@ -3,12 +3,12 @@ package com.beautify_project.bp_app_api.service;
 import com.beautify_project.bp_app_api.config.IOBoundAsyncThreadPoolConfiguration;
 import com.beautify_project.bp_app_api.exception.BpCustomException;
 import com.beautify_project.bp_app_api.provider.image.ImageProvider;
-import com.beautify_project.bp_app_api.request.shop.ShopListFindRequestParameters;
-import com.beautify_project.bp_app_api.request.shop.ShopRegistrationRequest;
-import com.beautify_project.bp_app_api.response.ErrorResponseMessage.ErrorCode;
-import com.beautify_project.bp_app_api.response.ResponseMessage;
-import com.beautify_project.bp_app_api.response.shop.ShopListFindResult;
-import com.beautify_project.bp_app_api.response.shop.ShopRegistrationResult;
+import com.beautify_project.bp_app_api.dto.shop.ShopListFindRequestParameters;
+import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest;
+import com.beautify_project.bp_app_api.dto.ErrorResponseMessage.ErrorCode;
+import com.beautify_project.bp_app_api.dto.ResponseMessage;
+import com.beautify_project.bp_app_api.dto.shop.ShopListFindResult;
+import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationResult;
 import com.beautify_project.bp_mysql.entity.Facility;
 import com.beautify_project.bp_mysql.entity.Operation;
 import com.beautify_project.bp_mysql.entity.Shop;
@@ -246,7 +246,7 @@ public class ShopService {
             foundShop.getId(), foundShop.getLikes());
         foundShop.increaseLikeCount();
         shopRepository.save(foundShop);
-        // TODO: bearer token 에서 사용자 정보 추출하는 로직 필요
+        // TODO: bearer accessToken 에서 사용자 정보 추출하는 로직 필요
         shopLikeService.registerShopLike(ShopLike.of(shopId, memberEmail));
     }
 
@@ -261,7 +261,7 @@ public class ShopService {
             foundShop.getId(), foundShop.getLikes());
         foundShop.decreaseLikeCount();
         shopRepository.save(foundShop);
-        // TODO: bearer token 에서 사용자 정보 추출하는 로직 필요
+        // TODO: bearer accessToken 에서 사용자 정보 추출하는 로직 필요
         shopLikeService.deleteShopLike(ShopLike.of(shopId, memberEmail));
     }
 }

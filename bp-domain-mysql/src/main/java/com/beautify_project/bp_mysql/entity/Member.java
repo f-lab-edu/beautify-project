@@ -1,5 +1,6 @@
 package com.beautify_project.bp_mysql.entity;
 
+import com.beautify_project.bp_mysql.adapter.MemberAdapter;
 import com.beautify_project.bp_mysql.entity.enumerated.AuthType;
 import com.beautify_project.bp_mysql.entity.enumerated.MemberStatus;
 import com.beautify_project.bp_mysql.entity.enumerated.UserRole;
@@ -62,6 +63,13 @@ public class Member extends BaseEntity implements Persistable<String> {
         this.role = role;
         this.status = status;
         this.registeredTime = registeredTime;
+    }
+
+    public static Member from(MemberAdapter memberAdapterDomain) {
+        return createNewMember(memberAdapterDomain.getEmail(), memberAdapterDomain.getPassword(),
+            memberAdapterDomain.getName(), memberAdapterDomain.getContact(),
+            memberAdapterDomain.getAuthType(), memberAdapterDomain.getRole(), memberAdapterDomain.getMemberStatus(),
+            memberAdapterDomain.getRegisteredTime());
     }
 
     public static Member createNewMember(final String email, final String password,

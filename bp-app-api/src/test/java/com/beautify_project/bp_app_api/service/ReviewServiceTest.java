@@ -10,13 +10,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.beautify_project.bp_app_api.exception.BpCustomException;
-import com.beautify_project.bp_app_api.request.member.UserRoleMemberRegistrationRequest;
-import com.beautify_project.bp_app_api.request.review.FindReviewListRequestParameters;
-import com.beautify_project.bp_app_api.request.shop.ShopRegistrationRequest;
-import com.beautify_project.bp_app_api.request.shop.ShopRegistrationRequest.Address;
-import com.beautify_project.bp_app_api.request.shop.ShopRegistrationRequest.BusinessTime;
-import com.beautify_project.bp_app_api.response.ResponseMessage;
-import com.beautify_project.bp_app_api.response.review.ReviewFindResult;
+import com.beautify_project.bp_app_api.dto.member.UserRoleMemberRegistrationRequest;
+import com.beautify_project.bp_app_api.dto.review.FindReviewListRequestParameters;
+import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest;
+import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest.Address;
+import com.beautify_project.bp_app_api.dto.shop.ShopRegistrationRequest.BusinessTime;
+import com.beautify_project.bp_app_api.dto.ResponseMessage;
+import com.beautify_project.bp_app_api.dto.review.ReviewFindResult;
 import com.beautify_project.bp_mysql.entity.Member;
 import com.beautify_project.bp_mysql.entity.Operation;
 import com.beautify_project.bp_mysql.entity.Reservation;
@@ -68,7 +68,8 @@ class ReviewServiceTest {
         // given
         final UserRoleMemberRegistrationRequest userRoleMemberRegistrationRequest = new UserRoleMemberRegistrationRequest(
             "dev.sssukho@mgail.com", "password", "임석호", "010-1234-5678");
-        final Member mockedMember = MemberService.createNewSelfAuthMember(userRoleMemberRegistrationRequest);
+        final Member mockedMember = memberService.createNewSelfAuthMember(userRoleMemberRegistrationRequest);
+
         final Operation mockedOperation = Operation.of("시술명", "시술 설명");
         final ShopRegistrationRequest requestForMockedShop = new ShopRegistrationRequest(
             "미용시술소1",
@@ -148,7 +149,7 @@ class ReviewServiceTest {
         // given
         final UserRoleMemberRegistrationRequest userRoleMemberRegistrationRequest = new UserRoleMemberRegistrationRequest(
             "dev.sssukho@mgail.com", "password", "임석호", "010-1234-5678");
-        final Member mockedMember = MemberService.createNewSelfAuthMember(userRoleMemberRegistrationRequest);
+        final Member mockedMember = memberService.createNewSelfAuthMember(userRoleMemberRegistrationRequest);
         final Operation mockedOperation = Operation.of("시술명", "시술 설명");
         final ShopRegistrationRequest requestForMockedShop = new ShopRegistrationRequest(
             "미용시술소1",

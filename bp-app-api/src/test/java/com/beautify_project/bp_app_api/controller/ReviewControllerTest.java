@@ -6,14 +6,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.beautify_project.bp_app_api.dto.ErrorResponseMessage.ErrorCode;
+import com.beautify_project.bp_app_api.dto.ResponseMessage;
+import com.beautify_project.bp_app_api.dto.review.FindReviewListRequestParameters;
+import com.beautify_project.bp_app_api.dto.review.ReviewFindResult;
+import com.beautify_project.bp_app_api.dto.review.ReviewListFindResult;
 import com.beautify_project.bp_app_api.exception.BpCustomException;
-import com.beautify_project.bp_app_api.response.ErrorResponseMessage.ErrorCode;
-import com.beautify_project.bp_app_api.response.ResponseMessage;
 import com.beautify_project.bp_app_api.service.ReviewService;
+import com.beautify_project.bp_security.config.WebSecurityConfiguration;
+import com.beautify_project.bp_security.filter.JwtAuthenticationFilter;
+import com.beautify_project.bp_security.provider.JwtProvider;
 import com.beautify_project.bp_utils.UUIDGenerator;
-import com.beautify_project.bp_app_api.request.review.FindReviewListRequestParameters;
-import com.beautify_project.bp_app_api.response.review.ReviewFindResult;
-import com.beautify_project.bp_app_api.response.review.ReviewListFindResult;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -23,12 +26,19 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-@WebMvcTest(controllers = ReviewController.class)
+@WebMvcTest(controllers = ReviewController.class,
+    excludeFilters = {
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = WebSecurityConfiguration.class)
+    })
 class ReviewControllerTest {
 
     @Autowired
@@ -38,6 +48,7 @@ class ReviewControllerTest {
     private ReviewService reviewService;
 
     @Test
+    @WithMockUser
     @DisplayName("Review 상세조회 요청 성공시 FindReviewResult 를 wrapping 한 ResponseMessage 객체를 응답받는다.")
     void given_findReviewRequest_when_succeed_then_getResponseMessageWrappingFindReviewListInShop()
         throws Exception {

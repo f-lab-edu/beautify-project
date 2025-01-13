@@ -1,7 +1,7 @@
 package com.beautify_project.bp_app_api.controller;
 
 import com.beautify_project.bp_app_api.provider.image.ImageProvider;
-import com.beautify_project.bp_app_api.response.ResponseMessage;
+import com.beautify_project.bp_app_api.dto.ResponseMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;

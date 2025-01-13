@@ -1,7 +1,7 @@
 package com.beautify_project.bp_app_api.controller;
 
-import com.beautify_project.bp_app_api.request.review.FindReviewListRequestParameters;
-import com.beautify_project.bp_app_api.response.ResponseMessage;
+import com.beautify_project.bp_app_api.dto.review.FindReviewListRequestParameters;
+import com.beautify_project.bp_app_api.dto.ResponseMessage;
 import com.beautify_project.bp_app_api.service.ReviewService;
 import com.beautify_project.bp_mysql.enums.OrderType;
 import com.beautify_project.bp_mysql.enums.ReviewSortBy;

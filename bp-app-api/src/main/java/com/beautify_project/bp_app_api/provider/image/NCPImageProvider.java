@@ -1,8 +1,8 @@
 package com.beautify_project.bp_app_api.provider.image;
 
 import com.beautify_project.bp_app_api.config.properties.NaverCloudPlatformObjectStorageConfigProperties;
-import com.beautify_project.bp_app_api.response.image.PreSignedGetUrlResult;
-import com.beautify_project.bp_app_api.response.image.PreSignedPutUrlResult;
+import com.beautify_project.bp_app_api.dto.image.PreSignedGetUrlResult;
+import com.beautify_project.bp_app_api.dto.image.PreSignedPutUrlResult;
 import com.beautify_project.bp_s3_client.naver.NCPConfig;
 import com.beautify_project.bp_s3_client.naver.NCPObjectStorageClient;
 import com.beautify_project.bp_s3_client.naver.NCPPreSignedGetUrlResult;

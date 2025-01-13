@@ -1,17 +1,17 @@
 package com.beautify_project.bp_app_api.service;
 
 import com.beautify_project.bp_app_api.exception.BpCustomException;
-import com.beautify_project.bp_app_api.response.ErrorResponseMessage.ErrorCode;
-import com.beautify_project.bp_app_api.response.ResponseMessage;
+import com.beautify_project.bp_app_api.dto.ErrorResponseMessage.ErrorCode;
+import com.beautify_project.bp_app_api.dto.ResponseMessage;
 import com.beautify_project.bp_mysql.entity.Member;
 import com.beautify_project.bp_mysql.entity.Operation;
 import com.beautify_project.bp_mysql.entity.Reservation;
 import com.beautify_project.bp_mysql.entity.Review;
 import com.beautify_project.bp_mysql.entity.Shop;
 import com.beautify_project.bp_mysql.repository.ReviewRepository;
-import com.beautify_project.bp_app_api.request.review.FindReviewListRequestParameters;
-import com.beautify_project.bp_app_api.response.review.ReviewFindResult;
-import com.beautify_project.bp_app_api.response.review.ReviewListFindResult;
+import com.beautify_project.bp_app_api.dto.review.FindReviewListRequestParameters;
+import com.beautify_project.bp_app_api.dto.review.ReviewFindResult;
+import com.beautify_project.bp_app_api.dto.review.ReviewListFindResult;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

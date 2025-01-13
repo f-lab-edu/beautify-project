@@ -1,6 +1,6 @@
 package com.beautify_project.bp_app_api.exception;
 
-import com.beautify_project.bp_app_api.response.ErrorResponseMessage.ErrorCode;
+import com.beautify_project.bp_app_api.dto.ErrorResponseMessage.ErrorCode;
 import lombok.Getter;
 
 @Getter

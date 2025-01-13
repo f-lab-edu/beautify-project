@@ -10,12 +10,13 @@ spring:
       on-profile: local
     import:
       - jasypt.yml
-      - auth.yml
       - mail.yml
       - classpath:mysql-config/application-local.yml
       - classpath:s3-client-config/application-local.yml
+      - classpath:security-config/application.yml
 
 logging:
   level:
     org.hibernate.SQL: debug
     com.beautify_project.bp_app_api: debug
+    org.springframework.security: debug

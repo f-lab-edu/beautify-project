@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 
 @SpringBootApplication(scanBasePackages = {"com.beautify_project"})
-@ConfigurationPropertiesScan("com.beautify_project.bp_app_api.config")
+@ConfigurationPropertiesScan({"com.beautify_project.bp_app_api.config", "com.beautify_project.bp_security.config"})
 public class BpAppApiApplication {
 
 	public static void main(String[] args) {

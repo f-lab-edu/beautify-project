@@ -11,6 +11,10 @@ services:
       MYSQL_USER: bp
       MYSQL_PASSWORD: bp
       TZ: Asia/Seoul
+    command:
+      - --character-set-server-utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --skip-character-set-client-handshake
     volumes:
       - ./data/mysql:/var/lib/mysql
       - ./data/mysql/init:/docker-entrypoint-initdb.d
