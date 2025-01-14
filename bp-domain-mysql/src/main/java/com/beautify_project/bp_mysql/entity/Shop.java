@@ -1,5 +1,6 @@
 package com.beautify_project.bp_mysql.entity;
 
+import com.beautify_project.bp_mysql.entity.adapter.ShopAdapter;
 import com.beautify_project.bp_mysql.entity.embedded.Address;
 import com.beautify_project.bp_mysql.entity.embedded.BusinessTime;
 import com.beautify_project.bp_utils.UUIDGenerator;
@@ -7,6 +8,8 @@ import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
@@ -21,11 +24,11 @@ import org.springframework.data.domain.Persistable;
 @Table(name = "shop")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Shop implements Persistable<String> {
+public class Shop {
 
-    @Id
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "shop_id")
-    private String id;
+    private Long id;
 
     @Column(name = "shop_name")
     private String name;
@@ -52,10 +55,7 @@ public class Shop implements Persistable<String> {
     private Long updated;
 
     @Column(name = "shop_image_file_ids")
-    private final List<String> imageFileIds = new ArrayList<>();
-
-    @Transient
-    private Long objectCreated;
+    private List<String> imageFileIds = new ArrayList<>();
 
     @Embedded
     @AttributeOverride(name = "dongCode", column = @Column(name = "shop_dong_code"))
@@ -83,9 +83,29 @@ public class Shop implements Persistable<String> {
     @AttributeOverride(name = "offDayOfWeek", column = @Column(name = "shop_off_day_of_week"))
     private BusinessTime businessTime;
 
-    private Shop(final String id, final String name, final String contact, final String url,
+
+    private Shop(final String name, final String contact, final String url,
         final String introduction, final String rate, final Long likes, final Long registeredTime,
-        final Long updated, final List<String> imageFileIds, final Address shopAddress, final BusinessTime businessTime) {
+        final Long updated, final List<String> imageFileIds, final Address shopAddress,
+        final BusinessTime businessTime) {
+        this.name = name;
+        this.contact = contact;
+        this.url = url;
+        this.introduction = introduction;
+        this.rate = rate;
+        this.likes = likes;
+        this.registeredTime = registeredTime;
+        this.updated = updated;
+        this.imageFileIds = imageFileIds;
+        this.shopAddress = shopAddress;
+        this.businessTime = businessTime;
+    }
+
+    private Shop(final Long id, final String name, final String contact, final String url,
+        final String introduction, final String rate,
+        final Long likes, final Long registeredTime, final Long updated,
+        final List<String> imageFileIds, final Address shopAddress,
+        final BusinessTime businessTime) {
         this.id = id;
         this.name = name;
         this.contact = contact;
@@ -95,7 +115,7 @@ public class Shop implements Persistable<String> {
         this.likes = likes;
         this.registeredTime = registeredTime;
         this.updated = updated;
-        this.imageFileIds.addAll(imageFileIds);
+        this.imageFileIds = imageFileIds;
         this.shopAddress = shopAddress;
         this.businessTime = businessTime;
     }
@@ -104,9 +124,16 @@ public class Shop implements Persistable<String> {
         final String introduction, final List<String> imageFileIds, Address address,
         BusinessTime businessTime) {
         long currentTime = System.currentTimeMillis();
-        return new Shop(
-            UUIDGenerator.generateUUIDForEntity(), name, contact, url, introduction, "0.0", 0L, currentTime,
+        return new Shop(name, contact, url, introduction, "0.0", 0L, currentTime,
             currentTime, imageFileIds, address, businessTime);
+    }
+
+    public static Shop from(ShopAdapter shopAdapter) {
+        return new Shop(shopAdapter.getId(), shopAdapter.getName(), shopAdapter.getContact(),
+            shopAdapter.getUrl(), shopAdapter.getIntroduction(), shopAdapter.getRate(),
+            shopAdapter.getLikes(), shopAdapter.getRegisteredTime(), shopAdapter.getUpdated(),
+            shopAdapter.getImageFileIds(), shopAdapter.getShopAddress(),
+            shopAdapter.getBusinessTime());
     }
 
     public void increaseLikeCount(final int countToIncrease) {
@@ -135,10 +162,5 @@ public class Shop implements Persistable<String> {
             ", shopAddress=" + shopAddress +
             ", businessTime=" + businessTime +
             '}';
-    }
-
-    @Override
-    public boolean isNew() {
-        return getObjectCreated() == null;
     }
 }

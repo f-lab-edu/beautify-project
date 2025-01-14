@@ -253,50 +253,50 @@ public class ShopService {
         kafkaEventProducer.publishShopLikeCancelEvent(new ShopLikeCancelEvent(shopId, memberEmail));
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    public void batchShopLikes(final List<ShopLikeEvent> shopLikeEvents) {
-        final Map<String, Integer> countToIncreaseByShopId = shopLikeEvents.stream().collect(
-            Collectors.toMap(
-                ShopLikeEvent::shopId,
-                event -> 1,
-                Integer::sum
-            )
-        );
-
-        final Set<String> shopIds = countToIncreaseByShopId.keySet();
-        final List<Shop> foundShops = shopRepository.findByIdIn(shopIds);
-
-        foundShops.forEach(foundShop -> foundShop.increaseLikeCount(
-            countToIncreaseByShopId.get(foundShop.getId())));
-        log.info("{} counts of shops save all called", foundShops.size());
-        shopRepository.saveAll(foundShops);
-
-        List<ShopLike> shopLikesToRegister = shopLikeEvents.stream()
-            .map(event -> ShopLike.of(event.shopId(), event.memberEmail())).toList();
-        log.info("{} counts of shopLikes save all called", shopLikesToRegister.size());
-
-        shopLikeService.saveAllShopLikes(shopLikesToRegister);
-    }
-
-    @Transactional(rollbackFor = Exception.class)
-    public void batchShopLikesCancel(final List<ShopLikeCancelEvent> shopLikeEventCancels) {
-        final Map<String, Integer> countToDecreaseByShopId = shopLikeEventCancels.stream().collect(
-            Collectors.toMap(
-                ShopLikeCancelEvent::shopId,
-                event -> 1,
-                Integer::sum
-            )
-        );
-
-        final Set<String> shopIds = countToDecreaseByShopId.keySet();
-        final List<Shop> foundShops = shopRepository.findByIdIn(shopIds);
-
-        foundShops.forEach(foundShop -> foundShop.decreaseLikeCount(
-            countToDecreaseByShopId.get(foundShop.getId())));
-        shopRepository.saveAll(foundShops);
-
-        List<ShopLike> shopLikesToDelete = shopLikeEventCancels.stream()
-            .map(event -> ShopLike.of(event.shopId(), event.memberEmail())).toList();
-        shopLikeService.deleteAllShopLikes(shopLikesToDelete);
-    }
+//    @Transactional(rollbackFor = Exception.class)
+//    public void batchShopLikes(final List<ShopLikeEvent> shopLikeEvents) {
+//        final Map<Long, Integer> countToIncreaseByShopId = shopLikeEvents.stream().collect(
+//            Collectors.toMap(
+//                ShopLikeEvent::shopId,
+//                event -> 1,
+//                Integer::sum
+//            )
+//        );
+//
+//        final Set<String> shopIds = countToIncreaseByShopId.keySet();
+//        final List<Shop> foundShops = shopRepository.findByIdIn(shopIds);
+//
+//        foundShops.forEach(foundShop -> foundShop.increaseLikeCount(
+//            countToIncreaseByShopId.get(foundShop.getId())));
+//        log.info("{} counts of shops save all called", foundShops.size());
+//        shopRepository.saveAll(foundShops);
+//
+//        List<ShopLike> shopLikesToRegister = shopLikeEvents.stream()
+//            .map(event -> ShopLike.of(event.shopId(), event.memberEmail())).toList();
+//        log.info("{} counts of shopLikes save all called", shopLikesToRegister.size());
+//
+//        shopLikeService.saveAllShopLikes(shopLikesToRegister);
+//    }
+//
+//    @Transactional(rollbackFor = Exception.class)
+//    public void batchShopLikesCancel(final List<ShopLikeCancelEvent> shopLikeEventCancels) {
+//        final Map<String, Integer> countToDecreaseByShopId = shopLikeEventCancels.stream().collect(
+//            Collectors.toMap(
+//                ShopLikeCancelEvent::shopId,
+//                event -> 1,
+//                Integer::sum
+//            )
+//        );
+//
+//        final Set<String> shopIds = countToDecreaseByShopId.keySet();
+//        final List<Shop> foundShops = shopRepository.findByIdIn(shopIds);
+//
+//        foundShops.forEach(foundShop -> foundShop.decreaseLikeCount(
+//            countToDecreaseByShopId.get(foundShop.getId())));
+//        shopRepository.saveAll(foundShops);
+//
+//        List<ShopLike> shopLikesToDelete = shopLikeEventCancels.stream()
+//            .map(event -> ShopLike.of(event.shopId(), event.memberEmail())).toList();
+//        shopLikeService.deleteAllShopLikes(shopLikesToDelete);
+//    }
 }

@@ -17,7 +17,7 @@ public class ShopCategoryService {
     private final OperationCategoryService operationCategoryService;
 
     @Transactional(rollbackFor = Exception.class)
-    public List<ShopCategory> registerShopCategories(final String shopId, final List<String> operationIds) {
+    public List<ShopCategory> registerShopCategories(final Long shopId, final List<String> operationIds) {
         final List<Category> categories = operationCategoryService.findCategoriesWithOperationIds(
             operationIds);
         final List<ShopCategory> shopCategories = createShopCategoriesWithShopIdAndCategories(
@@ -25,7 +25,7 @@ public class ShopCategoryService {
         return registerAll(shopCategories);
     }
 
-    public List<ShopCategory> createShopCategoriesWithShopIdAndCategories(final String shopId,
+    public List<ShopCategory> createShopCategoriesWithShopIdAndCategories(final Long shopId,
         final List<Category> categories) {
 
         return categories.stream().map(category -> ShopCategory.of(shopId, category.getId()))

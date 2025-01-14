@@ -1,8 +1,8 @@
 package com.beautify_project.bp_app_api.producer;
 
 import com.beautify_project.bp_app_api.config.properties.KafkaProducerConfigProperties;
-import com.beautify_project.bp_app_api.dto.event.ShopLikeCancelEvent;
-import com.beautify_project.bp_app_api.dto.event.ShopLikeEvent;
+import com.beuatify_project.bp_common.event.ShopLikeCancelEvent;
+import com.beuatify_project.bp_common.event.ShopLikeEvent;
 import com.beuatify_project.bp_common.event.SignUpCertificationMailEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +21,7 @@ public class KafkaEventProducer {
 
     public void publishShopLikeEvent(final ShopLikeEvent event) {
         shopLikeEventKafkaTemplate.send(configProperties.getTopic().getShopLikeEvent(), event);
+        log.debug("{} event published", event.toString());
     }
 
     public void publishShopLikeCancelEvent(final ShopLikeCancelEvent event) {

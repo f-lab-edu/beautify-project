@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ShopOperationRepository extends JpaRepository<ShopOperation, ShopOperationId> {
-    List<ShopOperation> findByIdShopIdIn(final List<String> shopIds);
+    List<ShopOperation> findByIdShopIdIn(final List<Long> shopIds);
 }

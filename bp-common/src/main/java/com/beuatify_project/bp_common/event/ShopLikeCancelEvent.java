@@ -1,10 +1,10 @@
-package com.beautify_project.bp_kafka_event_consumer.event;
+package com.beuatify_project.bp_common.event;
 
 import com.beautify_project.bp_utils.Validator;
 
-public record ShopLikeEvent(String shopId, String memberEmail) {
+public record ShopLikeCancelEvent(String shopId, String memberEmail) {
 
-    public ShopLikeEvent(final String shopId, final String memberEmail) {
+    public ShopLikeCancelEvent(final String shopId, final String memberEmail) {
         validate(shopId, memberEmail);
         this.shopId = shopId;
         this.memberEmail = memberEmail;
@@ -20,11 +20,4 @@ public record ShopLikeEvent(String shopId, String memberEmail) {
         }
     }
 
-    @Override
-    public String toString() {
-        return "ShopLikeEvent{" +
-            "shopId='" + shopId + '\'' +
-            ", memberEmail='" + memberEmail + '\'' +
-            '}';
-    }
 }

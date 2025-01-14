@@ -1,8 +1,8 @@
 package com.beautify_project.bp_app_api.config;
 
 import com.beautify_project.bp_app_api.config.properties.KafkaProducerConfigProperties;
-import com.beautify_project.bp_app_api.dto.event.ShopLikeCancelEvent;
-import com.beautify_project.bp_app_api.dto.event.ShopLikeEvent;
+import com.beuatify_project.bp_common.event.ShopLikeCancelEvent;
+import com.beuatify_project.bp_common.event.ShopLikeEvent;
 import com.beuatify_project.bp_common.event.SignUpCertificationMailEvent;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;

@@ -27,7 +27,7 @@ public class ShopCategory {
         this.registeredTime = registeredTime;
     }
 
-    public static ShopCategory of(final String shopId, final String categoryId) {
+    public static ShopCategory of(final Long shopId, final String categoryId) {
         return new ShopCategory(ShopCategoryId.of(shopId, categoryId), System.currentTimeMillis());
     }
 
@@ -37,17 +37,17 @@ public class ShopCategory {
     public static class ShopCategoryId implements Serializable {
 
         @Column(name = "shop_id")
-        private String shopId;
+        private Long shopId;
 
         @Column(name = "category_id")
         private String categoryId;
 
-        private ShopCategoryId(final String shopId, final String categoryId) {
+        private ShopCategoryId(final Long shopId, final String categoryId) {
             this.shopId = shopId;
             this.categoryId = categoryId;
         }
 
-        public static ShopCategoryId of(final String shopId, final String categoryId) {
+        public static ShopCategoryId of(final Long shopId, final String categoryId) {
             return new ShopCategoryId(shopId, categoryId);
         }
     }

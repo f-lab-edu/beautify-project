@@ -21,7 +21,7 @@ public class ShopLikeService {
 
     private final ShopLikeRepository shopLikeRepository;
 
-    public boolean isLikePushed(final String shopId, final String memberEmail) {
+    public boolean isLikePushed(final Long shopId, final String memberEmail) {
         ShopLike foundshopLike = shopLikeRepository.findById(ShopLikeId.of(shopId, memberEmail))
             .orElseGet(() -> EMPTY_SHOP_LIKE);
         return !foundshopLike.isEmpty();

@@ -29,7 +29,7 @@ public class ShopLike extends BaseEntity implements Persistable<ShopLikeId> {
         this.registeredTime = registeredTime;
     }
 
-    public static ShopLike of(final String shopId, final String memberEmail) {
+    public static ShopLike of(final Long shopId, final String memberEmail) {
         return new ShopLike(new ShopLikeId(shopId, memberEmail), System.currentTimeMillis());
     }
 
@@ -43,17 +43,17 @@ public class ShopLike extends BaseEntity implements Persistable<ShopLikeId> {
     public static class ShopLikeId implements Serializable {
 
         @Column(name = "shop_id")
-        private String shopId;
+        private Long shopId;
 
         @Column(name = "member_email")
         private String memberEmail;
 
-        private ShopLikeId(final String shopId, final String memberEmail) {
+        private ShopLikeId(final Long shopId, final String memberEmail) {
             this.shopId = shopId;
             this.memberEmail = memberEmail;
         }
 
-        public static ShopLikeId of(final String shopId, final String memberEmail) {
+        public static ShopLikeId of(final Long shopId, final String memberEmail) {
             return new ShopLikeId(shopId, memberEmail);
         }
 

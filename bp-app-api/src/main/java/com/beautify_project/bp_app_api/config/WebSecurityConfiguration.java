@@ -39,7 +39,6 @@ public class WebSecurityConfiguration {
         "/v1/shops/**"
     };
 
-
     @Bean
     protected SecurityFilterChain configure(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
