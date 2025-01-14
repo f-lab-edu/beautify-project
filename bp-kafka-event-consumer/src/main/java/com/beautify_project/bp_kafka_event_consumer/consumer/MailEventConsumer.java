@@ -1,7 +1,7 @@
 package com.beautify_project.bp_kafka_event_consumer.consumer;
 
 import com.beautify_project.bp_kafka_event_consumer.provider.EmailSender;
-import com.beautify_project.bp_mysql.entity.adapter.EmailCertificationAdapter;
+import com.beautify_project.bp_mysql.entity.EmailCertification;
 import com.beautify_project.bp_mysql.repository.EmailCertificationAdapterRepository;
 import com.beautify_project.bp_utils.UUIDGenerator;
 import com.beuatify_project.bp_common.event.SignUpCertificationMailEvent;
@@ -58,19 +58,19 @@ public class MailEventConsumer {
         emailSender.sendAllSignUpCertificationMail(certificationNumberByTargetMail);
 
         long now = System.currentTimeMillis();
-        final List<EmailCertificationAdapter> emailCertificationAdapters =
+        final List<EmailCertification> emailCertification =
             certificationNumberByTargetMail.entrySet().stream().map(entrySet -> {
-                return EmailCertificationAdapter.of(entrySet.getKey(), entrySet.getValue(), now);
+                return EmailCertification.of(entrySet.getKey(), entrySet.getValue(), now);
             }).toList();
-        adaptorRepository.saveAll(emailCertificationAdapters);
+        adaptorRepository.saveAll(emailCertification);
     }
 
     private Set<String> filterInvalidTargets(final Set<String> targetsFromEvents) {
         long now = System.currentTimeMillis();
-        final List<EmailCertificationAdapter> alreadySentEmailCertifications = adaptorRepository.findByEmailIn(
+        final List<EmailCertification> alreadySentEmailCertifications = adaptorRepository.findByEmailsIn(
             targetsFromEvents);
 
-        for (EmailCertificationAdapter alreadySent : alreadySentEmailCertifications) {
+        for (EmailCertification alreadySent : alreadySentEmailCertifications) {
             if (!isValidTime(now, alreadySent.getRegisteredTime())) {
                 targetsFromEvents.remove(alreadySent.getEmail());
             }

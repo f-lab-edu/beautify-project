@@ -41,8 +41,11 @@ public class AuthService {
 
     @Transactional(rollbackFor = Exception.class)
     public void verifyCertificationEmail(final EmailCertificationVerificationRequest request) {
-        final EmailCertification foundEmailCertification = emailCertificationRepository.findById(
-            request.email()).orElseThrow(() -> new BpCustomException(ErrorCode.EC002));
+        final EmailCertification foundEmailCertification = emailCertificationRepository.findByEmail(
+            request.email());
+        if (foundEmailCertification == null) {
+            throw new BpCustomException(ErrorCode.EC002);
+        }
 
         verifyEmailCertificationRequest(request.certificationNumber(),
             foundEmailCertification.getCertificationNumber());
