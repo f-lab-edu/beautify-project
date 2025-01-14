@@ -16,8 +16,8 @@ public class ShopLikeAdapterRepository {
     private final ShopLikeRepository defaultRepository;
 
     @Transactional
-    public void deleteAll(final List<ShopLike> shopLikesToRemove) {
-        defaultRepository.deleteAll(shopLikesToRemove);
+    public void deleteAllByIdInBatch(final List<ShopLikeId> shopLikeIdsToRemove) {
+        defaultRepository.deleteAllByIdInBatch(shopLikeIdsToRemove);
     }
 
     @Transactional

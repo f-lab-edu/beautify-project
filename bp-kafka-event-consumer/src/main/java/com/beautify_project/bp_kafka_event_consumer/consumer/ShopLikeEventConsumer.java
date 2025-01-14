@@ -99,6 +99,7 @@ public class ShopLikeEventConsumer {
         log.debug("{} counts of Shop entity updated", foundShops.size());
     }
 
+    @Transactional
     private void bulkInsertShopLikeEntity(final List<ShopLikeEvent> events) {
         List<ShopLike> shopLikesToRegister = events.stream()
             .map(event -> ShopLike.of(event.shopId(), event.memberEmail()))
@@ -126,12 +127,12 @@ public class ShopLikeEventConsumer {
         removeAllShopLikeEntity(filteredEvents);
     }
 
+    @Transactional
     private void removeAllShopLikeEntity(final List<ShopLikeCancelEvent> events) {
-        List<ShopLike> shopLikesToRemove = events.stream()
-            .map(event -> ShopLike.of(event.shopId(), event.memberEmail()))
-            .toList();
-        shopLikeAdapterRepository.deleteAll(shopLikesToRemove);
-        log.debug("{} counts of ShopLike entity removed", shopLikesToRemove.size());
+        final List<ShopLikeId> shopLikeIdsToRemove = events.stream().map(event -> ShopLikeId.of(
+            event.shopId(), event.memberEmail())).toList();
+        shopLikeAdapterRepository.deleteAllByIdInBatch(shopLikeIdsToRemove);
+        log.debug("{} counts of ShopLike entity removed", shopLikeIdsToRemove.size());
     }
 
     private Map<Long, Integer> makeCountToDecreaseByShopIdExceptAlreadyShopLikePushed(
