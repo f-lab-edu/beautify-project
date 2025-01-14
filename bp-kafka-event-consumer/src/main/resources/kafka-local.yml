@@ -12,3 +12,8 @@ kafka:
         group-id: shop-like-cancel-event-consumer-group
         batch-size: 100
         fetch-max-wait: 500
+      MAIL-SIGN-UP-CERTIFICATION-EVENT:
+        topic-name: sign-up-certification-mail
+        group-id: mail-sign-up-certification-consumer-group
+        batch-size: 100
+        fetch-max-wait: 500

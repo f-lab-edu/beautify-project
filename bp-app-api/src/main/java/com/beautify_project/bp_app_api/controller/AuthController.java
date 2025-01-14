@@ -34,7 +34,7 @@ public class AuthController {
     @PostMapping("/v1/auth/email/certification")
     @ResponseStatus(code = HttpStatus.NO_CONTENT)
     void sendCertificationEmail(@Valid @RequestBody final EmailCertificationRequest request) {
-        authService.sendCertificationEmail(request);
+        authService.produceSignUpEmailCertificationEvent(request);
     }
 
     /**

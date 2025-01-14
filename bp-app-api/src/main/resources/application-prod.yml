@@ -12,7 +12,7 @@ spring:
       - jasypt.yml
       - auth.yml
       - mail.yml
-      - kafka-local.yml
+      - kafka-producer-local.yml
       - classpath:mysql-config/application-local.yml
       - classpath:s3-client-config/application-local.yml
 

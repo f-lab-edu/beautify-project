@@ -1,7 +1,7 @@
 package com.beautify_project.bp_app_api.service;
 
 import com.beautify_project.bp_app_api.exception.BpCustomException;
-import com.beautify_project.bp_app_api.provider.EmailProvider;
+import com.beautify_project.bp_app_api.producer.KafkaEventProducer;
 import com.beautify_project.bp_app_api.request.auth.EmailCertificationRequest;
 import com.beautify_project.bp_app_api.request.auth.EmailCertificationVerificationRequest;
 import com.beautify_project.bp_app_api.request.auth.EmailDuplicatedRequest;
@@ -10,7 +10,7 @@ import com.beautify_project.bp_app_api.response.ResponseMessage;
 import com.beautify_project.bp_app_api.response.auth.EmailDuplicatedResult;
 import com.beautify_project.bp_mysql.entity.EmailCertification;
 import com.beautify_project.bp_mysql.repository.EmailCertificationRepository;
-import com.beautify_project.bp_utils.UUIDGenerator;
+import com.beuatify_project.bp_common.event.SignUpCertificationMailEvent;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ public class AuthService {
     private static final Long CERTIFICATION_EMAIL_VALID_TIME = 3 * MINUTE_TO_LONG;
 
     private final MemberService memberService;
-    private final EmailProvider emailProvider;
+    private final KafkaEventProducer eventProducer;
     private final EmailCertificationRepository emailCertificationRepository;
 
     public ResponseMessage checkEmailDuplicated(final EmailDuplicatedRequest emailDuplicatedRequest) {
@@ -37,39 +37,6 @@ public class AuthService {
 
     private boolean isEmailCertificationExist(final String email) {
         return memberService.existByMemberMail(email);
-    }
-
-    @Transactional(rollbackFor = Exception.class)
-    public void sendCertificationEmail(final EmailCertificationRequest request) {
-
-        EmailCertification foundEmailCertification = emailCertificationRepository.findByEmail(
-            request.email());
-
-        validateEmailCertificationRequest(foundEmailCertification);
-        final String generatedCertificationNumber = UUIDGenerator.generateEmailCertificationNumber();
-
-        if (foundEmailCertification == null) {
-            foundEmailCertification = EmailCertification.of(request.email(),
-                generatedCertificationNumber, System.currentTimeMillis());
-        }
-
-        emailCertificationRepository.save(foundEmailCertification);
-
-        emailProvider.sendCertificationMail(foundEmailCertification.getEmail(),
-            UUIDGenerator.generateEmailCertificationNumber());
-    }
-
-    private void validateEmailCertificationRequest(
-        final EmailCertification foundEmailCertification) {
-        if (foundEmailCertification == null) {
-            return;
-        }
-
-        if (System.currentTimeMillis() - foundEmailCertification.getRegisteredTime() > CERTIFICATION_EMAIL_VALID_TIME) {
-            return;
-        }
-
-        throw new BpCustomException(ErrorCode.EC001);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -91,5 +58,10 @@ public class AuthService {
             return;
         }
         throw new BpCustomException(ErrorCode.EC003);
+    }
+
+    public void produceSignUpEmailCertificationEvent(final EmailCertificationRequest request) {
+        eventProducer.publishSignUpCertificationMailEvent(new SignUpCertificationMailEvent(
+            request.email()));
     }
 }

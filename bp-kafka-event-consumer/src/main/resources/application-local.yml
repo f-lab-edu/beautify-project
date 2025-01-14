@@ -10,6 +10,7 @@ spring:
     import:
       - jasypt.yml
       - kafka-local.yml
+      - classpath:mysql-config/application-local.yml
   cloud:
     openfeign:
       client:

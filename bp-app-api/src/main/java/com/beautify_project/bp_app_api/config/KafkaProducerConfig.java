@@ -3,6 +3,7 @@ package com.beautify_project.bp_app_api.config;
 import com.beautify_project.bp_app_api.config.properties.KafkaProducerConfigProperties;
 import com.beautify_project.bp_app_api.dto.event.ShopLikeCancelEvent;
 import com.beautify_project.bp_app_api.dto.event.ShopLikeEvent;
+import com.beuatify_project.bp_common.event.SignUpCertificationMailEvent;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -48,5 +49,15 @@ public class KafkaProducerConfig {
     @Bean(name = "ShopLikeCancelEventKafkaTemplate")
     public KafkaTemplate<String, ShopLikeCancelEvent> shopLikeCancelEventKafkaTemplate() {
         return new KafkaTemplate<>(shopLikeCancelEventProducerFactory());
+    }
+
+    @Bean(name = "SignUpCertificationMailEventProducerFactory")
+    public ProducerFactory<String, SignUpCertificationMailEvent> signUpCertificationMailEventProducerFactory() {
+        return new DefaultKafkaProducerFactory<>(producerConfig());
+    }
+
+    @Bean(name = "SignUpCertificationMailEventKafkaTemplate")
+    public KafkaTemplate<String, SignUpCertificationMailEvent> signUpCertificationMailEventKafkaTemplate() {
+        return new KafkaTemplate<>(signUpCertificationMailEventProducerFactory());
     }
 }
