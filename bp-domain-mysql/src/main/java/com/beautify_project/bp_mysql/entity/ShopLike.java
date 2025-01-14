@@ -1,22 +1,21 @@
 package com.beautify_project.bp_mysql.entity;
 
-import com.beautify_project.bp_mysql.entity.ShopLike.ShopLikeId;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import java.io.Serializable;
+import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.domain.Persistable;
 
 @Entity
 @Table(name = "shop_like")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ShopLike extends BaseEntity implements Persistable<ShopLikeId> {
+public class ShopLike extends BaseEntity {
 
     @EmbeddedId
     private ShopLikeId id;
@@ -59,19 +58,20 @@ public class ShopLike extends BaseEntity implements Persistable<ShopLikeId> {
 
         @Override
         public int hashCode() {
-            return super.hashCode();
+            return Objects.hash(shopId, memberEmail);
         }
 
         @Override
         public boolean equals(final Object obj) {
-            return super.equals(obj);
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null || getClass() != obj.getClass()) {
+                return false;
+            }
+
+            final ShopLikeId that = (ShopLikeId) obj;
+            return Objects.equals(shopId, that.shopId) && Objects.equals(memberEmail, that.memberEmail);
         }
-    }
-
-
-
-    @Override
-    public boolean isNew() {
-        return getCreatedDate() == null;
     }
 }

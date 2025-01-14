@@ -70,7 +70,7 @@ public class ShopController {
      */
     @DeleteMapping("/v1/shops/likes/{id}")
     @ResponseStatus(code = HttpStatus.OK)
-    public void cancelLikeShop(@PathVariable(value = "id") @NotBlank final String shopId) {
+    public void cancelLikeShop(@PathVariable(value = "id") @NotNull final Long shopId) {
         shopService.produceShopLikeCancelEvent(shopId, "sssukho@gmail.com");
     }
 }

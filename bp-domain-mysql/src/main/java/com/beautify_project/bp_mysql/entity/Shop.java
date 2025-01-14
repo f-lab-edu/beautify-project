@@ -1,9 +1,7 @@
 package com.beautify_project.bp_mysql.entity;
 
-import com.beautify_project.bp_mysql.entity.adapter.ShopAdapter;
 import com.beautify_project.bp_mysql.entity.embedded.Address;
 import com.beautify_project.bp_mysql.entity.embedded.BusinessTime;
-import com.beautify_project.bp_utils.UUIDGenerator;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -12,13 +10,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.domain.Persistable;
 
 @Entity
 @Table(name = "shop")
@@ -101,39 +97,12 @@ public class Shop {
         this.businessTime = businessTime;
     }
 
-    private Shop(final Long id, final String name, final String contact, final String url,
-        final String introduction, final String rate,
-        final Long likes, final Long registeredTime, final Long updated,
-        final List<String> imageFileIds, final Address shopAddress,
-        final BusinessTime businessTime) {
-        this.id = id;
-        this.name = name;
-        this.contact = contact;
-        this.url = url;
-        this.introduction = introduction;
-        this.rate = rate;
-        this.likes = likes;
-        this.registeredTime = registeredTime;
-        this.updated = updated;
-        this.imageFileIds = imageFileIds;
-        this.shopAddress = shopAddress;
-        this.businessTime = businessTime;
-    }
-
     public static Shop newShop(final String name, final String contact, final String url,
         final String introduction, final List<String> imageFileIds, Address address,
         BusinessTime businessTime) {
         long currentTime = System.currentTimeMillis();
         return new Shop(name, contact, url, introduction, "0.0", 0L, currentTime,
             currentTime, imageFileIds, address, businessTime);
-    }
-
-    public static Shop from(ShopAdapter shopAdapter) {
-        return new Shop(shopAdapter.getId(), shopAdapter.getName(), shopAdapter.getContact(),
-            shopAdapter.getUrl(), shopAdapter.getIntroduction(), shopAdapter.getRate(),
-            shopAdapter.getLikes(), shopAdapter.getRegisteredTime(), shopAdapter.getUpdated(),
-            shopAdapter.getImageFileIds(), shopAdapter.getShopAddress(),
-            shopAdapter.getBusinessTime());
     }
 
     public void increaseLikeCount(final int countToIncrease) {

@@ -12,6 +12,9 @@ public record ShopLikeEvent (Long shopId, String memberEmail){
     }
 
     private void validate(final Long shopId, final String memberEmail) {
+        if (shopId == null) {
+            throw new UnsupportedOperationException("shopId 파라미터는 필수값 입니다.");
+        }
         if (Validator.isEmptyOrBlank(memberEmail)) {
             throw new UnsupportedOperationException("memberEmail 파라미터는 필수값 입니다.");
         }

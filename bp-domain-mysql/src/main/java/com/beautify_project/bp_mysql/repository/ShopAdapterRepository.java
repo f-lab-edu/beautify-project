@@ -1,7 +1,6 @@
 package com.beautify_project.bp_mysql.repository;
 
 import com.beautify_project.bp_mysql.entity.Shop;
-import com.beautify_project.bp_mysql.entity.adapter.ShopAdapter;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -15,14 +14,12 @@ public class ShopAdapterRepository {
 
     private final ShopRepository shopRepository;
 
-    public List<ShopAdapter> findByIdIn(final Set<Long> shopIdsToFind) {
-        final List<Shop> shopEntities = shopRepository.findByIdIn(shopIdsToFind);
-        return shopEntities.stream().map(ShopAdapter::toAdapter).toList();
+    public List<Shop> findByIdIn(final Set<Long> shopIdsToFind) {
+        return shopRepository.findByIdIn(shopIdsToFind);
     }
 
     @Transactional
-    public void saveAll(final Collection<ShopAdapter> foundShops) {
-        final List<Shop> entities = foundShops.stream().map(Shop::from).toList();
-        shopRepository.saveAll(entities);
+    public void saveAll(final Collection<Shop> shopsToSave) {
+        shopRepository.saveAll(shopsToSave);
     }
 }

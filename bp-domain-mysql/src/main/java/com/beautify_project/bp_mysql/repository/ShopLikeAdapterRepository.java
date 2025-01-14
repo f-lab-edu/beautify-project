@@ -1,7 +1,7 @@
 package com.beautify_project.bp_mysql.repository;
 
 import com.beautify_project.bp_mysql.entity.ShopLike;
-import com.beautify_project.bp_mysql.entity.adapter.ShopLikeAdapter;
+import com.beautify_project.bp_mysql.entity.ShopLike.ShopLikeId;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -12,13 +12,21 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class ShopLikeAdapterRepository {
 
-    private final ShopLikeRepositoryImpl shopLikeRepositoryImpl;
+    private final ShopLikeRepositoryImpl customRepository;
+    private final ShopLikeRepository defaultRepository;
 
     @Transactional
-    public void bulkInsert(final List<ShopLikeAdapter> shopLikeAdapters) {
-        final List<ShopLike> shopLikeEntities = shopLikeAdapters.stream()
-            .map(ShopLikeAdapter::toEntity).toList();
-        shopLikeRepositoryImpl.bulkInsert(shopLikeEntities);
+    public void deleteAll(final List<ShopLike> shopLikesToRemove) {
+        defaultRepository.deleteAll(shopLikesToRemove);
+    }
+
+    @Transactional
+    public void bulkInsert(final List<ShopLike> shopLikes) {
+        customRepository.bulkInsert(shopLikes);
+    }
+
+    public List<ShopLike> findByShopLikeIdIn(final List<ShopLikeId> shopLikeIds) {
+        return defaultRepository.findByIdIn(shopLikeIds);
     }
 
 }
