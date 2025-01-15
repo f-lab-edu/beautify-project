@@ -4,9 +4,12 @@ import com.beautify_project.bp_kafka_event_consumer.config.properties.KafkaConsu
 import com.beuatify_project.bp_common.event.ShopLikeCancelEvent;
 import com.beuatify_project.bp_common.event.ShopLikeEvent;
 import com.beuatify_project.bp_common.event.SignUpCertificationMailEvent;
+import com.beuatify_project.bp_common.serializer.MessagePackDeserializer;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.common.errors.SerializationException;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +17,7 @@ import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
@@ -21,9 +25,10 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 @EnableKafka
 @Configuration
 @RequiredArgsConstructor
+@Slf4j
 public class KafkaConsumerConfig {
 
-    private static final String TRUSTED_PACKAGES = "com.beautify_project.bp_kafka_event_consumer.event";
+    private static final String TRUSTED_PACKAGES = "com.beuatify_project.bp_common.event";
     private static final String TOPIC_CONFIG_NAME_SHOP_LIKE_EVENT = "SHOP-LIKE-EVENT";
     private static final String TOPIC_CONFIG_NAME_SHOP_LIKE_CANCEL_EVENT = "SHOP-LIKE-CANCEL-EVENT";
     private static final String TOPIC_CONFIG_NAME_SIGNUP_CERTIFICATION_MAIL_EVENT = "MAIL-SIGN-UP-CERTIFICATION-EVENT";
@@ -38,12 +43,10 @@ public class KafkaConsumerConfig {
             configProperties.getTopic().get(TOPIC_CONFIG_NAME_SHOP_LIKE_EVENT).getGroupId(),
 
             ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
-            // 역직렬화 실패 무한 로그 방지
-            ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS, ErrorHandlingDeserializer.class,
+            ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS, ErrorHandlingDeserializer.class, // 역직렬화 실패 무한 로그 방지
 
-            ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonSerializer.class,
-            // 역직렬화 실패 무한 로그 방지
-            ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, ErrorHandlingDeserializer.class,
+            ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, MessagePackDeserializer.class,
+            ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, ErrorHandlingDeserializer.class, // 역직렬화 실패 무한 로그 방지
 
             ConsumerConfig.MAX_POLL_RECORDS_CONFIG,
             configProperties.getTopic().get(TOPIC_CONFIG_NAME_SHOP_LIKE_EVENT).getBatchSize(),
@@ -56,8 +59,8 @@ public class KafkaConsumerConfig {
     @Bean(name = "shopLikeEventConsumerFactory")
     public ConsumerFactory<String, ShopLikeEvent> shopLikeEventConsumerFactory() {
         // 들어오는 record 를 객체로 받기 위한 deserializer
-        final JsonDeserializer<ShopLikeEvent> deserializer = new JsonDeserializer<>(
-            ShopLikeEvent.class, false);
+        final MessagePackDeserializer<ShopLikeEvent> deserializer = new MessagePackDeserializer<>(
+            ShopLikeEvent.class);
 
         return new DefaultKafkaConsumerFactory<>(shopLikeEventConsumerConfig(), new StringDeserializer(),
             deserializer);
@@ -68,6 +71,14 @@ public class KafkaConsumerConfig {
         ConcurrentKafkaListenerContainerFactory<String, ShopLikeEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(shopLikeEventConsumerFactory());
         factory.setBatchListener(true);
+        factory.setCommonErrorHandler(new DefaultErrorHandler((record, exception) -> {
+            if (exception instanceof SerializationException || exception instanceof IllegalStateException) {
+                log.error(
+                    "Skip event due to deserialization error: topic - {} | partition - {} | value - {}",
+                    record.topic(), record.partition(), record.value());
+                // TODO: 별도의 큐 처리 또는 추가 로직으로 처리 필요
+            }
+        }));
         return factory;
     }
 

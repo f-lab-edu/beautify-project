@@ -4,6 +4,7 @@ import com.beautify_project.bp_app_api.config.properties.KafkaProducerConfigProp
 import com.beuatify_project.bp_common.event.ShopLikeCancelEvent;
 import com.beuatify_project.bp_common.event.ShopLikeEvent;
 import com.beuatify_project.bp_common.event.SignUpCertificationMailEvent;
+import com.beuatify_project.bp_common.serializer.MessagePackSerializer;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -14,7 +15,6 @@ import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
-import org.springframework.kafka.support.serializer.JsonSerializer;
 
 @EnableKafka
 @Configuration
@@ -28,7 +28,10 @@ public class KafkaProducerConfig {
         return Map.of(
             ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, configProperties.getBroker(),
             ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class,
-            ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+            ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, MessagePackSerializer.class
+//            ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class,
+
+        );
     }
 
     @Bean(name = "ShopLikeEventProducerFactory")
