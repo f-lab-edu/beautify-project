@@ -37,6 +37,6 @@ public class Operation {
     }
 
     public static Operation of(final String name, final String description) {
-        return new Operation(UUIDGenerator.generate(), name, description, System.currentTimeMillis());
+        return new Operation(UUIDGenerator.generateUUIDForEntity(), name, description, System.currentTimeMillis());
     }
 }

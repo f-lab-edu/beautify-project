@@ -105,16 +105,19 @@ public class Shop implements Persistable<String> {
         BusinessTime businessTime) {
         long currentTime = System.currentTimeMillis();
         return new Shop(
-            UUIDGenerator.generate(), name, contact, url, introduction, "0.0", 0L, currentTime,
+            UUIDGenerator.generateUUIDForEntity(), name, contact, url, introduction, "0.0", 0L, currentTime,
             currentTime, imageFileIds, address, businessTime);
     }
 
-    public void increaseLikeCount() {
-        likes += 1;
+    public void increaseLikeCount(final int countToIncrease) {
+        likes += countToIncrease;
     }
 
-    public void decreaseLikeCount() {
-        likes -= 1;
+    public void decreaseLikeCount(final int countToDecrease) {
+        likes -= countToDecrease;
+        if (likes < 0) {
+            likes = 0L;
+        }
     }
 
     @Override

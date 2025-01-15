@@ -12,10 +12,18 @@ spring:
       - jasypt.yml
       - auth.yml
       - mail.yml
-      - classpath:mysql-config/application-prod.yml
-      - classpath:s3-client-config/application-prod.yml
+      - kafka-local.yml
+      - classpath:mysql-config/application-local.yml
+      - classpath:s3-client-config/application-local.yml
+
+thread-pool:
+  async:
+    core-pool-size: 16
+    max-pool-size: 32
+    queue-capacity: 100
+    thread-name-prefix: IO-Async-Executor
 
 logging:
   level:
-    org.hibernate.SQL: debug
     com.beautify_project.bp_app_api: debug
+    org.apache.kafka: debug

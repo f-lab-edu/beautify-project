@@ -1,0 +1,6 @@
+kafka:
+  producer:
+    broker: ENC(mPyjrXNXqdAWkyHU943WfxFQanyXmQqt)
+    topic:
+      shop-like-event: shop-like
+      shop-like-cancel-event: shop-like-cancel

@@ -36,7 +36,7 @@ public class Category {
     }
 
     public static Category of(final String name, final String description) {
-        return new Category(UUIDGenerator.generate(), name, description,
+        return new Category(UUIDGenerator.generateUUIDForEntity(), name, description,
             System.currentTimeMillis());
     }
 }

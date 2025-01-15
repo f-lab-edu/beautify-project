@@ -32,6 +32,6 @@ public class Facility {
     }
 
     public static Facility withName(final String name) {
-        return new Facility(UUIDGenerator.generate(), name, System.currentTimeMillis());
+        return new Facility(UUIDGenerator.generateUUIDForEntity(), name, System.currentTimeMillis());
     }
 }

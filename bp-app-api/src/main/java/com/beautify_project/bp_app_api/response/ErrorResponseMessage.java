@@ -87,6 +87,9 @@ public class ErrorResponseMessage {
         AL001(HttpStatus.BAD_REQUEST, "AL001", "이미 좋아요를 누른 샵 입니다."),
         AL002(HttpStatus.BAD_REQUEST, "AL002", "좋아요를 하지 않은 샵 입니다."),
 
+        SL001(HttpStatus.BAD_REQUEST, "SL001", "등록되지 않은 샵 혹은 이미 좋아요를 누른 샵 입니다."),
+        SL002(HttpStatus.BAD_REQUEST, "SL002", "등록되지 않은 샵 혹은 이미 좋아요 취소를 누른 샵 입니다."),
+
         II001(HttpStatus.NOT_FOUND, "II001", "유효하지 않은 식별자 입니다."),
         II002(HttpStatus.BAD_REQUEST, "II002", "이미 처리된 식별자 입니다."),
 

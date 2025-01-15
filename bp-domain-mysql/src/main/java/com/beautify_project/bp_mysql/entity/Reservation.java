@@ -36,7 +36,7 @@ public class Reservation {
 
     private Reservation(final Long date, final Long registeredTime, final String memberEmail,
         final String shopId, final String operationId) {
-        this.id = UUIDGenerator.generate();
+        this.id = UUIDGenerator.generateUUIDForEntity();
         this.date = date;
         this.registeredTime = registeredTime;
         this.memberEmail = memberEmail;

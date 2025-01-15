@@ -1,7 +1,10 @@
 package com.beautify_project.bp_app_api.service;
 
 import com.beautify_project.bp_app_api.config.IOBoundAsyncThreadPoolConfiguration;
+import com.beautify_project.bp_app_api.dto.event.ShopLikeCancelEvent;
+import com.beautify_project.bp_app_api.dto.event.ShopLikeEvent;
 import com.beautify_project.bp_app_api.exception.BpCustomException;
+import com.beautify_project.bp_app_api.producer.KafkaEventProducer;
 import com.beautify_project.bp_app_api.provider.image.ImageProvider;
 import com.beautify_project.bp_app_api.request.shop.ShopListFindRequestParameters;
 import com.beautify_project.bp_app_api.request.shop.ShopRegistrationRequest;
@@ -24,6 +27,7 @@ import jakarta.validation.constraints.NotBlank;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
@@ -32,6 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,6 +55,7 @@ public class ShopService {
     private final ShopCategoryService shopCategoryService;
     private final ImageProvider imageProvider;
     private final IOBoundAsyncThreadPoolConfiguration ioBoundAsyncThreadPoolConfig;
+    private final KafkaEventProducer kafkaEventProducer;
 
     @Transactional(rollbackFor = Exception.class)
     public ResponseMessage registerShop(final ShopRegistrationRequest shopRegistrationRequest) {
@@ -70,6 +76,8 @@ public class ShopService {
         if (!Validator.isNullOrEmpty(facilityIds)) {
             shopFacilityService.registerShopFacilities(registeredShopId, facilityIds);
         }
+
+        log.debug("Registered Shop: {}", registeredShop);
 
         return ResponseMessage.createResponseMessage(new ShopRegistrationResult(registeredShopId));
     }
@@ -235,33 +243,60 @@ public class ShopService {
             .orElseThrow(() -> new BpCustomException(ErrorCode.SH001));
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    public void likeShop(final @NotBlank String shopId, final @NotBlank String memberEmail) {
-        if (shopLikeService.isLikePushed(shopId, memberEmail)) {
-            throw new BpCustomException(ErrorCode.AL001);
-        }
+    @Async(value = "ioBoundExecutor")
+    public void produceShopLikeEvent(final String shopId, final String memberEmail) {
+        kafkaEventProducer.publishShopLikeEvent(new ShopLikeEvent(shopId, memberEmail));
+    }
 
-        Shop foundShop = findShopById(shopId);
-        log.debug("shop like count before add like: shopId - {}, likeCount - {}",
-            foundShop.getId(), foundShop.getLikes());
-        foundShop.increaseLikeCount();
-        shopRepository.save(foundShop);
-        // TODO: bearer token 에서 사용자 정보 추출하는 로직 필요
-        shopLikeService.registerShopLike(ShopLike.of(shopId, memberEmail));
+    @Async(value = "ioBoundExecutor")
+    public void produceShopLikeCancelEvent(final String shopId, final String memberEmail) {
+        kafkaEventProducer.publishShopLikeCancelEvent(new ShopLikeCancelEvent(shopId, memberEmail));
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void cancelLikeShop(final @NotBlank String shopId, final @NotBlank String memberEmail) {
-        if (!shopLikeService.isLikePushed(shopId, memberEmail)) {
-            throw new BpCustomException(ErrorCode.AL002);
-        }
+    public void batchShopLikes(final List<ShopLikeEvent> shopLikeEvents) {
+        final Map<String, Integer> countToIncreaseByShopId = shopLikeEvents.stream().collect(
+            Collectors.toMap(
+                ShopLikeEvent::shopId,
+                event -> 1,
+                Integer::sum
+            )
+        );
 
-        Shop foundShop = findShopById(shopId);
-        log.debug("shop like count before subtract like: shopId - {}, likeCount - {}",
-            foundShop.getId(), foundShop.getLikes());
-        foundShop.decreaseLikeCount();
-        shopRepository.save(foundShop);
-        // TODO: bearer token 에서 사용자 정보 추출하는 로직 필요
-        shopLikeService.deleteShopLike(ShopLike.of(shopId, memberEmail));
+        final Set<String> shopIds = countToIncreaseByShopId.keySet();
+        final List<Shop> foundShops = shopRepository.findByIdIn(shopIds);
+
+        foundShops.forEach(foundShop -> foundShop.increaseLikeCount(
+            countToIncreaseByShopId.get(foundShop.getId())));
+        log.info("{} counts of shops save all called", foundShops.size());
+        shopRepository.saveAll(foundShops);
+
+        List<ShopLike> shopLikesToRegister = shopLikeEvents.stream()
+            .map(event -> ShopLike.of(event.shopId(), event.memberEmail())).toList();
+        log.info("{} counts of shopLikes save all called", shopLikesToRegister.size());
+
+        shopLikeService.saveAllShopLikes(shopLikesToRegister);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void batchShopLikesCancel(final List<ShopLikeCancelEvent> shopLikeEventCancels) {
+        final Map<String, Integer> countToDecreaseByShopId = shopLikeEventCancels.stream().collect(
+            Collectors.toMap(
+                ShopLikeCancelEvent::shopId,
+                event -> 1,
+                Integer::sum
+            )
+        );
+
+        final Set<String> shopIds = countToDecreaseByShopId.keySet();
+        final List<Shop> foundShops = shopRepository.findByIdIn(shopIds);
+
+        foundShops.forEach(foundShop -> foundShop.decreaseLikeCount(
+            countToDecreaseByShopId.get(foundShop.getId())));
+        shopRepository.saveAll(foundShops);
+
+        List<ShopLike> shopLikesToDelete = shopLikeEventCancels.stream()
+            .map(event -> ShopLike.of(event.shopId(), event.memberEmail())).toList();
+        shopLikeService.deleteAllShopLikes(shopLikesToDelete);
     }
 }

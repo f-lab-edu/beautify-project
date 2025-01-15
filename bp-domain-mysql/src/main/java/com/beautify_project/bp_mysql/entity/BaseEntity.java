@@ -27,4 +27,8 @@ public class BaseEntity {
         lastModifiedDate = now;
     }
 
+    public void preRemove() {
+        createdDate = null;
+        lastModifiedDate = null;
+    }
 }

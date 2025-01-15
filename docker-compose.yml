@@ -1,7 +1,6 @@
 services:
   db:
-    image: mysql
-    restart: always
+    image: mysql:9.1
     container_name: bp_mysql
     ports:
       - 3306:3306
@@ -22,3 +21,27 @@ services:
           cpus: "1.0"
         reservations:
           memory: 512M
+  zookeeper:
+    image: wurstmeister/zookeeper
+    container_name: bp_zookeeper
+    ports:
+      - 2181:2181
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
+        reservations:
+          memory: 512M
+  kafka:
+    image: wurstmeister/kafka
+    depends_on:
+      - zookeeper
+    container_name: bp_kafka
+    ports:
+      - 9092:9092
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: 127.0.0.1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181 # kafka가 zookeeper에 커넥션하기 위한 대상을 지정
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock

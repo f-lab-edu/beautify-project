@@ -55,7 +55,7 @@ public class Review {
 
     public static Review of(final String rate, final String content, final String memberEmail,
         final String operationId, final String shopId, final String reservationId) {
-        return new Review(UUIDGenerator.generate(), rate, content, System.currentTimeMillis(),
+        return new Review(UUIDGenerator.generateUUIDForEntity(), rate, content, System.currentTimeMillis(),
             memberEmail, operationId, shopId, reservationId);
     }
 }
