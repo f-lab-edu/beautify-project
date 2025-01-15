@@ -8,22 +8,10 @@ spring:
     activate:
       on-profile: local
     import:
+      - kafka-consumer-local.yml
       - jasypt.yml
-      - kafka-local.yml
+      - mail.yml
       - classpath:mysql-config/application-local.yml
-  cloud:
-    openfeign:
-      client:
-        config:
-          default:
-            connect-timeout: 3000
-            read-timeout: 30000
-            logger-level: BASIC
-          openFeignClient:
-            connect-timeout: 1000
-            read-timeout: 20000
-            logger-level: BASIC
-
 
 logging:
   level:
