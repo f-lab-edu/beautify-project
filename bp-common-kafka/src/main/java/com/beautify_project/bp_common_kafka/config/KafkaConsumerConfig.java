@@ -1,10 +1,11 @@
-package com.beautify_project.bp_kafka_event_consumer.config;
+package com.beautify_project.bp_common_kafka.config;
 
-import com.beautify_project.bp_kafka_event_consumer.config.properties.KafkaConsumerConfigProperties;
-import com.beuatify_project.bp_common.event.ShopLikeCancelEvent;
-import com.beuatify_project.bp_common.event.ShopLikeEvent;
-import com.beuatify_project.bp_common.event.SignUpCertificationMailEvent;
-import com.beuatify_project.bp_common.serializer.MessagePackDeserializer;
+import com.beautify_project.bp_common_kafka.config.properties.KafkaConfigurationProperties;
+import com.beautify_project.bp_common_kafka.config.properties.KafkaConfigurationProperties.TopicConfigurationProperties;
+import com.beautify_project.bp_common_kafka.event.ShopLikeCancelEvent;
+import com.beautify_project.bp_common_kafka.event.ShopLikeEvent;
+import com.beautify_project.bp_common_kafka.event.SignUpCertificationMailEvent;
+import com.beautify_project.bp_common_kafka.serializer.MessagePackDeserializer;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +14,6 @@ import org.apache.kafka.common.errors.SerializationException;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
@@ -22,7 +22,6 @@ import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 
-@EnableKafka
 @Configuration
 @RequiredArgsConstructor
 @Slf4j
@@ -33,27 +32,28 @@ public class KafkaConsumerConfig {
     private static final String TOPIC_CONFIG_NAME_SHOP_LIKE_CANCEL_EVENT = "SHOP-LIKE-CANCEL-EVENT";
     private static final String TOPIC_CONFIG_NAME_SIGNUP_CERTIFICATION_MAIL_EVENT = "MAIL-SIGN-UP-CERTIFICATION-EVENT";
 
-    private final KafkaConsumerConfigProperties configProperties;
+    private final KafkaConfigurationProperties kafkaConfig;
 
     @Bean("shopLikeEventConsumerConfig")
     public Map<String, Object> shopLikeEventConsumerConfig() {
-        return Map.of(
-            ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, configProperties.getBroker(),
-            ConsumerConfig.GROUP_ID_CONFIG,
-            configProperties.getTopic().get(TOPIC_CONFIG_NAME_SHOP_LIKE_EVENT).getGroupId(),
+
+        final TopicConfigurationProperties shopLikeEventTopicConfig = kafkaConfig.getTopic()
+            .get(TOPIC_CONFIG_NAME_SHOP_LIKE_EVENT);
+
+        return Map.of(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConfig.getBrokerUrl(),
+            ConsumerConfig.GROUP_ID_CONFIG, shopLikeEventTopicConfig.getConsumer().getGroupId(),
 
             ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
-            ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS, ErrorHandlingDeserializer.class, // 역직렬화 실패 무한 로그 방지
+            ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS, ErrorHandlingDeserializer.class,
 
             ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, MessagePackDeserializer.class,
-            ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, ErrorHandlingDeserializer.class, // 역직렬화 실패 무한 로그 방지
+            ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, ErrorHandlingDeserializer.class,
 
             ConsumerConfig.MAX_POLL_RECORDS_CONFIG,
-            configProperties.getTopic().get(TOPIC_CONFIG_NAME_SHOP_LIKE_EVENT).getBatchSize(),
+            shopLikeEventTopicConfig.getConsumer().getBatchSize(),
 
             JsonDeserializer.VALUE_DEFAULT_TYPE, ShopLikeEvent.class,
-            JsonDeserializer.TRUSTED_PACKAGES, TRUSTED_PACKAGES
-        );
+            JsonDeserializer.TRUSTED_PACKAGES, TRUSTED_PACKAGES);
     }
 
     @Bean(name = "shopLikeEventConsumerFactory")
@@ -84,21 +84,21 @@ public class KafkaConsumerConfig {
 
     @Bean(name = "shopLikeCancelEventConsumerConfig")
     public Map<String, Object> shopLikeCancelEventConsumerConfig() {
+
+        final TopicConfigurationProperties shopLikeCancelEventTopicConfig = kafkaConfig.getTopic()
+            .get(TOPIC_CONFIG_NAME_SHOP_LIKE_CANCEL_EVENT);
+
         return Map.of(
-            ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, configProperties.getBroker(),
-            ConsumerConfig.GROUP_ID_CONFIG,
-            configProperties.getTopic().get(TOPIC_CONFIG_NAME_SHOP_LIKE_CANCEL_EVENT).getGroupId(),
+            ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConfig.getBrokerUrl(),
+            ConsumerConfig.GROUP_ID_CONFIG, shopLikeCancelEventTopicConfig.getConsumer().getGroupId(),
 
             ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
-            // 역직렬화 실패 무한 로그 방지
             ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS, ErrorHandlingDeserializer.class,
 
             ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonSerializer.class,
-            // 역직렬화 실패 무한 로그 방지
             ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, ErrorHandlingDeserializer.class,
 
-            ConsumerConfig.MAX_POLL_RECORDS_CONFIG,
-            configProperties.getTopic().get(TOPIC_CONFIG_NAME_SHOP_LIKE_CANCEL_EVENT).getBatchSize(),
+            ConsumerConfig.MAX_POLL_RECORDS_CONFIG, shopLikeCancelEventTopicConfig.getConsumer().getBatchSize(),
 
             JsonDeserializer.VALUE_DEFAULT_TYPE, ShopLikeCancelEvent.class,
             JsonDeserializer.TRUSTED_PACKAGES, TRUSTED_PACKAGES
@@ -125,21 +125,21 @@ public class KafkaConsumerConfig {
 
     @Bean(name = "signUpCertificationMailEventConsumerConfig")
     public Map<String, Object> signUpCertificationMailEventConsumerConfig() {
+
+        final TopicConfigurationProperties signUpCertificationMailEventTopicConfig = kafkaConfig.getTopic()
+            .get(TOPIC_CONFIG_NAME_SIGNUP_CERTIFICATION_MAIL_EVENT);
+
         return Map.of(
-            ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, configProperties.getBroker(),
-            ConsumerConfig.GROUP_ID_CONFIG,
-            configProperties.getTopic().get(TOPIC_CONFIG_NAME_SIGNUP_CERTIFICATION_MAIL_EVENT).getGroupId(),
+            ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConfig.getBrokerUrl(),
+            ConsumerConfig.GROUP_ID_CONFIG,signUpCertificationMailEventTopicConfig.getConsumer().getGroupId(),
 
             ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
-            // 역직렬화 실패 무한 로그 방지
             ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS, ErrorHandlingDeserializer.class,
 
             ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonSerializer.class,
-            // 역직렬화 실패 무한 로그 방지
             ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, ErrorHandlingDeserializer.class,
 
-            ConsumerConfig.MAX_POLL_RECORDS_CONFIG,
-            configProperties.getTopic().get(TOPIC_CONFIG_NAME_SIGNUP_CERTIFICATION_MAIL_EVENT).getBatchSize(),
+            ConsumerConfig.MAX_POLL_RECORDS_CONFIG, signUpCertificationMailEventTopicConfig.getConsumer().getBatchSize(),
 
             JsonDeserializer.VALUE_DEFAULT_TYPE, SignUpCertificationMailEvent.class,
             JsonDeserializer.TRUSTED_PACKAGES, "com.beautify_project.bp_kafka_event_consumer.event"
@@ -163,4 +163,5 @@ public class KafkaConsumerConfig {
         factory.setBatchListener(true);
         return factory;
     }
+
 }

@@ -1,10 +1,10 @@
 package com.beautify_project.bp_kafka_event_consumer.consumer;
 
+import com.beautify_project.bp_common_kafka.event.SignUpCertificationMailEvent;
 import com.beautify_project.bp_kafka_event_consumer.provider.EmailSender;
 import com.beautify_project.bp_mysql.entity.EmailCertification;
 import com.beautify_project.bp_mysql.repository.EmailCertificationAdapterRepository;
 import com.beautify_project.bp_utils.UUIDGenerator;
-import com.beuatify_project.bp_common.event.SignUpCertificationMailEvent;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class MailEventConsumer {
 
-
     private static final Long MINUTE_TO_LONG = 1000L * 60;
     private static final Long CERTIFICATION_EMAIL_VALID_TIME = 3 * MINUTE_TO_LONG;
 
@@ -29,14 +28,11 @@ public class MailEventConsumer {
     private final EmailCertificationAdapterRepository adaptorRepository;
 
     @KafkaListener(
-        topics = "#{kafkaConsumerConfigProperties.topic['MAIL-SIGN-UP-CERTIFICATION-EVENT'].topicName}",
-        groupId = "#{kafkaConsumerConfigProperties.topic['MAIL-SIGN-UP-CERTIFICATION-EVENT'].groupId}",
+        topics = "#{kafkaConfigurationProperties.topic['MAIL-SIGN-UP-CERTIFICATION-EVENT'].topicName}",
+        groupId = "#{kafkaConfigurationProperties.topic['MAIL-SIGN-UP-CERTIFICATION-EVENT'].consumer.groupId}",
         containerFactory = "signUpCertificationMailEventConcurrentKafkaListenerContainerFactory"
     )
-    public void listenMailSignUpCertificationEvent(
-        final List<SignUpCertificationMailEvent> events) {
-        log.debug("{} counts of event consumed", events.size());
-
+    public void listenMailSignUpCertificationEvent(final List<SignUpCertificationMailEvent> events) {
         sendCertificationMail(events);
     }
 

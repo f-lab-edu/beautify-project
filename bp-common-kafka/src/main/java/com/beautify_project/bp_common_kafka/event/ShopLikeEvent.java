@@ -1,4 +1,4 @@
-package com.beuatify_project.bp_common.event;
+package com.beautify_project.bp_common_kafka.event;
 
 
 import com.beautify_project.bp_utils.Validator;

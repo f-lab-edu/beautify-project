@@ -8,10 +8,10 @@ spring:
     activate:
       on-profile: local
     import:
-      - kafka-consumer-local.yml
       - jasypt.yml
       - mail.yml
       - classpath:mysql-config/application-local.yml
+      - classpath:kafka-config/kafka-local.yml
 
 logging:
   level:

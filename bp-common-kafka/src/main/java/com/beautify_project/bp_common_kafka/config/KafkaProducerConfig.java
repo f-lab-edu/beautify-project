@@ -1,36 +1,32 @@
-package com.beautify_project.bp_app_api.config;
+package com.beautify_project.bp_common_kafka.config;
 
-import com.beautify_project.bp_app_api.config.properties.KafkaProducerConfigProperties;
-import com.beuatify_project.bp_common.event.ShopLikeCancelEvent;
-import com.beuatify_project.bp_common.event.ShopLikeEvent;
-import com.beuatify_project.bp_common.event.SignUpCertificationMailEvent;
-import com.beuatify_project.bp_common.serializer.MessagePackSerializer;
+import com.beautify_project.bp_common_kafka.config.properties.KafkaConfigurationProperties;
+import com.beautify_project.bp_common_kafka.event.ShopLikeCancelEvent;
+import com.beautify_project.bp_common_kafka.event.ShopLikeEvent;
+import com.beautify_project.bp_common_kafka.event.SignUpCertificationMailEvent;
+import com.beautify_project.bp_common_kafka.serializer.MessagePackSerializer;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 
-@EnableKafka
 @Configuration
 @RequiredArgsConstructor
 public class KafkaProducerConfig {
 
-    private final KafkaProducerConfigProperties configProperties;
+    private final KafkaConfigurationProperties kafkaConfig;
 
     @Bean
     public Map<String, Object> producerConfig() {
         return Map.of(
-            ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, configProperties.getBroker(),
+            ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConfig.getBrokerUrl(),
             ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class,
             ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, MessagePackSerializer.class
-//            ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class,
-
         );
     }
 

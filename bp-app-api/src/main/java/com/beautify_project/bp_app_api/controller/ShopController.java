@@ -6,9 +6,9 @@ import com.beautify_project.bp_app_api.request.shop.ShopListFindRequestParameter
 import com.beautify_project.bp_app_api.request.shop.ShopRegistrationRequest;
 import com.beautify_project.bp_app_api.response.ResponseMessage;
 import com.beautify_project.bp_app_api.service.ShopService;
+import com.beautify_project.bp_common_kafka.event.ShopLikeCancelEvent;
+import com.beautify_project.bp_common_kafka.event.ShopLikeEvent;
 import com.beautify_project.bp_mysql.enums.OrderType;
-import com.beuatify_project.bp_common.event.ShopLikeCancelEvent;
-import com.beuatify_project.bp_common.event.ShopLikeEvent;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;

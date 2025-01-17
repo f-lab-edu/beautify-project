@@ -1,4 +1,4 @@
-package com.beuatify_project.bp_common.serializer;
+package com.beautify_project.bp_common_kafka.serializer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.common.serialization.Deserializer;

@@ -6,7 +6,7 @@ import com.beautify_project.bp_app_api.request.auth.EmailCertificationVerificati
 import com.beautify_project.bp_app_api.request.auth.EmailDuplicatedRequest;
 import com.beautify_project.bp_app_api.response.ResponseMessage;
 import com.beautify_project.bp_app_api.service.AuthService;
-import com.beuatify_project.bp_common.event.SignUpCertificationMailEvent;
+import com.beautify_project.bp_common_kafka.event.SignUpCertificationMailEvent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

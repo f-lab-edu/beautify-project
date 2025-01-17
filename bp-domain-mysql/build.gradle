@@ -5,7 +5,6 @@ plugins {
 }
 
 dependencies {
-	implementation project(':bp-common')
 	implementation project(':bp-utils')
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5'

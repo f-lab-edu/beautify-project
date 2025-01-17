@@ -6,7 +6,7 @@ plugins {
 
 dependencies {
     implementation project(':bp-utils')
-    implementation project(':bp-common')
+    implementation project(':bp-common-kafka')
     implementation project(':bp-domain-mysql')
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.kafka:spring-kafka'

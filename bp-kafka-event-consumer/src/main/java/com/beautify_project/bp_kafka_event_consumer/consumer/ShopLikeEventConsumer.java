@@ -5,8 +5,8 @@ import com.beautify_project.bp_mysql.entity.ShopLike;
 import com.beautify_project.bp_mysql.entity.ShopLike.ShopLikeId;
 import com.beautify_project.bp_mysql.repository.ShopAdapterRepository;
 import com.beautify_project.bp_mysql.repository.ShopLikeAdapterRepository;
-import com.beuatify_project.bp_common.event.ShopLikeCancelEvent;
-import com.beuatify_project.bp_common.event.ShopLikeEvent;
+import com.beautify_project.bp_common_kafka.event.ShopLikeCancelEvent;
+import com.beautify_project.bp_common_kafka.event.ShopLikeEvent;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,8 +29,8 @@ public class ShopLikeEventConsumer {
     private final ShopAdapterRepository shopAdapterRepository;
 
     @KafkaListener(
-        topics = "#{kafkaConsumerConfigProperties.topic['SHOP-LIKE-EVENT'].topicName}",
-        groupId = "#{kafkaConsumerConfigProperties.topic['SHOP-LIKE-EVENT'].groupId}",
+        topics = "#{kafkaConfigurationProperties.topic['SHOP-LIKE-EVENT'].topicName}",
+        groupId = "#{kafkaConfigurationProperties.topic['SHOP-LIKE-EVENT'].consumer.groupId}",
         containerFactory = "shopLikeEventListenerContainerFactory")
     public void listenShopLikeEvent(final List<ShopLikeEvent> events) {
         log.debug("{} counts of event consumed", events.size());
@@ -38,8 +38,8 @@ public class ShopLikeEventConsumer {
     }
 
     @KafkaListener(
-        topics = "#{kafkaConsumerConfigProperties.topic['SHOP-LIKE-CANCEL-EVENT'].topicName}",
-        groupId = "#{kafkaConsumerConfigProperties.topic['SHOP-LIKE-CANCEL-EVENT'].groupId}",
+        topics = "#{kafkaConfigurationProperties.topic['SHOP-LIKE-CANCEL-EVENT'].topicName}",
+        groupId = "#{kafkaConfigurationProperties.topic['SHOP-LIKE-CANCEL-EVENT'].consumer.groupId}",
         containerFactory = "shopLikeCancelEventListenerContainerFactory")
     public void listenShopLikeCancelEvent(final List<ShopLikeCancelEvent> events) {
         log.debug("{} counts of event consumed", events.size());
