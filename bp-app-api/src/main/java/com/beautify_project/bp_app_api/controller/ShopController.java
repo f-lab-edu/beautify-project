@@ -1,16 +1,16 @@
 package com.beautify_project.bp_app_api.controller;
 
-import com.beautify_project.bp_app_api.dto.event.ShopLikeCancelEvent;
-import com.beautify_project.bp_app_api.dto.event.ShopLikeEvent;
+import com.beautify_project.bp_app_api.enumeration.ShopSearchType;
+import com.beautify_project.bp_app_api.producer.KafkaEventProducer;
 import com.beautify_project.bp_app_api.request.shop.ShopListFindRequestParameters;
 import com.beautify_project.bp_app_api.request.shop.ShopRegistrationRequest;
 import com.beautify_project.bp_app_api.response.ResponseMessage;
-import com.beautify_project.bp_mysql.enums.OrderType;
-import com.beautify_project.bp_app_api.enumeration.ShopSearchType;
 import com.beautify_project.bp_app_api.service.ShopService;
+import com.beautify_project.bp_mysql.enums.OrderType;
+import com.beuatify_project.bp_common.event.ShopLikeCancelEvent;
+import com.beuatify_project.bp_common.event.ShopLikeEvent;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import java.util.List;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ShopController {
 
     private final ShopService shopService;
+    private final KafkaEventProducer kafkaEventProducer;
 
     /**
      * Shop 등록
@@ -63,17 +64,9 @@ public class ShopController {
      */
     @PostMapping("/v1/shops/likes/{id}")
     @ResponseStatus(code = HttpStatus.OK)
-    public void likeShop(@PathVariable(value = "id") @NotBlank final String shopId) {
-        shopService.produceShopLikeEvent(shopId, "sssukho@gmail.com");
-    }
-
-    /**
-     * Shop 좋아요 이벤트 처리 (consumer 는 bp-kafka-consumer 에서 처리)
-     */
-    @PostMapping("/v1/shops/likes")
-    @ResponseStatus(code = HttpStatus.NO_CONTENT)
-    public void batchShopLikes(@Valid @RequestBody final List<ShopLikeEvent> shopLikeEvents) {
-        shopService.batchShopLikes(shopLikeEvents);
+    public void likeShop(@PathVariable(value = "id") @NotNull final Long shopId) {
+        // FIXME: ShopLikeEvent 생성자 파라미터에 사용자 정보 token 에서 넣는 방식으로 수정 필요
+        kafkaEventProducer.publishShopLikeEvent(new ShopLikeEvent(shopId, "sssukho@gmail.com"));
     }
 
     /**
@@ -81,16 +74,9 @@ public class ShopController {
      */
     @DeleteMapping("/v1/shops/likes/{id}")
     @ResponseStatus(code = HttpStatus.OK)
-    public void cancelLikeShop(@PathVariable(value = "id") @NotBlank final String shopId) {
-        shopService.produceShopLikeCancelEvent(shopId, "sssukho@gmail.com");
-    }
-
-    /**
-     * Shop 좋아요 취소 이벤트 처리 (consumer 는 bp-kafka-consumer 에서 처리)
-     */
-    @DeleteMapping("/v1/shops/likes")
-    @ResponseStatus(code = HttpStatus.NO_CONTENT)
-    public void batchShopLikeCancel(@Valid @RequestBody final List<ShopLikeCancelEvent> shopLikeCancelEvents) {
-        shopService.batchShopLikesCancel(shopLikeCancelEvents);
+    public void cancelLikeShop(@PathVariable(value = "id") @NotNull final Long shopId) {
+        // FIXME: ShopLikeCancelEvent 생성자 파라미터에 사용자 정보 token 에서 넣는 방식으로 수정 필요
+        kafkaEventProducer.publishShopLikeCancelEvent(
+            new ShopLikeCancelEvent(shopId, "sssukho@gmail.com"));
     }
 }

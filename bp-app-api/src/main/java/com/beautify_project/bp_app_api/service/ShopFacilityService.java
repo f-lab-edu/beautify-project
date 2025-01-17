@@ -20,7 +20,7 @@ public class ShopFacilityService {
     private final FacilityService facilityService;
 
     @Transactional(rollbackFor = Exception.class)
-    public List<ShopFacility> registerShopFacilities(final String shopId,
+    public List<ShopFacility> registerShopFacilities(final Long shopId,
         final List<String> facilityIds) {
 
         final List<Facility> facilities = facilityService.findFacilitiesByIds(facilityIds);
@@ -30,7 +30,7 @@ public class ShopFacilityService {
         return registerAll(shopFacilitiesToRegister);
     }
 
-    public List<ShopFacility> createShopFacilitiesWithShopIdAndFacilities(final String shopId,
+    public List<ShopFacility> createShopFacilitiesWithShopIdAndFacilities(final Long shopId,
         final List<Facility> facilities) {
         return facilities.stream().map(facility -> ShopFacility.of(shopId, facility.getId()))
             .toList();
@@ -41,7 +41,7 @@ public class ShopFacilityService {
         return shopFacilityRepository.saveAll(shopFacilitiesToRegister);
     }
 
-    public List<ShopFacility> findShopFacilitiesByShopIds(final List<String> shopIds) {
+    public List<ShopFacility> findShopFacilitiesByShopIds(final List<Long> shopIds) {
         Validator.throwIfNullOrEmpty(shopIds, new BpCustomException(ErrorCode.BR001));
         return shopFacilityRepository.findByIdShopIdIn(shopIds);
     }

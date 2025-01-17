@@ -1,8 +1,10 @@
 package com.beautify_project.bp_app_api.config;
 
 import com.beautify_project.bp_app_api.config.properties.KafkaProducerConfigProperties;
-import com.beautify_project.bp_app_api.dto.event.ShopLikeCancelEvent;
-import com.beautify_project.bp_app_api.dto.event.ShopLikeEvent;
+import com.beuatify_project.bp_common.event.ShopLikeCancelEvent;
+import com.beuatify_project.bp_common.event.ShopLikeEvent;
+import com.beuatify_project.bp_common.event.SignUpCertificationMailEvent;
+import com.beuatify_project.bp_common.serializer.MessagePackSerializer;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -13,7 +15,6 @@ import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
-import org.springframework.kafka.support.serializer.JsonSerializer;
 
 @EnableKafka
 @Configuration
@@ -27,7 +28,10 @@ public class KafkaProducerConfig {
         return Map.of(
             ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, configProperties.getBroker(),
             ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class,
-            ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+            ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, MessagePackSerializer.class
+//            ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class,
+
+        );
     }
 
     @Bean(name = "ShopLikeEventProducerFactory")
@@ -48,5 +52,15 @@ public class KafkaProducerConfig {
     @Bean(name = "ShopLikeCancelEventKafkaTemplate")
     public KafkaTemplate<String, ShopLikeCancelEvent> shopLikeCancelEventKafkaTemplate() {
         return new KafkaTemplate<>(shopLikeCancelEventProducerFactory());
+    }
+
+    @Bean(name = "SignUpCertificationMailEventProducerFactory")
+    public ProducerFactory<String, SignUpCertificationMailEvent> signUpCertificationMailEventProducerFactory() {
+        return new DefaultKafkaProducerFactory<>(producerConfig());
+    }
+
+    @Bean(name = "SignUpCertificationMailEventKafkaTemplate")
+    public KafkaTemplate<String, SignUpCertificationMailEvent> signUpCertificationMailEventKafkaTemplate() {
+        return new KafkaTemplate<>(signUpCertificationMailEventProducerFactory());
     }
 }

@@ -4,6 +4,8 @@ import com.beautify_project.bp_mysql.entity.listener.CustomEntityListener;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -16,10 +18,12 @@ import org.springframework.data.domain.Persistable;
 @Getter
 @EntityListeners(value = CustomEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class EmailCertification extends BaseEntity implements Persistable<String>{
+public class EmailCertification extends BaseEntity {
 
-    @Id
-    @Column(name = "email")
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "email", unique = true)
     private String email;
 
     @Column(name = "certification_number")
@@ -37,16 +41,6 @@ public class EmailCertification extends BaseEntity implements Persistable<String
 
     public static EmailCertification of(final String email, final String certificationNumber, final Long timeToRegister) {
         return new EmailCertification(email, certificationNumber, timeToRegister);
-    }
-
-    @Override
-    public String getId() {
-        return email;
-    }
-
-    @Override
-    public boolean isNew() {
-        return getCreatedDate() == null;
     }
 }
 

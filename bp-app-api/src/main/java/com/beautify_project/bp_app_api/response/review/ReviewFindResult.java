@@ -9,7 +9,7 @@ public record ReviewFindResult(
     String memberName,
     String operationId,
     String operationName,
-    String shopId,
+    Long shopId,
     String shopName,
     String reservationId,
     Long reservationDate

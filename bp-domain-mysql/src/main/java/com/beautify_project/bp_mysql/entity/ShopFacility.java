@@ -27,7 +27,7 @@ public class ShopFacility {
         this.registeredTime = registeredTime;
     }
 
-    public static ShopFacility of(final String shopId, final String facilityId) {
+    public static ShopFacility of(final Long shopId, final String facilityId) {
         return new ShopFacility(ShopFacilityId.of(shopId, facilityId), System.currentTimeMillis());
     }
 
@@ -37,17 +37,17 @@ public class ShopFacility {
     public static class ShopFacilityId implements Serializable {
 
         @Column(name = "shop_id")
-        private String shopId;
+        private Long shopId;
 
         @Column(name = "facility_id")
         private String facilityId;
 
-        private ShopFacilityId(final String shopId, final String facilityId) {
+        private ShopFacilityId(final Long shopId, final String facilityId) {
             this.shopId = shopId;
             this.facilityId = facilityId;
         }
 
-        public static ShopFacilityId of(final String shopId, final String facilityId) {
+        public static ShopFacilityId of(final Long shopId, final String facilityId) {
             return new ShopFacilityId(shopId, facilityId);
         }
     }

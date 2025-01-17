@@ -6,20 +6,35 @@ plugins {
 
 dependencies {
     implementation project(':bp-utils')
+    implementation project(':bp-common')
+    implementation project(':bp-domain-mysql')
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.kafka:spring-kafka'
-    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
     implementation 'org.apache.commons:commons-lang3:3.14.0'
     implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5'
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
 
-    testImplementation 'org.springframework.kafka:spring-kafka-test'
-
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-}
 
-dependencyManagement {
-    imports {
-        mavenBom "org.springframework.cloud:spring-cloud-dependencies:2023.0.2"
+    test {
+        useJUnitPlatform()
+        doFirst {
+            // build 시에는 integration-test 를 제외하고 test 를 수행한다.
+            // 개별 테스트 수행 시에는 integration-test 도 포함하여 수행한다.
+            if (filter.commandLineIncludePatterns.empty) {
+                useJUnitPlatform {
+                    excludeTags("integration-test")
+                }
+            }
+        }
+
+        testLogging {
+            events 'PASSED', 'FAILED', 'SKIPPED' // 테스트 이벤트 로그
+            showStandardStreams = false // 표준 출력 및 표준 에러 표시
+        }
     }
 }
+

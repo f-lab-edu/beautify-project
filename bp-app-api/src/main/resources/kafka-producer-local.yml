@@ -4,3 +4,4 @@ kafka:
     topic:
       shop-like-event: shop-like
       shop-like-cancel-event: shop-like-cancel
+      sign-up-certification-mail-event: sign-up-certification-mail

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public record ShopListFindResult(
-    String id,
+    Long id,
     String name,
     @JsonInclude(Include.NON_NULL)
     List<String> operations,

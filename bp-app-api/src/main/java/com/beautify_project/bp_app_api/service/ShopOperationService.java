@@ -20,7 +20,7 @@ public class ShopOperationService {
     private final OperationService operationService;
 
     @Transactional(rollbackFor = Exception.class)
-    public List<ShopOperation> registerShopOperations(final String shopId,
+    public List<ShopOperation> registerShopOperations(final Long shopId,
         final List<String> operationIds) {
 
         final List<Operation> operations = operationService.findOperationsByIds(operationIds);
@@ -35,13 +35,13 @@ public class ShopOperationService {
         return shopOperationRepository.saveAll(shopOperations);
     }
 
-    private List<ShopOperation> createShopOperationsWithShopIdAndOperations(final String shopId,
+    private List<ShopOperation> createShopOperationsWithShopIdAndOperations(final Long shopId,
         final List<Operation> operations) {
         return operations.stream().map(operation -> ShopOperation.of(shopId, operation.getId()))
             .toList();
     }
 
-    public List<ShopOperation> findShopOperationsByShopIds(final List<String> shopIds) {
+    public List<ShopOperation> findShopOperationsByShopIds(final List<Long> shopIds) {
         final List<ShopOperation> shopOperations = shopOperationRepository.findByIdShopIdIn(shopIds);
         Validator.throwIfNullOrEmpty(shopOperations, new BpCustomException(ErrorCode.SO001));
         return shopOperations;

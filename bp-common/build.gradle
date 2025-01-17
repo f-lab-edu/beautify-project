@@ -1,3 +1,7 @@
 dependencies {
+    implementation project(':bp-utils')
     implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
+    implementation 'org.msgpack:msgpack-core:0.9.9'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.2'
+    implementation 'org.apache.kafka:kafka-clients:3.7.1'
 }

@@ -14,5 +14,5 @@ public interface ShopRepository extends JpaRepository<Shop, String> {
     Page<Shop> findAll(Pageable pageable);
 //    List<Shop> findByIdIn(final List<String> shopIds);
 
-    List<Shop> findByIdIn(final Set<String> shopIds);
+    List<Shop> findByIdIn(final Set<Long> shopIds);
 }

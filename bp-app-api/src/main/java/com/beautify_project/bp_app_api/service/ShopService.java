@@ -1,8 +1,6 @@
 package com.beautify_project.bp_app_api.service;
 
 import com.beautify_project.bp_app_api.config.IOBoundAsyncThreadPoolConfiguration;
-import com.beautify_project.bp_app_api.dto.event.ShopLikeCancelEvent;
-import com.beautify_project.bp_app_api.dto.event.ShopLikeEvent;
 import com.beautify_project.bp_app_api.exception.BpCustomException;
 import com.beautify_project.bp_app_api.producer.KafkaEventProducer;
 import com.beautify_project.bp_app_api.provider.image.ImageProvider;
@@ -17,17 +15,17 @@ import com.beautify_project.bp_mysql.entity.Operation;
 import com.beautify_project.bp_mysql.entity.Shop;
 import com.beautify_project.bp_mysql.entity.ShopCategory;
 import com.beautify_project.bp_mysql.entity.ShopFacility;
-import com.beautify_project.bp_mysql.entity.ShopLike;
 import com.beautify_project.bp_mysql.entity.ShopOperation;
 import com.beautify_project.bp_mysql.entity.embedded.Address;
 import com.beautify_project.bp_mysql.entity.embedded.BusinessTime;
 import com.beautify_project.bp_mysql.repository.ShopRepository;
 import com.beautify_project.bp_utils.Validator;
+import com.beuatify_project.bp_common.event.ShopLikeCancelEvent;
+import com.beuatify_project.bp_common.event.ShopLikeEvent;
 import jakarta.validation.constraints.NotBlank;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
@@ -62,7 +60,7 @@ public class ShopService {
 
         final Shop registeredShop = shopRepository.save(
             createShopEntityFromShopRegistrationRequest(shopRegistrationRequest));
-        final String registeredShopId = registeredShop.getId();
+        final Long registeredShopId = registeredShop.getId();
         final List<String> operationIds = shopRegistrationRequest.operationIds();
         final List<String> facilityIds = shopRegistrationRequest.facilityIds();
 
@@ -188,12 +186,12 @@ public class ShopService {
 
     private List<ShopListFindResult> createShopListFindResults(final List<Shop> foundShops) {
 
-        final List<String> shopIds = foundShops.stream().map(Shop::getId).toList();
-        final Map<String, List<String>> operationNamesByShopId = findOperationNamesByShops(shopIds);
-        final Map<String, List<String>> facilityNamesByShopId = findFacilityNamesByShops(shopIds);
+        final List<Long> shopIds = foundShops.stream().map(Shop::getId).toList();
+        final Map<Long, List<String>> operationNamesByShopId = findOperationNamesByShops(shopIds);
+        final Map<Long, List<String>> facilityNamesByShopId = findFacilityNamesByShops(shopIds);
 
         return foundShops.stream().map(foundShop -> {
-                final String shopId = foundShop.getId();
+                final Long shopId = foundShop.getId();
                 final List<String> operationNames = operationNamesByShopId.get(shopId);
                 final List<String> facilityNames = facilityNamesByShopId.get(shopId);
                 final String thumbnailFileId = foundShop.getImageFileIds().get(0);
@@ -205,11 +203,11 @@ public class ShopService {
             .collect(Collectors.toList());
     }
 
-    private Map<String, List<String>> findOperationNamesByShops(final List<String> shopIds) {
+    private Map<Long, List<String>> findOperationNamesByShops(final List<Long> shopIds) {
         final List<ShopOperation> foundShopOperations = shopOperationService.findShopOperationsByShopIds(
             shopIds);
 
-        final Map<String, List<String>> operationIdsByShopId = foundShopOperations.stream()
+        final Map<Long, List<String>> operationIdsByShopId = foundShopOperations.stream()
             .collect(Collectors.groupingBy(shopOperation -> shopOperation.getId().getShopId(),
                 Collectors.mapping(shopOperation -> shopOperation.getId().getOperationId(),
                     Collectors.toList())));
@@ -222,11 +220,11 @@ public class ShopService {
                     .stream().map(Operation::getName).collect(Collectors.toList())));
     }
 
-    private Map<String, List<String>> findFacilityNamesByShops(final List<String> shopIds) {
+    private Map<Long, List<String>> findFacilityNamesByShops(final List<Long> shopIds) {
         final List<ShopFacility> foundShopFacilities = shopFacilityService.findShopFacilitiesByShopIds(
             shopIds);
 
-        final Map<String, List<String>> facilityIdsByShopId = foundShopFacilities.stream()
+        final Map<Long, List<String>> facilityIdsByShopId = foundShopFacilities.stream()
             .collect(Collectors.groupingBy(shopFacility -> shopFacility.getId().getShopId(),
                 Collectors.mapping(shopFacility -> shopFacility.getId().getFacilityId(),
                     Collectors.toList())));
@@ -244,59 +242,12 @@ public class ShopService {
     }
 
     @Async(value = "ioBoundExecutor")
-    public void produceShopLikeEvent(final String shopId, final String memberEmail) {
+    public void produceShopLikeEvent(final Long shopId, final String memberEmail) {
         kafkaEventProducer.publishShopLikeEvent(new ShopLikeEvent(shopId, memberEmail));
     }
 
     @Async(value = "ioBoundExecutor")
-    public void produceShopLikeCancelEvent(final String shopId, final String memberEmail) {
+    public void produceShopLikeCancelEvent(final Long shopId, final String memberEmail) {
         kafkaEventProducer.publishShopLikeCancelEvent(new ShopLikeCancelEvent(shopId, memberEmail));
-    }
-
-    @Transactional(rollbackFor = Exception.class)
-    public void batchShopLikes(final List<ShopLikeEvent> shopLikeEvents) {
-        final Map<String, Integer> countToIncreaseByShopId = shopLikeEvents.stream().collect(
-            Collectors.toMap(
-                ShopLikeEvent::shopId,
-                event -> 1,
-                Integer::sum
-            )
-        );
-
-        final Set<String> shopIds = countToIncreaseByShopId.keySet();
-        final List<Shop> foundShops = shopRepository.findByIdIn(shopIds);
-
-        foundShops.forEach(foundShop -> foundShop.increaseLikeCount(
-            countToIncreaseByShopId.get(foundShop.getId())));
-        log.info("{} counts of shops save all called", foundShops.size());
-        shopRepository.saveAll(foundShops);
-
-        List<ShopLike> shopLikesToRegister = shopLikeEvents.stream()
-            .map(event -> ShopLike.of(event.shopId(), event.memberEmail())).toList();
-        log.info("{} counts of shopLikes save all called", shopLikesToRegister.size());
-
-        shopLikeService.saveAllShopLikes(shopLikesToRegister);
-    }
-
-    @Transactional(rollbackFor = Exception.class)
-    public void batchShopLikesCancel(final List<ShopLikeCancelEvent> shopLikeEventCancels) {
-        final Map<String, Integer> countToDecreaseByShopId = shopLikeEventCancels.stream().collect(
-            Collectors.toMap(
-                ShopLikeCancelEvent::shopId,
-                event -> 1,
-                Integer::sum
-            )
-        );
-
-        final Set<String> shopIds = countToDecreaseByShopId.keySet();
-        final List<Shop> foundShops = shopRepository.findByIdIn(shopIds);
-
-        foundShops.forEach(foundShop -> foundShop.decreaseLikeCount(
-            countToDecreaseByShopId.get(foundShop.getId())));
-        shopRepository.saveAll(foundShops);
-
-        List<ShopLike> shopLikesToDelete = shopLikeEventCancels.stream()
-            .map(event -> ShopLike.of(event.shopId(), event.memberEmail())).toList();
-        shopLikeService.deleteAllShopLikes(shopLikesToDelete);
     }
 }

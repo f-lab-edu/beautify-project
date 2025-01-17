@@ -1,8 +1,6 @@
 package com.beautify_project.bp_app_api.service;
 
 import com.beautify_project.bp_app_api.exception.BpCustomException;
-import com.beautify_project.bp_app_api.provider.EmailProvider;
-import com.beautify_project.bp_app_api.request.auth.EmailCertificationRequest;
 import com.beautify_project.bp_app_api.request.auth.EmailCertificationVerificationRequest;
 import com.beautify_project.bp_app_api.request.auth.EmailDuplicatedRequest;
 import com.beautify_project.bp_app_api.response.ErrorResponseMessage.ErrorCode;
@@ -10,7 +8,6 @@ import com.beautify_project.bp_app_api.response.ResponseMessage;
 import com.beautify_project.bp_app_api.response.auth.EmailDuplicatedResult;
 import com.beautify_project.bp_mysql.entity.EmailCertification;
 import com.beautify_project.bp_mysql.repository.EmailCertificationRepository;
-import com.beautify_project.bp_utils.UUIDGenerator;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -22,10 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
 
     private static final Long MINUTE_TO_LONG = 1000L * 60L;
-    private static final Long CERTIFICATION_EMAIL_VALID_TIME = 3 * MINUTE_TO_LONG;
 
     private final MemberService memberService;
-    private final EmailProvider emailProvider;
     private final EmailCertificationRepository emailCertificationRepository;
 
     public ResponseMessage checkEmailDuplicated(final EmailDuplicatedRequest emailDuplicatedRequest) {
@@ -40,42 +35,12 @@ public class AuthService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void sendCertificationEmail(final EmailCertificationRequest request) {
-
-        EmailCertification foundEmailCertification = emailCertificationRepository.findByEmail(
-            request.email());
-
-        validateEmailCertificationRequest(foundEmailCertification);
-        final String generatedCertificationNumber = UUIDGenerator.generateEmailCertificationNumber();
-
-        if (foundEmailCertification == null) {
-            foundEmailCertification = EmailCertification.of(request.email(),
-                generatedCertificationNumber, System.currentTimeMillis());
-        }
-
-        emailCertificationRepository.save(foundEmailCertification);
-
-        emailProvider.sendCertificationMail(foundEmailCertification.getEmail(),
-            UUIDGenerator.generateEmailCertificationNumber());
-    }
-
-    private void validateEmailCertificationRequest(
-        final EmailCertification foundEmailCertification) {
-        if (foundEmailCertification == null) {
-            return;
-        }
-
-        if (System.currentTimeMillis() - foundEmailCertification.getRegisteredTime() > CERTIFICATION_EMAIL_VALID_TIME) {
-            return;
-        }
-
-        throw new BpCustomException(ErrorCode.EC001);
-    }
-
-    @Transactional(rollbackFor = Exception.class)
     public void verifyCertificationEmail(final EmailCertificationVerificationRequest request) {
-        final EmailCertification foundEmailCertification = emailCertificationRepository.findById(
-            request.email()).orElseThrow(() -> new BpCustomException(ErrorCode.EC002));
+        final EmailCertification foundEmailCertification = emailCertificationRepository.findByEmail(
+            request.email());
+        if (foundEmailCertification == null) {
+            throw new BpCustomException(ErrorCode.EC002);
+        }
 
         verifyEmailCertificationRequest(request.certificationNumber(),
             foundEmailCertification.getCertificationNumber());

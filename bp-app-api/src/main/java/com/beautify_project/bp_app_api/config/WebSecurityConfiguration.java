@@ -33,12 +33,11 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class WebSecurityConfiguration {
 
     private static final String[] WHITE_LIST_URLS = new String[]{
-        "/actuator", "/v1/members/user", "/v1/auth/**"
+        "/actuator", "/v1/members/user", "/v1/auth/**", "/v1/shops/**"
     };
     private static final String[] USER_ROLES_URLS = new String[]{
         "/v1/shops/**"
     };
-
 
     @Bean
     protected SecurityFilterChain configure(HttpSecurity httpSecurity) throws Exception {
