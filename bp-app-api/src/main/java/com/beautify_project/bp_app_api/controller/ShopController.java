@@ -6,8 +6,8 @@ import com.beautify_project.bp_app_api.request.shop.ShopListFindRequestParameter
 import com.beautify_project.bp_app_api.request.shop.ShopRegistrationRequest;
 import com.beautify_project.bp_app_api.response.ResponseMessage;
 import com.beautify_project.bp_app_api.service.ShopService;
-import com.beautify_project.bp_common_kafka.event.ShopLikeCancelEvent;
 import com.beautify_project.bp_common_kafka.event.ShopLikeEvent;
+import com.beautify_project.bp_common_kafka.event.ShopLikeEvent.LikeType;
 import com.beautify_project.bp_mysql.enums.OrderType;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -66,7 +66,7 @@ public class ShopController {
     @ResponseStatus(code = HttpStatus.OK)
     public void likeShop(@PathVariable(value = "id") @NotNull final Long shopId) {
         // FIXME: ShopLikeEvent 생성자 파라미터에 사용자 정보 token 에서 넣는 방식으로 수정 필요
-        kafkaEventProducer.publishShopLikeEvent(new ShopLikeEvent(shopId, "sssukho@gmail.com"));
+        kafkaEventProducer.publishShopLikeEvent(new ShopLikeEvent(shopId, "sssukho@gmail.com", LikeType.LIKE));
     }
 
     /**
@@ -76,7 +76,7 @@ public class ShopController {
     @ResponseStatus(code = HttpStatus.OK)
     public void cancelLikeShop(@PathVariable(value = "id") @NotNull final Long shopId) {
         // FIXME: ShopLikeCancelEvent 생성자 파라미터에 사용자 정보 token 에서 넣는 방식으로 수정 필요
-        kafkaEventProducer.publishShopLikeCancelEvent(
-            new ShopLikeCancelEvent(shopId, "sssukho@gmail.com"));
+        kafkaEventProducer.publishShopLikeEvent(new ShopLikeEvent(shopId, "sssukho@gmail.com", LikeType.LIKE_CANCEL));
+
     }
 }

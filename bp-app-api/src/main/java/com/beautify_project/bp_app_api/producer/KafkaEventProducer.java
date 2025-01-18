@@ -1,7 +1,6 @@
 package com.beautify_project.bp_app_api.producer;
 
 import com.beautify_project.bp_common_kafka.config.properties.KafkaConfigurationProperties;
-import com.beautify_project.bp_common_kafka.event.ShopLikeCancelEvent;
 import com.beautify_project.bp_common_kafka.event.ShopLikeEvent;
 import com.beautify_project.bp_common_kafka.event.SignUpCertificationMailEvent;
 import java.util.concurrent.CompletableFuture;
@@ -17,11 +16,9 @@ import org.springframework.stereotype.Component;
 public class KafkaEventProducer {
 
     private static final String TOPIC_CONFIG_NAME_SHOP_LIKE_EVENT = "SHOP-LIKE-EVENT";
-    private static final String TOPIC_CONFIG_NAME_SHOP_LIKE_CANCEL_EVENT = "SHOP-LIKE-CANCEL-EVENT";
     private static final String TOPIC_CONFIG_NAME_SIGNUP_CERTIFICATION_MAIL_EVENT = "MAIL-SIGN-UP-CERTIFICATION-EVENT";
 
     private final KafkaTemplate<String, ShopLikeEvent> shopLikeEventKafkaTemplate;
-    private final KafkaTemplate<String, ShopLikeCancelEvent> shopLikeCancelEventKafkaTemplate;
     private final KafkaTemplate<String, SignUpCertificationMailEvent> mailSignUpCertificationEventKafkaTemplate;
     private final KafkaConfigurationProperties kafkaConfigurationProperties;
 
@@ -31,18 +28,6 @@ public class KafkaEventProducer {
             shopLikeEventKafkaTemplate.send(
                 kafkaConfigurationProperties.getTopic().get(TOPIC_CONFIG_NAME_SHOP_LIKE_EVENT)
                     .getTopicName(), event);
-
-        asyncSendResult.exceptionally(throwable -> {
-            loggingPublishedFailed(throwable);
-            return null;
-        });
-    }
-
-    public void publishShopLikeCancelEvent(final ShopLikeCancelEvent event) {
-        final CompletableFuture<SendResult<String, ShopLikeCancelEvent>> asyncSendResult =
-            shopLikeCancelEventKafkaTemplate.send(
-                kafkaConfigurationProperties.getTopic()
-                    .get(TOPIC_CONFIG_NAME_SHOP_LIKE_CANCEL_EVENT).getTopicName(), event);
 
         asyncSendResult.exceptionally(throwable -> {
             loggingPublishedFailed(throwable);

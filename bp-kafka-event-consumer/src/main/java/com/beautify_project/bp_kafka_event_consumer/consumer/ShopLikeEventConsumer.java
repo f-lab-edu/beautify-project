@@ -1,12 +1,12 @@
 package com.beautify_project.bp_kafka_event_consumer.consumer;
 
+import com.beautify_project.bp_common_kafka.event.ShopLikeEvent;
+import com.beautify_project.bp_common_kafka.event.ShopLikeEvent.LikeType;
 import com.beautify_project.bp_mysql.entity.Shop;
 import com.beautify_project.bp_mysql.entity.ShopLike;
 import com.beautify_project.bp_mysql.entity.ShopLike.ShopLikeId;
 import com.beautify_project.bp_mysql.repository.ShopAdapterRepository;
 import com.beautify_project.bp_mysql.repository.ShopLikeAdapterRepository;
-import com.beautify_project.bp_common_kafka.event.ShopLikeCancelEvent;
-import com.beautify_project.bp_common_kafka.event.ShopLikeEvent;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -20,82 +20,123 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ShopLikeEventConsumer {
 
-    private static final String EVENT_LIKE = "like";
-    private static final String EVENT_LIKE_CANCEL = "cancel";
-
-    private final ShopLikeAdapterRepository shopLikeAdapterRepository;
-    private final ShopAdapterRepository shopAdapterRepository;
+    private final ShopLikeAdapterRepository shopLikeRepository;
+    private final ShopAdapterRepository shopRepository;
 
     @KafkaListener(
         topics = "#{kafkaConfigurationProperties.topic['SHOP-LIKE-EVENT'].topicName}",
         groupId = "#{kafkaConfigurationProperties.topic['SHOP-LIKE-EVENT'].consumer.groupId}",
         containerFactory = "shopLikeEventListenerContainerFactory")
-    public void listenShopLikeEvent(final List<ShopLikeEvent> events) {
-        log.debug("{} counts of event consumed", events.size());
-        batchShopLikeEvents(events);
+    public void listenShopLikeEvent(final List<ShopLikeEvent> eventsIncludingLikeAndCancel) {
+        log.debug("{} counts of event consumed", eventsIncludingLikeAndCancel.size());
+        batchShopLikeEvents(eventsIncludingLikeAndCancel);
+        batchShopLikeCancelEvents(eventsIncludingLikeAndCancel);
     }
 
-    @KafkaListener(
-        topics = "#{kafkaConfigurationProperties.topic['SHOP-LIKE-CANCEL-EVENT'].topicName}",
-        groupId = "#{kafkaConfigurationProperties.topic['SHOP-LIKE-CANCEL-EVENT'].consumer.groupId}",
-        containerFactory = "shopLikeCancelEventListenerContainerFactory")
-    public void listenShopLikeCancelEvent(final List<ShopLikeCancelEvent> events) {
-        log.debug("{} counts of event consumed", events.size());
-        batchShopLikeCancelEvents(events);
+    public void batchShopLikeEvents(final List<ShopLikeEvent> eventsIncludingLikeAndCancel) {
+
+        final List<ShopLikeEvent> likeEvents = filterEventsByLikeType(eventsIncludingLikeAndCancel,
+            LikeType.LIKE);
+
+        if (likeEvents.isEmpty()) {
+            return;
+        }
+
+        final Map<Long, Integer> countToIncreaseByShopId = makeCountToUpdateByShopId(likeEvents);
+
+        updateShopLikeCountInShopEntity(countToIncreaseByShopId, LikeType.LIKE);
+        bulkInsertShopLikeEntity(likeEvents);
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    public void batchShopLikeEvents(final List<ShopLikeEvent> events) {
-        final List<ShopLikeEvent> filteredEvents = filterAlreadyShopLikePushed(events);
-        final Map<Long, Integer> countToIncreaseByShopId = filteredEvents.stream().collect(
+    private void batchShopLikeCancelEvents(final List<ShopLikeEvent> eventsIncludingLikeAndCancel) {
+
+        final List<ShopLikeEvent> cancelEvents = filterEventsByLikeType(eventsIncludingLikeAndCancel,
+            LikeType.LIKE_CANCEL);
+
+        if (cancelEvents.isEmpty()) {
+            return;
+        }
+
+        final Map<Long, Integer> countToDecreaseByShopId = makeCountToUpdateByShopId(cancelEvents);
+
+        updateShopLikeCountInShopEntity(countToDecreaseByShopId, LikeType.LIKE_CANCEL);
+        removeAllShopLikeEntity(cancelEvents);
+    }
+
+    private List<ShopLikeEvent> filterEventsByLikeType(
+        final List<ShopLikeEvent> eventsIncludingLikeAndCancel, final LikeType likeType) {
+
+        if (LikeType.LIKE == likeType) {
+            final List<ShopLikeEvent> filteredLikeEvents = eventsIncludingLikeAndCancel.stream()
+                .filter(event -> event.type() == LikeType.LIKE)
+                .toList();
+
+            return filterDuplicated(filteredLikeEvents, likeType);
+        }
+
+        final List<ShopLikeEvent> filteredCancelEvents = eventsIncludingLikeAndCancel.stream()
+            .filter(event -> event.type() == LikeType.LIKE_CANCEL)
+            .toList();
+
+        return filterDuplicated(filteredCancelEvents, likeType);
+    }
+
+    private List<ShopLikeEvent> filterDuplicated(final List<ShopLikeEvent> events, final LikeType likeType) {
+
+        final List<ShopLikeId> shopLikeIdsToFind = events.stream()
+            .map(event -> ShopLikeId.of(event.shopId(), event.memberEmail()))
+            .toList();
+
+        final List<ShopLike> alreadyInsertedShopLikeEntities = shopLikeRepository.findByShopLikeIdIn(
+            shopLikeIdsToFind);
+
+        // 이미 db로 처리된 ShopLike
+        final Set<ShopLikeId> alreadyInsertedIds = alreadyInsertedShopLikeEntities.stream()
+            .map(ShopLike::getId)
+            .collect(Collectors.toSet());
+
+        // 이미 처리된 좋아요 == db 상에 존재
+        if (LikeType.LIKE == likeType) {
+            return events.stream()
+                .filter(event -> !alreadyInsertedIds.contains(
+                    ShopLikeId.of(event.shopId(), event.memberEmail())))
+                .toList();
+        }
+
+        // 이미 처리된 좋아요 취소 == db 상에 존재하지 않음
+        return events.stream()
+            .filter(event -> alreadyInsertedIds.contains(
+                ShopLikeId.of(event.shopId(), event.memberEmail())))
+            .toList();
+    }
+
+    private Map<Long, Integer> makeCountToUpdateByShopId(final List<ShopLikeEvent> filteredEvents) {
+        return filteredEvents.stream().collect(
             Collectors.toMap(
                 ShopLikeEvent::shopId,
                 event -> 1,
                 Integer::sum
             )
         );
-
-        if (countToIncreaseByShopId.isEmpty()) {
-            log.debug("No need to process");
-            return;
-        }
-        updateShopLikeCountInShopEntity(countToIncreaseByShopId, EVENT_LIKE);
-        bulkInsertShopLikeEntity(filteredEvents);
     }
 
-    private List<ShopLikeEvent> filterAlreadyShopLikePushed(final List<ShopLikeEvent> events) {
-        final List<ShopLikeId> shopLikeIdsToFind = events.stream()
-            .map(event -> ShopLikeId.of(event.shopId(), event.memberEmail())).toList();
-        final List<ShopLike> alreadyProcessedShopLikes = shopLikeAdapterRepository.findByShopLikeIdIn(
-            shopLikeIdsToFind);
-
-        // 중복 제거 로직
-        final Set<ShopLikeId> alreadyProcessedIds = alreadyProcessedShopLikes.stream()
-            .map(ShopLike::getId)
-            .collect(Collectors.toSet());
-
-        return events.stream()
-            .filter(event -> !alreadyProcessedIds.contains(ShopLikeId.of(event.shopId(), event.memberEmail())))
-            .toList();
-    }
-
-    private void updateShopLikeCountInShopEntity(final Map<Long, Integer> countToProcessByShopId, final String eventType) {
+    private void updateShopLikeCountInShopEntity(final Map<Long, Integer> countToProcessByShopId, final LikeType likeType) {
         final Set<Long> shopIdsToFind = countToProcessByShopId.keySet();
-        List<Shop> foundShops = shopAdapterRepository.findByIdIn(shopIdsToFind);
+        List<Shop> foundShops = shopRepository.findByIdIn(shopIdsToFind);
 
-        if (EVENT_LIKE_CANCEL.equals(eventType)) {
-            foundShops.forEach(foundShop -> foundShop.decreaseLikeCount(
-                countToProcessByShopId.get(foundShop.getId())
-            ));
-        } else {
+        if (LikeType.LIKE == likeType) {
             foundShops.forEach(foundShop -> foundShop.increaseLikeCount(
                 countToProcessByShopId.get(foundShop.getId())
             ));
+        } else {
+            foundShops.forEach(foundShop -> foundShop.decreaseLikeCount(
+                countToProcessByShopId.get(foundShop.getId())
+            ));
         }
-
-        shopAdapterRepository.saveAll(foundShops);
+        shopRepository.saveAll(foundShops);
         log.debug("{} counts of Shop entity updated", foundShops.size());
     }
 
@@ -104,64 +145,15 @@ public class ShopLikeEventConsumer {
         List<ShopLike> shopLikesToRegister = events.stream()
             .map(event -> ShopLike.of(event.shopId(), event.memberEmail()))
             .toList();
-        shopLikeAdapterRepository.bulkInsert(shopLikesToRegister);
+        shopLikeRepository.bulkInsert(shopLikesToRegister);
         log.debug("{} counts of ShopLike entity inserted", shopLikesToRegister.size());
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    public void batchShopLikeCancelEvents(final List<ShopLikeCancelEvent> events) {
-        final List<ShopLikeCancelEvent> filteredEvents = filterAlreadyShopLikeNotPushed(events);
-        final Map<Long, Integer> countToDecreaseByShopId = filteredEvents.stream().collect(
-            Collectors.toMap(
-                ShopLikeCancelEvent::shopId,
-                event -> 1,
-                Integer::sum
-            )
-        );
-
-        if (countToDecreaseByShopId.isEmpty()) {
-            log.debug("No need to process");
-            return;
-        }
-        updateShopLikeCountInShopEntity(countToDecreaseByShopId, EVENT_LIKE_CANCEL);
-        removeAllShopLikeEntity(filteredEvents);
-    }
-
     @Transactional
-    private void removeAllShopLikeEntity(final List<ShopLikeCancelEvent> events) {
+    private void removeAllShopLikeEntity(final List<ShopLikeEvent> events) {
         final List<ShopLikeId> shopLikeIdsToRemove = events.stream().map(event -> ShopLikeId.of(
             event.shopId(), event.memberEmail())).toList();
-        shopLikeAdapterRepository.deleteAllByIdInBatch(shopLikeIdsToRemove);
+        shopLikeRepository.deleteAllByIdInBatch(shopLikeIdsToRemove);
         log.debug("{} counts of ShopLike entity removed", shopLikeIdsToRemove.size());
-    }
-
-    private Map<Long, Integer> makeCountToDecreaseByShopIdExceptAlreadyShopLikePushed(
-        final List<ShopLikeCancelEvent> events) {
-        final List<ShopLikeCancelEvent> filteredEvents = filterAlreadyShopLikeNotPushed(events);
-        return filteredEvents.stream().collect(
-            Collectors.toMap(
-                ShopLikeCancelEvent::shopId,
-                event -> 1,
-                Integer::sum
-            )
-        );
-    }
-
-    private List<ShopLikeCancelEvent> filterAlreadyShopLikeNotPushed(
-        final List<ShopLikeCancelEvent> events) {
-        final List<ShopLikeId> shopLikeIdsToFind = events.stream()
-            .map(event -> ShopLikeId.of(event.shopId(), event.memberEmail())).toList();
-        final List<ShopLike> alreadyProcessedShopLikes = shopLikeAdapterRepository.findByShopLikeIdIn(
-            shopLikeIdsToFind);
-
-        // 중복 제거 로직
-        final Set<ShopLikeId> alreadyProcessedIds = alreadyProcessedShopLikes.stream()
-            .map(ShopLike::getId)
-            .collect(Collectors.toSet());
-
-        return events.stream()
-            .filter(event ->
-                alreadyProcessedIds.contains(ShopLikeId.of(event.shopId(), event.memberEmail())))
-            .toList();
     }
 }

@@ -1,7 +1,6 @@
 package com.beautify_project.bp_common_kafka.config;
 
 import com.beautify_project.bp_common_kafka.config.properties.KafkaConfigurationProperties;
-import com.beautify_project.bp_common_kafka.event.ShopLikeCancelEvent;
 import com.beautify_project.bp_common_kafka.event.ShopLikeEvent;
 import com.beautify_project.bp_common_kafka.event.SignUpCertificationMailEvent;
 import com.beautify_project.bp_common_kafka.serializer.MessagePackSerializer;
@@ -38,16 +37,6 @@ public class KafkaProducerConfig {
     @Bean(name = "ShopLikeEventKafkaTemplate")
     public KafkaTemplate<String, ShopLikeEvent> shopLikeEventKafkaTemplate() {
         return new KafkaTemplate<>(shopLikeEventProducerFactory());
-    }
-
-    @Bean(name = "ShopLikeCancelEventProducerFactory")
-    public ProducerFactory<String, ShopLikeCancelEvent> shopLikeCancelEventProducerFactory() {
-        return new DefaultKafkaProducerFactory<>(producerConfig());
-    }
-
-    @Bean(name = "ShopLikeCancelEventKafkaTemplate")
-    public KafkaTemplate<String, ShopLikeCancelEvent> shopLikeCancelEventKafkaTemplate() {
-        return new KafkaTemplate<>(shopLikeCancelEventProducerFactory());
     }
 
     @Bean(name = "SignUpCertificationMailEventProducerFactory")
