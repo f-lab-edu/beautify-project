@@ -1,5 +1,6 @@
 kafka:
-  broker-url: ENC(mPyjrXNXqdAWkyHU943WfxFQanyXmQqt)
+  broker-url: ENC(GIRh9rIHwl8oUn4Dxv7ATqpqlCFvL4NoVRYSiZgi9zM=)
+  schema-registry-url: ENC(L8AFAz/hgomLZidY4IaixOoFkLKRwpoepcnN2Xs4wWw=)
   topic:
     SHOP-LIKE-EVENT:
       topic-name: shop-like

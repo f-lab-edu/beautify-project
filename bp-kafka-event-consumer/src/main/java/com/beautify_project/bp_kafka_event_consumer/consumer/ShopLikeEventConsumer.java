@@ -1,7 +1,7 @@
 package com.beautify_project.bp_kafka_event_consumer.consumer;
 
-import com.beautify_project.bp_common_kafka.event.ShopLikeEvent;
-import com.beautify_project.bp_common_kafka.event.ShopLikeEvent.LikeType;
+import com.beautify_project.bp_common_kafka.event.ShopLikeEvent.ShopLikeEventProto;
+import com.beautify_project.bp_common_kafka.event.ShopLikeEvent.ShopLikeEventProto.LikeType;
 import com.beautify_project.bp_mysql.entity.Shop;
 import com.beautify_project.bp_mysql.entity.ShopLike;
 import com.beautify_project.bp_mysql.entity.ShopLike.ShopLikeId;
@@ -30,15 +30,15 @@ public class ShopLikeEventConsumer {
         topics = "#{kafkaConfigurationProperties.topic['SHOP-LIKE-EVENT'].topicName}",
         groupId = "#{kafkaConfigurationProperties.topic['SHOP-LIKE-EVENT'].consumer.groupId}",
         containerFactory = "shopLikeEventListenerContainerFactory")
-    public void listenShopLikeEvent(final List<ShopLikeEvent> eventsIncludingLikeAndCancel) {
+    public void listenShopLikeEvent(final List<ShopLikeEventProto> eventsIncludingLikeAndCancel) {
         log.debug("{} counts of event consumed", eventsIncludingLikeAndCancel.size());
         batchShopLikeEvents(eventsIncludingLikeAndCancel);
         batchShopLikeCancelEvents(eventsIncludingLikeAndCancel);
     }
 
-    public void batchShopLikeEvents(final List<ShopLikeEvent> eventsIncludingLikeAndCancel) {
+    public void batchShopLikeEvents(final List<ShopLikeEventProto> eventsIncludingLikeAndCancel) {
 
-        final List<ShopLikeEvent> likeEvents = filterEventsByLikeType(eventsIncludingLikeAndCancel,
+        final List<ShopLikeEventProto> likeEvents = filterEventsByLikeType(eventsIncludingLikeAndCancel,
             LikeType.LIKE);
 
         if (likeEvents.isEmpty()) {
@@ -51,9 +51,9 @@ public class ShopLikeEventConsumer {
         bulkInsertShopLikeEntity(likeEvents);
     }
 
-    private void batchShopLikeCancelEvents(final List<ShopLikeEvent> eventsIncludingLikeAndCancel) {
+    private void batchShopLikeCancelEvents(final List<ShopLikeEventProto> eventsIncludingLikeAndCancel) {
 
-        final List<ShopLikeEvent> cancelEvents = filterEventsByLikeType(eventsIncludingLikeAndCancel,
+        final List<ShopLikeEventProto> cancelEvents = filterEventsByLikeType(eventsIncludingLikeAndCancel,
             LikeType.LIKE_CANCEL);
 
         if (cancelEvents.isEmpty()) {
@@ -66,28 +66,27 @@ public class ShopLikeEventConsumer {
         removeAllShopLikeEntity(cancelEvents);
     }
 
-    private List<ShopLikeEvent> filterEventsByLikeType(
-        final List<ShopLikeEvent> eventsIncludingLikeAndCancel, final LikeType likeType) {
+    private List<ShopLikeEventProto> filterEventsByLikeType(
+        final List<ShopLikeEventProto> eventsIncludingLikeAndCancel, final LikeType likeType) {
 
         if (LikeType.LIKE == likeType) {
-            final List<ShopLikeEvent> filteredLikeEvents = eventsIncludingLikeAndCancel.stream()
-                .filter(event -> event.type() == LikeType.LIKE)
+            final List<ShopLikeEventProto> filteredLikeEvents = eventsIncludingLikeAndCancel.stream()
+                .filter(event -> event.getType() == LikeType.LIKE)
                 .toList();
-
             return filterDuplicated(filteredLikeEvents, likeType);
         }
 
-        final List<ShopLikeEvent> filteredCancelEvents = eventsIncludingLikeAndCancel.stream()
-            .filter(event -> event.type() == LikeType.LIKE_CANCEL)
+        final List<ShopLikeEventProto> filteredCancelEvents = eventsIncludingLikeAndCancel.stream()
+            .filter(event -> event.getType() == LikeType.LIKE_CANCEL)
             .toList();
 
         return filterDuplicated(filteredCancelEvents, likeType);
     }
 
-    private List<ShopLikeEvent> filterDuplicated(final List<ShopLikeEvent> events, final LikeType likeType) {
+    private List<ShopLikeEventProto> filterDuplicated(final List<ShopLikeEventProto> events, final LikeType likeType) {
 
         final List<ShopLikeId> shopLikeIdsToFind = events.stream()
-            .map(event -> ShopLikeId.of(event.shopId(), event.memberEmail()))
+            .map(event -> ShopLikeId.of(event.getShopId(), event.getMemberEmail()))
             .toList();
 
         final List<ShopLike> alreadyInsertedShopLikeEntities = shopLikeRepository.findByShopLikeIdIn(
@@ -102,21 +101,21 @@ public class ShopLikeEventConsumer {
         if (LikeType.LIKE == likeType) {
             return events.stream()
                 .filter(event -> !alreadyInsertedIds.contains(
-                    ShopLikeId.of(event.shopId(), event.memberEmail())))
+                    ShopLikeId.of(event.getShopId(), event.getMemberEmail())))
                 .toList();
         }
 
         // 이미 처리된 좋아요 취소 == db 상에 존재하지 않음
         return events.stream()
             .filter(event -> alreadyInsertedIds.contains(
-                ShopLikeId.of(event.shopId(), event.memberEmail())))
+                ShopLikeId.of(event.getShopId(), event.getMemberEmail())))
             .toList();
     }
 
-    private Map<Long, Integer> makeCountToUpdateByShopId(final List<ShopLikeEvent> filteredEvents) {
+    private Map<Long, Integer> makeCountToUpdateByShopId(final List<ShopLikeEventProto> filteredEvents) {
         return filteredEvents.stream().collect(
             Collectors.toMap(
-                ShopLikeEvent::shopId,
+                ShopLikeEventProto::getShopId,
                 event -> 1,
                 Integer::sum
             )
@@ -141,18 +140,19 @@ public class ShopLikeEventConsumer {
     }
 
     @Transactional
-    private void bulkInsertShopLikeEntity(final List<ShopLikeEvent> events) {
+    private void bulkInsertShopLikeEntity(final List<ShopLikeEventProto> events) {
         List<ShopLike> shopLikesToRegister = events.stream()
-            .map(event -> ShopLike.of(event.shopId(), event.memberEmail()))
+            .map(event -> ShopLike.of(event.getShopId(), event.getMemberEmail()))
             .toList();
         shopLikeRepository.bulkInsert(shopLikesToRegister);
         log.debug("{} counts of ShopLike entity inserted", shopLikesToRegister.size());
     }
 
     @Transactional
-    private void removeAllShopLikeEntity(final List<ShopLikeEvent> events) {
-        final List<ShopLikeId> shopLikeIdsToRemove = events.stream().map(event -> ShopLikeId.of(
-            event.shopId(), event.memberEmail())).toList();
+    private void removeAllShopLikeEntity(final List<ShopLikeEventProto> events) {
+        final List<ShopLikeId> shopLikeIdsToRemove = events.stream()
+            .map(event -> ShopLikeId.of(event.getShopId(), event.getMemberEmail()))
+            .toList();
         shopLikeRepository.deleteAllByIdInBatch(shopLikeIdsToRemove);
         log.debug("{} counts of ShopLike entity removed", shopLikeIdsToRemove.size());
     }

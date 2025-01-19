@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Configuration;
 public class KafkaConfigurationProperties {
 
     private String brokerUrl;
+    private String schemaRegistryUrl;
     private Map<String, TopicConfigurationProperties> topic;
 
     public void setBrokerUrl(final String brokerUrl) {
@@ -21,6 +22,13 @@ public class KafkaConfigurationProperties {
             throw new IllegalStateException("broker 설정값이 올바르지 않습니다.");
         }
         this.brokerUrl = brokerUrl;
+    }
+
+    public void setSchemaRegistryUrl(final String schemaRegistryUrl) {
+        if (Validator.isEmptyOrBlank(schemaRegistryUrl)) {
+            throw new IllegalStateException("schema registry url 설정값이 올바르지 않습니다.");
+        }
+        this.schemaRegistryUrl = schemaRegistryUrl;
     }
 
     public void setTopic(

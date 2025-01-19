@@ -2,7 +2,6 @@ package com.beautify_project.bp_app_api.service;
 
 import com.beautify_project.bp_app_api.config.IOBoundAsyncThreadPoolConfiguration;
 import com.beautify_project.bp_app_api.exception.BpCustomException;
-import com.beautify_project.bp_app_api.producer.KafkaEventProducer;
 import com.beautify_project.bp_app_api.provider.image.ImageProvider;
 import com.beautify_project.bp_app_api.request.shop.ShopListFindRequestParameters;
 import com.beautify_project.bp_app_api.request.shop.ShopRegistrationRequest;
@@ -50,7 +49,6 @@ public class ShopService {
     private final ShopCategoryService shopCategoryService;
     private final ImageProvider imageProvider;
     private final IOBoundAsyncThreadPoolConfiguration ioBoundAsyncThreadPoolConfig;
-    private final KafkaEventProducer kafkaEventProducer;
 
     @Transactional(rollbackFor = Exception.class)
     public ResponseMessage registerShop(final ShopRegistrationRequest shopRegistrationRequest) {
