@@ -32,19 +32,21 @@ public class MailEventConsumer {
         groupId = "#{kafkaConfigurationProperties.topic['MAIL-SIGN-UP-CERTIFICATION-EVENT'].consumer.groupId}",
         containerFactory = "signUpCertificationMailEventConcurrentKafkaListenerContainerFactory"
     )
-    public void listenMailSignUpCertificationEvent(
-        final List<SignUpCertificationMailEventProto> events) {
+    @Transactional
+    public void listenMailSignUpCertificationEvent(final List<SignUpCertificationMailEventProto> events)
+        throws Exception{
         sendCertificationMail(events);
     }
 
-    @Transactional
-    private void sendCertificationMail(final List<SignUpCertificationMailEventProto> events) {
-        final Set<String> targetsFromEvents = events.stream()
+    @Transactional(rollbackFor = Exception.class)
+    private void sendCertificationMail(final List<SignUpCertificationMailEventProto> events) throws Exception{
+
+        final Set<String> filteredDuplicatedEvents = events.stream()
             .distinct()
             .map(SignUpCertificationMailEventProto::getMemberEmail)
             .collect(Collectors.toSet());
 
-        final Set<String> validTargets = filterInvalidTargets(targetsFromEvents);
+        final Set<String> validTargets = filterInvalidTargets(filteredDuplicatedEvents);
         emailCertificationRepository.deleteAllByEmails(validTargets);
 
         log.debug("{} counts of certification mails will be sent", validTargets.size());

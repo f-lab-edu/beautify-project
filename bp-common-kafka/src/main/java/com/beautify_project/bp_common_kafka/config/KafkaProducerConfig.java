@@ -51,4 +51,15 @@ public class KafkaProducerConfig {
     public KafkaTemplate<String, SignUpCertificationMailEvent.SignUpCertificationMailEventProto> signUpCertificationMailEventKafkaTemplate() {
         return new KafkaTemplate<>(signUpCertificationMailEventProducerFactory());
     }
+
+    @Bean
+    public ProducerFactory<String, Object> commonProtobufErrorProducerFactory() {
+        return new DefaultKafkaProducerFactory<>(protoBufProducerConfig());
+    }
+
+    @Bean
+    public KafkaTemplate<String, Object> protobufErrorKafkaTemplate() {
+        return new KafkaTemplate<>(commonProtobufErrorProducerFactory());
+    }
+
 }

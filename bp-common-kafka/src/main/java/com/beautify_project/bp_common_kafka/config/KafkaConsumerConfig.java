@@ -10,7 +10,6 @@ import io.confluent.kafka.serializers.protobuf.KafkaProtobufDeserializer;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.SerializationException;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.context.annotation.Bean;
@@ -18,9 +17,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
-import org.springframework.kafka.support.serializer.JsonDeserializer;
+import org.springframework.util.backoff.FixedBackOff;
 
 @Configuration
 @RequiredArgsConstructor
@@ -34,6 +35,7 @@ public class KafkaConsumerConfig {
     private static final String KEY_SCHEMA_REGISTRY_URL = "schema.registry.url";
 
     private final KafkaConfigurationProperties kafkaConfig;
+    private final KafkaProducerConfig kafkaProducerConfig;
 
     @Bean("shopLikeEventConsumerConfig")
     public Map<String, Object> shopLikeEventConsumerConfig() {
@@ -65,18 +67,11 @@ public class KafkaConsumerConfig {
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, ShopLikeEvent.ShopLikeEventProto> shopLikeEventListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, ShopLikeEvent.ShopLikeEventProto> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        final ConcurrentKafkaListenerContainerFactory<String, ShopLikeEvent.ShopLikeEventProto> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(shopLikeEventConsumerFactory());
         factory.setBatchListener(true);
-        factory.setCommonErrorHandler(new DefaultErrorHandler((record, exception) -> {
-            if (exception instanceof SerializationException
-                || exception instanceof IllegalStateException) {
-                // TODO: 별도의 큐 처리 또는 추가 로직으로 처리 필요
-                log.error(
-                    "Skip event due to deserialization error: topic - {} | partition - {} | value - {}",
-                    record.topic(), record.partition(), record.value());
-            }
-        }));
+        factory.setCommonErrorHandler(defaultErrorHandler());
+
         return factory;
     }
 
@@ -110,9 +105,21 @@ public class KafkaConsumerConfig {
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, SignUpCertificationMailEvent.SignUpCertificationMailEventProto> signUpCertificationMailEventConcurrentKafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, SignUpCertificationMailEvent.SignUpCertificationMailEventProto> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        final ConcurrentKafkaListenerContainerFactory<String, SignUpCertificationMailEvent.SignUpCertificationMailEventProto> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(signUpCertificationMailEventConsumerFactory());
         factory.setBatchListener(true);
+        factory.setCommonErrorHandler(defaultErrorHandler());
+
         return factory;
+    }
+
+    @Bean
+    public DefaultErrorHandler defaultErrorHandler() {
+        // 2초 간격으로 최대 3번 재시도
+        final FixedBackOff fixedBackOff = new FixedBackOff(2000L, 3L);
+        // DeadLetterPublishingRecoverer 를 사용하여 실패한 메시지를 DLT로 전송
+        final DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(kafkaProducerConfig.protobufErrorKafkaTemplate());
+        // DefaultErrorHandler 에 DLT와 재시도 정책 설정
+        return new DefaultErrorHandler(recoverer, fixedBackOff);
     }
 }

@@ -1,7 +1,7 @@
 services:
   db:
     image: mysql:9.1
-    container_name: bp_mysql
+    container_name: bp-mysql
     ports:
       - 3306:3306
     environment:
@@ -24,7 +24,7 @@ services:
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.4.0
-#    restart: always
+    container_name: bp-zookeeper
     environment:
       ZOOKEEPER_SERVER_ID: 1
       ZOOKEEPER_CLIENT_PORT: "2181"
@@ -33,8 +33,9 @@ services:
     ports:
       - "2181:2181"
 
-  kafka1:
+  kafka:
     image: confluentinc/cp-enterprise-kafka:7.4.0
+    container_name: bp-kafka
     depends_on:
       - zookeeper
     ports:
@@ -46,7 +47,7 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka1:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
       KAFKA_BROKER_ID: 1
       KAFKA_BROKER_RACK: "r1"
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
@@ -56,15 +57,15 @@ services:
       #KAFKA_LOG4J_ROOT_LOGLEVEL: INFO
       KAFKA_JMX_PORT: 9991
 
-
   schemaregistry:
     image: confluentinc/cp-schema-registry:7.4.0
+    container_name: bp-schema-registry
     depends_on:
       - zookeeper
-      - kafka1
+      - kafka
     environment:
 #      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: "zookeeper:2181"
-      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: "PLAINTEXT://kafka1:9092"
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: "PLAINTEXT://kafka:9092"
       SCHEMA_REGISTRY_HOST_NAME: schemaregistry
       SCHEMA_REGISTRY_LISTENERS: "http://0.0.0.0:8085"
     ports:
