@@ -30,6 +30,7 @@ public class ShopLikeEventConsumer {
         topics = "#{kafkaConfigurationProperties.topic['SHOP-LIKE-EVENT'].topicName}",
         groupId = "#{kafkaConfigurationProperties.topic['SHOP-LIKE-EVENT'].consumer.groupId}",
         containerFactory = "shopLikeEventListenerContainerFactory")
+    @Transactional
     public void listenShopLikeEvent(final List<ShopLikeEventProto> eventsIncludingLikeAndCancel) {
         log.debug("{} counts of event consumed", eventsIncludingLikeAndCancel.size());
         batchShopLikeEvents(eventsIncludingLikeAndCancel);
@@ -122,6 +123,7 @@ public class ShopLikeEventConsumer {
         );
     }
 
+    @Transactional
     private void updateShopLikeCountInShopEntity(final Map<Long, Integer> countToProcessByShopId, final LikeType likeType) {
         final Set<Long> shopIdsToFind = countToProcessByShopId.keySet();
         List<Shop> foundShops = shopRepository.findByIdIn(shopIdsToFind);

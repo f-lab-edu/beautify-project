@@ -3,7 +3,9 @@ package com.beautify_project.bp_common_kafka.config;
 import com.beautify_project.bp_common_kafka.config.properties.KafkaConfigurationProperties;
 import com.beautify_project.bp_common_kafka.config.properties.KafkaConfigurationProperties.TopicConfigurationProperties;
 import com.beautify_project.bp_common_kafka.event.ShopLikeEvent;
+import com.beautify_project.bp_common_kafka.event.ShopLikeEvent.ShopLikeEventProto;
 import com.beautify_project.bp_common_kafka.event.SignUpCertificationMailEvent;
+import com.beautify_project.bp_common_kafka.event.SignUpCertificationMailEvent.SignUpCertificationMailEventProto;
 import io.confluent.kafka.serializers.protobuf.KafkaProtobufDeserializer;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -25,12 +27,10 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 @Slf4j
 public class KafkaConsumerConfig {
 
-    private static final String TRUSTED_PACKAGES = "com.beuatify_project.bp_common.event";
     private static final String TOPIC_CONFIG_NAME_SHOP_LIKE_EVENT = "SHOP-LIKE-EVENT";
     private static final String TOPIC_CONFIG_NAME_SIGNUP_CERTIFICATION_MAIL_EVENT = "MAIL-SIGN-UP-CERTIFICATION-EVENT";
 
-//    private static final String KEY_SPECIFIC_PROTOBUF_VALUE_TYPE = "specific.protobuf.value.type";
-
+    private static final String KEY_SPECIFIC_PROTOBUF_VALUE_TYPE = "specific.protobuf.value.type";
     private static final String KEY_SCHEMA_REGISTRY_URL = "schema.registry.url";
 
     private final KafkaConfigurationProperties kafkaConfig;
@@ -51,6 +51,7 @@ public class KafkaConsumerConfig {
             ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, ErrorHandlingDeserializer.class,
 
             KEY_SCHEMA_REGISTRY_URL, kafkaConfig.getSchemaRegistryUrl(),
+            KEY_SPECIFIC_PROTOBUF_VALUE_TYPE, ShopLikeEventProto.class.getName(),
 
             ConsumerConfig.MAX_POLL_RECORDS_CONFIG,
             shopLikeEventTopicConfig.getConsumer().getBatchSize()
@@ -87,8 +88,7 @@ public class KafkaConsumerConfig {
 
         return Map.of(
             ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConfig.getBrokerUrl(),
-            ConsumerConfig.GROUP_ID_CONFIG,
-            signUpCertificationMailEventTopicConfig.getConsumer().getGroupId(),
+            ConsumerConfig.GROUP_ID_CONFIG, signUpCertificationMailEventTopicConfig.getConsumer().getGroupId(),
 
             ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
             ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS, ErrorHandlingDeserializer.class,
@@ -96,13 +96,10 @@ public class KafkaConsumerConfig {
             ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaProtobufDeserializer.class,
             ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, ErrorHandlingDeserializer.class,
 
-            ConsumerConfig.MAX_POLL_RECORDS_CONFIG,
-            signUpCertificationMailEventTopicConfig.getConsumer().getBatchSize(),
-
             KEY_SCHEMA_REGISTRY_URL, kafkaConfig.getSchemaRegistryUrl(),
+            KEY_SPECIFIC_PROTOBUF_VALUE_TYPE, SignUpCertificationMailEventProto.class.getName(),
 
-            JsonDeserializer.VALUE_DEFAULT_TYPE, SignUpCertificationMailEvent.class,
-            JsonDeserializer.TRUSTED_PACKAGES, "com.beautify_project.bp_kafka_event_consumer.event"
+            ConsumerConfig.MAX_POLL_RECORDS_CONFIG, signUpCertificationMailEventTopicConfig.getConsumer().getBatchSize()
         );
     }
 
