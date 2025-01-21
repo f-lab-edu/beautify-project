@@ -6,7 +6,6 @@ import com.beautify_project.bp_common_kafka.event.ShopLikeEvent.ShopLikeEventPro
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -19,18 +18,24 @@ public class ShopLikeEventProducer {
     private final KafkaTemplate<Long, ShopLikeEvent.ShopLikeEventProto> shopLikeEventProtoKafkaTemplate;
     private final KafkaConfigurationProperties kafkaConfigurationProperties;
 
-    @Async("ioBoundExecutor")
     public void publishShopLikeEvent(final Long shopId, final String memberEmail, final LikeType likeType) {
+        log.debug("shop like event will be published");
+
         final ShopLikeEvent.ShopLikeEventProto shopLikeEventProto = ShopLikeEvent.ShopLikeEventProto.newBuilder()
             .setShopId(shopId)
             .setMemberEmail(memberEmail)
             .setType(likeType)
             .build();
 
-        shopLikeEventProtoKafkaTemplate.send(kafkaConfigurationProperties.getTopic().get(TOPIC_CONFIG_NAME_SHOP_LIKE_EVENT).getTopicName(),
-            shopId, shopLikeEventProto).exceptionally(throwable -> {
-            log.error("Failed to publish event - {}", shopLikeEventProto, throwable);
+        shopLikeEventProtoKafkaTemplate.send(
+            kafkaConfigurationProperties.getTopic().get(TOPIC_CONFIG_NAME_SHOP_LIKE_EVENT)
+                .getTopicName(),
+            shopId,
+            shopLikeEventProto
+        ).exceptionally(exception -> {
+            log.error("Failed to publish event: {}", shopLikeEventProto, exception);
             return null;
         });
+
     }
 }
