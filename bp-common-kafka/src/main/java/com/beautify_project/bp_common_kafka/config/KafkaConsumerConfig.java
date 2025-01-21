@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
@@ -33,16 +34,16 @@ public class KafkaConsumerConfig {
     private static final String KEY_SPECIFIC_PROTOBUF_VALUE_TYPE = "specific.protobuf.value.type";
     private static final String KEY_SCHEMA_REGISTRY_URL = "schema.registry.url";
 
-    private final KafkaConfigurationProperties kafkaConfig;
+    private final KafkaConfigurationProperties kafkaConfigProperties;
     private final KafkaProducerConfig kafkaProducerConfig;
 
     @Bean("shopLikeEventConsumerConfig")
     public Map<String, Object> shopLikeEventConsumerConfig() {
-        final TopicConfigurationProperties shopLikeEventTopicConfig = kafkaConfig.getTopic()
+        final TopicConfigurationProperties shopLikeEventTopicConfig = kafkaConfigProperties.getTopic()
             .get(TOPIC_CONFIG_NAME_SHOP_LIKE_EVENT);
 
         return Map.of(
-            ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConfig.getBrokerUrl(),
+            ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConfigProperties.getBrokerUrl(),
             ConsumerConfig.GROUP_ID_CONFIG, shopLikeEventTopicConfig.getConsumer().getGroupId(),
 
             ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
@@ -51,7 +52,7 @@ public class KafkaConsumerConfig {
             ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaProtobufDeserializer.class,
             ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, ErrorHandlingDeserializer.class,
 
-            KEY_SCHEMA_REGISTRY_URL, kafkaConfig.getSchemaRegistryUrl(),
+            KEY_SCHEMA_REGISTRY_URL, kafkaConfigProperties.getSchemaRegistryUrl(),
             KEY_SPECIFIC_PROTOBUF_VALUE_TYPE, ShopLikeEventProto.class.getName(),
 
             ConsumerConfig.MAX_POLL_RECORDS_CONFIG,
@@ -60,16 +61,19 @@ public class KafkaConsumerConfig {
     }
 
     @Bean
-    public ConsumerFactory<String, ShopLikeEvent.ShopLikeEventProto> shopLikeEventConsumerFactory() {
+    public ConsumerFactory<Long, ShopLikeEvent.ShopLikeEventProto> shopLikeEventConsumerFactory() {
         return new DefaultKafkaConsumerFactory<>(shopLikeEventConsumerConfig());
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, ShopLikeEvent.ShopLikeEventProto> shopLikeEventListenerContainerFactory() {
-        final ConcurrentKafkaListenerContainerFactory<String, ShopLikeEvent.ShopLikeEventProto> factory = new ConcurrentKafkaListenerContainerFactory<>();
+    public ConcurrentKafkaListenerContainerFactory<Long, ShopLikeEvent.ShopLikeEventProto> shopLikeEventListenerContainerFactory() {
+        final ConcurrentKafkaListenerContainerFactory<Long, ShopLikeEvent.ShopLikeEventProto> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(shopLikeEventConsumerFactory());
         factory.setBatchListener(true);
-        factory.setCommonErrorHandler(defaultErrorHandler());
+        factory.setCommonErrorHandler(listenerDefaultErrorHandler(kafkaProducerConfig.shopLikeEventKafkaTemplate()));
+        factory.setConcurrency(
+            kafkaConfigProperties.getTopic().get(TOPIC_CONFIG_NAME_SHOP_LIKE_EVENT).getConsumer()
+                .getThreadCount());
 
         return factory;
     }
@@ -77,11 +81,11 @@ public class KafkaConsumerConfig {
     @Bean("signUpCertificationMailEventConsumerConfig")
     public Map<String, Object> signUpCertificationMailEventConsumerConfig() {
 
-        final TopicConfigurationProperties signUpCertificationMailEventTopicConfig = kafkaConfig.getTopic()
+        final TopicConfigurationProperties signUpCertificationMailEventTopicConfig = kafkaConfigProperties.getTopic()
             .get(TOPIC_CONFIG_NAME_SIGNUP_CERTIFICATION_MAIL_EVENT);
 
         return Map.of(
-            ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConfig.getBrokerUrl(),
+            ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConfigProperties.getBrokerUrl(),
             ConsumerConfig.GROUP_ID_CONFIG, signUpCertificationMailEventTopicConfig.getConsumer().getGroupId(),
 
             ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
@@ -90,7 +94,7 @@ public class KafkaConsumerConfig {
             ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaProtobufDeserializer.class,
             ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, ErrorHandlingDeserializer.class,
 
-            KEY_SCHEMA_REGISTRY_URL, kafkaConfig.getSchemaRegistryUrl(),
+            KEY_SCHEMA_REGISTRY_URL, kafkaConfigProperties.getSchemaRegistryUrl(),
             KEY_SPECIFIC_PROTOBUF_VALUE_TYPE, SignUpCertificationMailEventProto.class.getName(),
 
             ConsumerConfig.MAX_POLL_RECORDS_CONFIG, signUpCertificationMailEventTopicConfig.getConsumer().getBatchSize()
@@ -107,17 +111,15 @@ public class KafkaConsumerConfig {
         final ConcurrentKafkaListenerContainerFactory<String, SignUpCertificationMailEvent.SignUpCertificationMailEventProto> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(signUpCertificationMailEventConsumerFactory());
         factory.setBatchListener(true);
-        factory.setCommonErrorHandler(defaultErrorHandler());
-
+        factory.setCommonErrorHandler(listenerDefaultErrorHandler(kafkaProducerConfig.signUpCertificationMailEventKafkaTemplate()));
         return factory;
     }
 
-    @Bean
-    public DefaultErrorHandler defaultErrorHandler() {
+    public DefaultErrorHandler listenerDefaultErrorHandler(final KafkaTemplate<?, ?> kafkaTemplate) {
         // 2초 간격으로 최대 3번 재시도
         final FixedBackOff fixedBackOff = new FixedBackOff(2000L, 3L);
         // DeadLetterPublishingRecoverer 를 사용하여 실패한 메시지를 DLT로 전송
-        final DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(kafkaProducerConfig.protobufErrorKafkaTemplate());
+        final DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(kafkaTemplate);
         // DefaultErrorHandler 에 DLT와 재시도 정책 설정
         return new DefaultErrorHandler(recoverer, fixedBackOff);
     }

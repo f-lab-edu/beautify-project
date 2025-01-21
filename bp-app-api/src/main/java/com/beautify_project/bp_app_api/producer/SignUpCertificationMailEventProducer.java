@@ -1,4 +1,4 @@
-package com.beautify_project.bp_common_kafka.producer;
+package com.beautify_project.bp_app_api.producer;
 
 import com.beautify_project.bp_common_kafka.config.properties.KafkaConfigurationProperties;
 import com.beautify_project.bp_common_kafka.event.SignUpCertificationMailEvent;

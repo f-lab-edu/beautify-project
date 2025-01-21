@@ -1,4 +1,4 @@
-package com.beautify_project.bp_common_kafka.producer;
+package com.beautify_project.bp_app_api.producer;
 
 import com.beautify_project.bp_common_kafka.config.properties.KafkaConfigurationProperties;
 import com.beautify_project.bp_common_kafka.event.ShopLikeEvent;
@@ -16,7 +16,7 @@ public class ShopLikeEventProducer {
 
     private static final String TOPIC_CONFIG_NAME_SHOP_LIKE_EVENT = "SHOP-LIKE-EVENT";
 
-    private final KafkaTemplate<String, ShopLikeEvent.ShopLikeEventProto> shopLikeEventProtoKafkaTemplate;
+    private final KafkaTemplate<Long, ShopLikeEvent.ShopLikeEventProto> shopLikeEventProtoKafkaTemplate;
     private final KafkaConfigurationProperties kafkaConfigurationProperties;
 
     @Async("ioBoundExecutor")
@@ -27,9 +27,8 @@ public class ShopLikeEventProducer {
             .setType(likeType)
             .build();
 
-        shopLikeEventProtoKafkaTemplate.send(
-            kafkaConfigurationProperties.getTopic().get(TOPIC_CONFIG_NAME_SHOP_LIKE_EVENT)
-                .getTopicName(), shopLikeEventProto).exceptionally(throwable -> {
+        shopLikeEventProtoKafkaTemplate.send(kafkaConfigurationProperties.getTopic().get(TOPIC_CONFIG_NAME_SHOP_LIKE_EVENT).getTopicName(),
+            shopId, shopLikeEventProto).exceptionally(throwable -> {
             log.error("Failed to publish event - {}", shopLikeEventProto, throwable);
             return null;
         });
