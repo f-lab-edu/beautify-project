@@ -6,7 +6,7 @@ import com.beautify_project.bp_app_api.request.shop.ShopRegistrationRequest;
 import com.beautify_project.bp_app_api.response.ResponseMessage;
 import com.beautify_project.bp_app_api.service.ShopService;
 import com.beautify_project.bp_common_kafka.event.ShopLikeEvent.ShopLikeEventProto.LikeType;
-import com.beautify_project.bp_common_kafka.producer.ShopLikeEventProducer;
+import com.beautify_project.bp_app_api.producer.ShopLikeEventProducer;
 import com.beautify_project.bp_mysql.enums.OrderType;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;

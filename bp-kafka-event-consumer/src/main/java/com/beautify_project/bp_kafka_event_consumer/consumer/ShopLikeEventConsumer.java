@@ -13,7 +13,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +34,8 @@ public class ShopLikeEventConsumer {
         groupId = "#{kafkaConfigurationProperties.topic['SHOP-LIKE-EVENT'].consumer.groupId}",
         containerFactory = "shopLikeEventListenerContainerFactory")
     @Transactional
-    public void listenShopLikeEvent(final List<ShopLikeEventProto> eventsIncludingLikeAndCancel) {
+    public void listenShopLikeEvent(final List<ShopLikeEventProto> eventsIncludingLikeAndCancel,
+        @Header(KafkaHeaders.RECEIVED_PARTITION) final List<Integer> partitions) {
         log.debug("{} counts of event consumed", eventsIncludingLikeAndCancel.size());
         batchShopLikeEvents(eventsIncludingLikeAndCancel);
         batchShopLikeCancelEvents(eventsIncludingLikeAndCancel);
@@ -39,7 +43,8 @@ public class ShopLikeEventConsumer {
 
     public void batchShopLikeEvents(final List<ShopLikeEventProto> eventsIncludingLikeAndCancel) {
 
-        final List<ShopLikeEventProto> likeEvents = filterEventsByLikeType(eventsIncludingLikeAndCancel,
+        final List<ShopLikeEventProto> likeEvents = filterEventsByLikeType(
+            eventsIncludingLikeAndCancel,
             LikeType.LIKE);
 
         if (likeEvents.isEmpty()) {
@@ -52,9 +57,11 @@ public class ShopLikeEventConsumer {
         bulkInsertShopLikeEntity(likeEvents);
     }
 
-    private void batchShopLikeCancelEvents(final List<ShopLikeEventProto> eventsIncludingLikeAndCancel) {
+    private void batchShopLikeCancelEvents(
+        final List<ShopLikeEventProto> eventsIncludingLikeAndCancel) {
 
-        final List<ShopLikeEventProto> cancelEvents = filterEventsByLikeType(eventsIncludingLikeAndCancel,
+        final List<ShopLikeEventProto> cancelEvents = filterEventsByLikeType(
+            eventsIncludingLikeAndCancel,
             LikeType.LIKE_CANCEL);
 
         if (cancelEvents.isEmpty()) {
@@ -84,7 +91,8 @@ public class ShopLikeEventConsumer {
         return filterDuplicated(filteredCancelEvents, likeType);
     }
 
-    private List<ShopLikeEventProto> filterDuplicated(final List<ShopLikeEventProto> events, final LikeType likeType) {
+    private List<ShopLikeEventProto> filterDuplicated(final List<ShopLikeEventProto> events,
+        final LikeType likeType) {
 
         final List<ShopLikeId> shopLikeIdsToFind = events.stream()
             .map(event -> ShopLikeId.of(event.getShopId(), event.getMemberEmail()))
@@ -113,7 +121,8 @@ public class ShopLikeEventConsumer {
             .toList();
     }
 
-    private Map<Long, Integer> makeCountToUpdateByShopId(final List<ShopLikeEventProto> filteredEvents) {
+    private Map<Long, Integer> makeCountToUpdateByShopId(
+        final List<ShopLikeEventProto> filteredEvents) {
         return filteredEvents.stream().collect(
             Collectors.toMap(
                 ShopLikeEventProto::getShopId,
@@ -124,7 +133,8 @@ public class ShopLikeEventConsumer {
     }
 
     @Transactional
-    private void updateShopLikeCountInShopEntity(final Map<Long, Integer> countToProcessByShopId, final LikeType likeType) {
+    private void updateShopLikeCountInShopEntity(final Map<Long, Integer> countToProcessByShopId,
+        final LikeType likeType) {
         final Set<Long> shopIdsToFind = countToProcessByShopId.keySet();
         List<Shop> foundShops = shopRepository.findByIdIn(shopIdsToFind);
 

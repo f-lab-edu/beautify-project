@@ -65,6 +65,7 @@ public class KafkaConfigurationProperties {
             private String groupId;
             private Integer batchSize;
             private Long fetchMaxWait;
+            private Integer threadCount;
 
             public void setGroupId(final String groupId) {
                 if (Validator.isEmptyOrBlank(groupId)) {
@@ -85,6 +86,15 @@ public class KafkaConfigurationProperties {
                     throw new IllegalStateException("consumer fetch max wait 설정값이 올바르지 않습니다.");
                 }
                 this.fetchMaxWait = fetchMaxWait;
+            }
+
+            public void setThreadCount(final Integer threadCount) {
+                if (threadCount == null || threadCount == 0) {
+                    log.info("GroupId '{}' 의 consumer 스레드 수 설정값이 기본 1개로 설정됩니다.", groupId);
+                    this.threadCount = 1;
+                    return;
+                }
+                this.threadCount = threadCount;
             }
         }
     }

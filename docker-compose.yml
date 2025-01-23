@@ -41,7 +41,6 @@ services:
     ports:
       # Exposes 29092 for external connections to the broker
       # Use kafka1:9092 for connections internal on the docker network
-      # See https://rmoff.net/2018/08/02/kafka-listeners-explained/ for details
       - "29092:29092"
     environment:
       KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
@@ -53,9 +52,10 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_DELETE_TOPIC_ENABLE: "true"
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
-#      KAFKA_SCHEMA_REGISTRY_URL: "schemaregistry:8085"
-      #KAFKA_LOG4J_ROOT_LOGLEVEL: INFO
       KAFKA_JMX_PORT: 9991
+    volumes:
+      - ./docker-init/kafka/kafka-init.sh:/usr/bin/kafka-init.sh
+    entrypoint: ["/bin/bash", "-c", "/usr/bin/kafka-init.sh"]
 
   schemaregistry:
     image: confluentinc/cp-schema-registry:7.4.0
@@ -64,7 +64,6 @@ services:
       - zookeeper
       - kafka
     environment:
-#      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: "zookeeper:2181"
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: "PLAINTEXT://kafka:9092"
       SCHEMA_REGISTRY_HOST_NAME: schemaregistry
       SCHEMA_REGISTRY_LISTENERS: "http://0.0.0.0:8085"
