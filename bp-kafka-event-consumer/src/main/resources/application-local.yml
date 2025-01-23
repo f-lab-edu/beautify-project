@@ -1,5 +1,5 @@
 server:
-  port: 8081
+  port: 18081
   tomcat:
     uri-encoding: UTF-8
 
@@ -8,10 +8,10 @@ spring:
     activate:
       on-profile: local
     import:
-      - kafka-consumer-local.yml
       - jasypt.yml
       - mail.yml
       - classpath:mysql-config/application-local.yml
+      - classpath:kafka-config/kafka-local.yml
 
 logging:
   level:

@@ -1,0 +1,24 @@
+kafka:
+  broker-url: ENC(mPyjrXNXqdAWkyHU943WfxFQanyXmQqt)
+  topic:
+    SHOP-LIKE-EVENT:
+      topic-name: shop-like
+      producer:
+      consumer:
+        group-id: shop-like-event-consumer-group
+        batch-size: 100
+        fetch-max-wait: 500
+    SHOP-LIKE-CANCEL-EVENT:
+      topic-name: shop-like-cancel
+      producer:
+      consumer:
+        group-id: shop-like-cancel-event-consumer-group
+        batch-size: 100
+        fetch-max-wait: 500
+    MAIL-SIGN-UP-CERTIFICATION-EVENT:
+      topic-name: sign-up-certification-mail
+      producer:
+      consumer:
+        group-id: sign-up-certification-mail-consumer-group
+        batch-size: 100
+        fetch-max-wait: 500

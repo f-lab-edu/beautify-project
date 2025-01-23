@@ -1,4 +1,5 @@
 server:
+  port: 8080
   tomcat:
     uri-encoding: UTF-8
   shutdown: graceful
@@ -10,9 +11,9 @@ spring:
     import:
       - jasypt.yml
       - auth.yml
-      - kafka-producer-local.yml
       - classpath:mysql-config/application-local.yml
       - classpath:s3-client-config/application-local.yml
+      - classpath:kafka-config/kafka-local.yml
 
 thread-pool:
   async:

@@ -8,7 +8,7 @@ dependencies {
     implementation project(':bp-utils')
     implementation project(':bp-s3-client')
     implementation project(':bp-domain-mysql')
-    implementation project(':bp-common')
+    implementation project(':bp-common-kafka')
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-security'

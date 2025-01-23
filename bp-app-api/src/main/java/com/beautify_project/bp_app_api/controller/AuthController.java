@@ -1,12 +1,11 @@
 package com.beautify_project.bp_app_api.controller;
 
-import com.beautify_project.bp_app_api.producer.KafkaEventProducer;
 import com.beautify_project.bp_app_api.request.auth.EmailCertificationRequest;
 import com.beautify_project.bp_app_api.request.auth.EmailCertificationVerificationRequest;
 import com.beautify_project.bp_app_api.request.auth.EmailDuplicatedRequest;
 import com.beautify_project.bp_app_api.response.ResponseMessage;
 import com.beautify_project.bp_app_api.service.AuthService;
-import com.beuatify_project.bp_common.event.SignUpCertificationMailEvent;
+import com.beautify_project.bp_app_api.producer.SignUpCertificationMailEventProducer;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
-    private final KafkaEventProducer kafkaEventProducer;
+    private final SignUpCertificationMailEventProducer eventProducer;
 
     /**
      * 회원가입시 이메일 중복 체크
@@ -37,8 +36,7 @@ public class AuthController {
     @PostMapping("/v1/auth/email/certification")
     @ResponseStatus(code = HttpStatus.NO_CONTENT)
     void sendCertificationEmail(@Valid @RequestBody final EmailCertificationRequest request) {
-        kafkaEventProducer.publishSignUpCertificationMailEvent(new SignUpCertificationMailEvent(
-            request.email()));
+        eventProducer.publishSignUpCertificationMailEvent(request.email());
     }
 
     /**
