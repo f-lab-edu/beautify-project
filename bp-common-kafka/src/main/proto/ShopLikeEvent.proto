@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package com.beautify_project.bp_common_kafka.event;
+
+option java_package = "com.beautify_project.bp_common_kafka.event";
+option java_outer_classname = "ShopLikeEvent";
+
+message ShopLikeEventProto {
+  int64 shop_id = 1;
+  string member_email = 2;
+  LikeType type = 3;
+
+  enum LikeType {
+    LIKE = 0;
+    LIKE_CANCEL = 1;
+  }
+}

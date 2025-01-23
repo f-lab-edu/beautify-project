@@ -2,7 +2,6 @@ package com.beautify_project.bp_app_api.service;
 
 import com.beautify_project.bp_app_api.config.IOBoundAsyncThreadPoolConfiguration;
 import com.beautify_project.bp_app_api.exception.BpCustomException;
-import com.beautify_project.bp_app_api.producer.KafkaEventProducer;
 import com.beautify_project.bp_app_api.provider.image.ImageProvider;
 import com.beautify_project.bp_app_api.request.shop.ShopListFindRequestParameters;
 import com.beautify_project.bp_app_api.request.shop.ShopRegistrationRequest;
@@ -20,8 +19,6 @@ import com.beautify_project.bp_mysql.entity.embedded.Address;
 import com.beautify_project.bp_mysql.entity.embedded.BusinessTime;
 import com.beautify_project.bp_mysql.repository.ShopRepository;
 import com.beautify_project.bp_utils.Validator;
-import com.beautify_project.bp_common_kafka.event.ShopLikeCancelEvent;
-import com.beautify_project.bp_common_kafka.event.ShopLikeEvent;
 import jakarta.validation.constraints.NotBlank;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +31,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,7 +49,6 @@ public class ShopService {
     private final ShopCategoryService shopCategoryService;
     private final ImageProvider imageProvider;
     private final IOBoundAsyncThreadPoolConfiguration ioBoundAsyncThreadPoolConfig;
-    private final KafkaEventProducer kafkaEventProducer;
 
     @Transactional(rollbackFor = Exception.class)
     public ResponseMessage registerShop(final ShopRegistrationRequest shopRegistrationRequest) {
@@ -239,15 +234,5 @@ public class ShopService {
     public Shop findShopById(final @NotBlank String shopId) {
         return shopRepository.findById(shopId)
             .orElseThrow(() -> new BpCustomException(ErrorCode.SH001));
-    }
-
-    @Async(value = "ioBoundExecutor")
-    public void produceShopLikeEvent(final Long shopId, final String memberEmail) {
-        kafkaEventProducer.publishShopLikeEvent(new ShopLikeEvent(shopId, memberEmail));
-    }
-
-    @Async(value = "ioBoundExecutor")
-    public void produceShopLikeCancelEvent(final Long shopId, final String memberEmail) {
-        kafkaEventProducer.publishShopLikeCancelEvent(new ShopLikeCancelEvent(shopId, memberEmail));
     }
 }

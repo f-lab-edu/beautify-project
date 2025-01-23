@@ -1,11 +1,10 @@
 package com.beautify_project.bp_kafka_event_consumer.consumer;
 
-import com.beautify_project.bp_common_kafka.event.SignUpCertificationMailEvent;
+import com.beautify_project.bp_common_kafka.event.SignUpCertificationMailEvent.SignUpCertificationMailEventProto;
 import com.beautify_project.bp_kafka_event_consumer.provider.EmailSender;
 import com.beautify_project.bp_mysql.entity.EmailCertification;
 import com.beautify_project.bp_mysql.repository.EmailCertificationAdapterRepository;
 import com.beautify_project.bp_utils.UUIDGenerator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -19,59 +18,67 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class MailEventConsumer {
 
-    private static final Long MINUTE_TO_LONG = 1000L * 60;
+    private static final Long MINUTE_TO_LONG = 1000 * 60L;
     private static final Long CERTIFICATION_EMAIL_VALID_TIME = 3 * MINUTE_TO_LONG;
 
     private final EmailSender emailSender;
-    private final EmailCertificationAdapterRepository adaptorRepository;
+    private final EmailCertificationAdapterRepository emailCertificationRepository;
 
     @KafkaListener(
         topics = "#{kafkaConfigurationProperties.topic['MAIL-SIGN-UP-CERTIFICATION-EVENT'].topicName}",
         groupId = "#{kafkaConfigurationProperties.topic['MAIL-SIGN-UP-CERTIFICATION-EVENT'].consumer.groupId}",
         containerFactory = "signUpCertificationMailEventConcurrentKafkaListenerContainerFactory"
     )
-    public void listenMailSignUpCertificationEvent(final List<SignUpCertificationMailEvent> events) {
+    @Transactional
+    public void listenMailSignUpCertificationEvent(final List<SignUpCertificationMailEventProto> events)
+        throws Exception{
         sendCertificationMail(events);
     }
 
-    @Transactional
-    private void sendCertificationMail(final List<SignUpCertificationMailEvent> events) {
-        final Set<String> targetsFromEvents = events.stream().distinct()
-            .map(SignUpCertificationMailEvent::email).collect(Collectors.toSet());
+    @Transactional(rollbackFor = Exception.class)
+    private void sendCertificationMail(final List<SignUpCertificationMailEventProto> events) throws Exception{
 
-        final Set<String> validTargets = filterInvalidTargets(targetsFromEvents);
-        adaptorRepository.deleteAllByEmails(validTargets);
+        final Set<String> filteredDuplicatedEvents = events.stream()
+            .distinct()
+            .map(SignUpCertificationMailEventProto::getMemberEmail)
+            .collect(Collectors.toSet());
+
+        final Set<String> validTargets = filterInvalidTargets(filteredDuplicatedEvents);
+        emailCertificationRepository.deleteAllByEmails(validTargets);
 
         log.debug("{} counts of certification mails will be sent", validTargets.size());
 
-        final Map<String, String> certificationNumberByTargetMail = new HashMap<>();
-        for (String targetMail : validTargets) {
-            certificationNumberByTargetMail.put(targetMail,
-                UUIDGenerator.generateEmailCertificationNumber());
-        }
+        final Map<String, String> certificationNumberByTargetMail = validTargets.stream()
+            .collect(
+                Collectors.toMap(
+                    targetMail -> targetMail,
+                    targetMail -> UUIDGenerator.generateEmailCertificationNumber()
+            ));
+
         emailSender.sendAllSignUpCertificationMail(certificationNumberByTargetMail);
 
         long now = System.currentTimeMillis();
-        final List<EmailCertification> emailCertification =
+        final List<EmailCertification> emailCertifications =
             certificationNumberByTargetMail.entrySet().stream().map(entrySet -> {
                 return EmailCertification.of(entrySet.getKey(), entrySet.getValue(), now);
             }).toList();
-        adaptorRepository.saveAll(emailCertification);
+
+        emailCertificationRepository.saveAll(emailCertifications);
     }
 
     private Set<String> filterInvalidTargets(final Set<String> targetsFromEvents) {
         long now = System.currentTimeMillis();
-        final List<EmailCertification> alreadySentEmailCertifications = adaptorRepository.findByEmailsIn(
-            targetsFromEvents);
+        final List<EmailCertification> alreadySentEmailCertifications =
+            emailCertificationRepository.findByEmailsIn(targetsFromEvents);
 
         for (EmailCertification alreadySent : alreadySentEmailCertifications) {
             if (!isValidTime(now, alreadySent.getRegisteredTime())) {
                 targetsFromEvents.remove(alreadySent.getEmail());
             }
         }
-
         return targetsFromEvents;
     }
 
