@@ -1,5 +1,5 @@
 subprojects {
-	group = 'com.beautify-project'
+	group = 'com.bp'
 	version = '0.0.1-SNAPSHOT'
 
 	apply plugin: 'java'

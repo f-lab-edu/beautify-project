@@ -1,0 +1,22 @@
+package com.bp.app.api.service;
+
+import com.bp.domain.mysql.entity.Category;
+import com.bp.domain.mysql.repository.CategoryRepository;
+import java.util.ArrayList;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+public class CategoryService {
+
+    private final CategoryRepository categoryRepository;
+
+    public List<Category> findCategoriesByIds(final List<String> categoryIds) {
+        if (categoryIds == null || categoryIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return categoryRepository.findByIdIn(categoryIds);
+    }
+}
