@@ -1,7 +1,7 @@
 package com.bp.app.event.consumer.listener;
 
-import com.beautify_project.bp_common_kafka.event.SignUpCertificationMailEvent.SignUpCertificationMailEventProto;
 import com.bp.app.event.consumer.provider.EmailSender;
+import com.bp.common.kakfa.event.SignUpCertificationMailEvent.SignUpCertificationMailEventProto;
 import com.bp.domain.mysql.entity.EmailCertification;
 import com.bp.domain.mysql.repository.EmailCertificationAdapterRepository;
 import com.bp.utils.UUIDGenerator;

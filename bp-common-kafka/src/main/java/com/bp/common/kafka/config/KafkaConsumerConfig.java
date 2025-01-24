@@ -1,9 +1,9 @@
 package com.bp.common.kafka.config;
 
-import com.beautify_project.bp_common_kafka.event.ShopLikeEvent.ShopLikeEventProto;
-import com.beautify_project.bp_common_kafka.event.SignUpCertificationMailEvent.SignUpCertificationMailEventProto;
 import com.bp.common.kafka.config.properties.KafkaConfigurationProperties;
 import com.bp.common.kafka.config.properties.KafkaConfigurationProperties.TopicConfigurationProperties;
+import com.bp.common.kakfa.event.ShopLikeEvent.ShopLikeEventProto;
+import com.bp.common.kakfa.event.SignUpCertificationMailEvent.SignUpCertificationMailEventProto;
 import io.confluent.kafka.serializers.protobuf.KafkaProtobufDeserializer;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;

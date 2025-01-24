@@ -1,8 +1,8 @@
 package com.bp.app.api.producer;
 
-import com.beautify_project.bp_common_kafka.event.ShopLikeEvent.ShopLikeEventProto;
-import com.beautify_project.bp_common_kafka.event.ShopLikeEvent.ShopLikeEventProto.LikeType;
 import com.bp.common.kafka.config.properties.KafkaConfigurationProperties;
+import com.bp.common.kakfa.event.ShopLikeEvent.ShopLikeEventProto;
+import com.bp.common.kakfa.event.ShopLikeEvent.ShopLikeEventProto.LikeType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;

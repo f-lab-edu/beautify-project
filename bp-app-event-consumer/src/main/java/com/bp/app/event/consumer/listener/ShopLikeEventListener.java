@@ -1,7 +1,7 @@
 package com.bp.app.event.consumer.listener;
 
-import com.beautify_project.bp_common_kafka.event.ShopLikeEvent.ShopLikeEventProto;
-import com.beautify_project.bp_common_kafka.event.ShopLikeEvent.ShopLikeEventProto.LikeType;
+import com.bp.common.kakfa.event.ShopLikeEvent.ShopLikeEventProto;
+import com.bp.common.kakfa.event.ShopLikeEvent.ShopLikeEventProto.LikeType;
 import com.bp.domain.mysql.entity.Shop;
 import com.bp.domain.mysql.entity.ShopLike;
 import com.bp.domain.mysql.entity.ShopLike.ShopLikeId;

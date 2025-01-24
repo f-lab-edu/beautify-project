@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package com.beautify_project.bp_common_kafka.event;
+package com.bp.common.kafka.event;
 
-option java_package = "com.beautify_project.bp_common_kafka.event";
+option java_package = "com.bp.common.kakfa.event";
 option java_outer_classname = "SignUpCertificationMailEvent";
 
 message SignUpCertificationMailEventProto {

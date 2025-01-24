@@ -1,7 +1,7 @@
 package com.bp.app.api.producer;
 
-import com.beautify_project.bp_common_kafka.event.SignUpCertificationMailEvent.SignUpCertificationMailEventProto;
 import com.bp.common.kafka.config.properties.KafkaConfigurationProperties;
+import com.bp.common.kakfa.event.SignUpCertificationMailEvent.SignUpCertificationMailEventProto;
 import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,12 +1,12 @@
 package com.bp.app.api.controller;
 
-import com.beautify_project.bp_common_kafka.event.ShopLikeEvent.ShopLikeEventProto.LikeType;
 import com.bp.app.api.enumeration.ShopSearchType;
 import com.bp.app.api.request.shop.ShopListFindRequestParameters;
 import com.bp.app.api.request.shop.ShopRegistrationRequest;
 import com.bp.app.api.response.ResponseMessage;
 import com.bp.app.api.service.ShopService;
 import com.bp.app.api.producer.ShopLikeEventProducer;
+import com.bp.common.kakfa.event.ShopLikeEvent.ShopLikeEventProto.LikeType;
 import com.bp.domain.mysql.enums.OrderType;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;

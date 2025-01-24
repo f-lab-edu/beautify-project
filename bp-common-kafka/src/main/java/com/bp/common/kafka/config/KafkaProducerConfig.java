@@ -1,9 +1,9 @@
 package com.bp.common.kafka.config;
 
-import com.beautify_project.bp_common_kafka.event.ShopLikeEvent.ShopLikeEventProto;
-import com.beautify_project.bp_common_kafka.event.SignUpCertificationMailEvent;
 import com.bp.common.kafka.config.properties.KafkaConfigurationProperties;
 import com.bp.common.kafka.partitioner.ShopLikeEventCustomPartitioner;
+import com.bp.common.kakfa.event.ShopLikeEvent.ShopLikeEventProto;
+import com.bp.common.kakfa.event.SignUpCertificationMailEvent;
 import io.confluent.kafka.serializers.protobuf.KafkaProtobufSerializer;
 import java.util.HashMap;
 import java.util.Map;
