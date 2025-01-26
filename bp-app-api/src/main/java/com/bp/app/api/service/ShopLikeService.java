@@ -59,6 +59,7 @@ public class ShopLikeService {
         shopLikeRepository.delete(shopLikeToDelete);
     }
 
+    @Transactional
     public void deleteAllShopLikes(final List<ShopLike> shopLikesToDelete) {
         shopLikeRepository.deleteAllInBatch(shopLikesToDelete);
     }

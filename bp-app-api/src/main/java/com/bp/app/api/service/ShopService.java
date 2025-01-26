@@ -232,7 +232,8 @@ public class ShopService {
     }
 
     public Shop findShopById(final @NotBlank String shopId) {
-        return shopRepository.findById(shopId)
+        // FIXME: entity id 데이터 타입 변경에 따른 수정 필요
+        return shopRepository.findById(Long.valueOf(shopId))
             .orElseThrow(() -> new BpCustomException(ErrorCode.SH001));
     }
 }

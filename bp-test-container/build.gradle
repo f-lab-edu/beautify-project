@@ -1,0 +1,33 @@
+plugins {
+    id 'org.springframework.boot' version '3.3.5'
+    id 'io.spring.dependency-management' version '1.1.6'
+    id 'io.freefair.lombok' version '8.11'
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    runtimeOnly 'com.mysql:mysql-connector-j:9.1.0'
+
+    testImplementation project(':bp-app-api')
+    testImplementation project(':bp-app-event-consumer')
+    testImplementation project(':bp-domain-mysql')
+    testImplementation project(':bp-common-kafka')
+    testImplementation 'org.springframework.kafka:spring-kafka'
+    testImplementation 'org.awaitility:awaitility:4.2.2'
+    testImplementation 'org.awaitility:awaitility-proxy:4.2.2'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+    testImplementation 'org.testcontainers:mysql:1.20.4'
+    testImplementation 'org.testcontainers:kafka:1.20.4'
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+bootJar {
+    enabled = false;
+}
