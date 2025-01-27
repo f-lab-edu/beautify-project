@@ -17,12 +17,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class ShopLikeService {
 
-    private static final ShopLike EMPTY_SHOP_LIKE = ShopLike.of(null, null);
+    private static final ShopLike EMPTY_SHOP_LIKE = ShopLike.newShopLike(null, null);
 
     private final ShopLikeRepository shopLikeRepository;
 
     public boolean isLikePushed(final Long shopId, final String memberEmail) {
-        ShopLike foundshopLike = shopLikeRepository.findById(ShopLikeId.of(shopId, memberEmail))
+        ShopLike foundshopLike = shopLikeRepository.findById(ShopLikeId.newShopLikeId(shopId, memberEmail))
             .orElseGet(() -> EMPTY_SHOP_LIKE);
         return !foundshopLike.isEmpty();
     }

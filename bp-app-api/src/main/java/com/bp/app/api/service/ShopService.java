@@ -19,7 +19,6 @@ import com.bp.domain.mysql.entity.embedded.Address;
 import com.bp.domain.mysql.entity.embedded.BusinessTime;
 import com.bp.domain.mysql.repository.ShopRepository;
 import com.bp.utils.Validator;
-import jakarta.validation.constraints.NotBlank;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -56,8 +55,8 @@ public class ShopService {
         final Shop registeredShop = shopRepository.save(
             createShopEntityFromShopRegistrationRequest(shopRegistrationRequest));
         final Long registeredShopId = registeredShop.getId();
-        final List<String> operationIds = shopRegistrationRequest.operationIds();
-        final List<String> facilityIds = shopRegistrationRequest.facilityIds();
+        final List<Long> operationIds = shopRegistrationRequest.operationIds();
+        final List<Long> facilityIds = shopRegistrationRequest.facilityIds();
 
         // 시술 ID가 포함되어 있을 경우에만 샵에 포함된 시술과 카테고리로 insert
         if (!Validator.isNullOrEmpty(operationIds)) {
@@ -119,7 +118,7 @@ public class ShopService {
         }
     }
 
-    private void registerShopOperationAndShopCategoriesAsyncIfOperationIdsExist(final List<String> operationIds,
+    private void registerShopOperationAndShopCategoriesAsyncIfOperationIdsExist(final List<Long> operationIds,
         final Shop shopToSave, final List<CompletableFuture<?>> completableFutures) {
 
         if (Validator.isNullOrEmpty(operationIds)) {
@@ -137,7 +136,7 @@ public class ShopService {
         completableFutures.add(saveShopCategoriesResult);
     }
 
-    private void registerShopFacilityAsyncIfFacilityIdsExist(final List<String> facilityIds,
+    private void registerShopFacilityAsyncIfFacilityIdsExist(final List<Long> facilityIds,
         final Shop shopToSave, final List<CompletableFuture<?>> completableFutures) {
 
         if (Validator.isNullOrEmpty(facilityIds)) {
@@ -202,7 +201,7 @@ public class ShopService {
         final List<ShopOperation> foundShopOperations = shopOperationService.findShopOperationsByShopIds(
             shopIds);
 
-        final Map<Long, List<String>> operationIdsByShopId = foundShopOperations.stream()
+        final Map<Long, List<Long>> operationIdsByShopId = foundShopOperations.stream()
             .collect(Collectors.groupingBy(shopOperation -> shopOperation.getId().getShopId(),
                 Collectors.mapping(shopOperation -> shopOperation.getId().getOperationId(),
                     Collectors.toList())));
@@ -219,7 +218,7 @@ public class ShopService {
         final List<ShopFacility> foundShopFacilities = shopFacilityService.findShopFacilitiesByShopIds(
             shopIds);
 
-        final Map<Long, List<String>> facilityIdsByShopId = foundShopFacilities.stream()
+        final Map<Long, List<Long>> facilityIdsByShopId = foundShopFacilities.stream()
             .collect(Collectors.groupingBy(shopFacility -> shopFacility.getId().getShopId(),
                 Collectors.mapping(shopFacility -> shopFacility.getId().getFacilityId(),
                     Collectors.toList())));
@@ -231,9 +230,9 @@ public class ShopService {
                     .map(Facility::getName).collect(Collectors.toList())));
     }
 
-    public Shop findShopById(final @NotBlank String shopId) {
+    public Shop findShopById(final Long shopId) {
         // FIXME: entity id 데이터 타입 변경에 따른 수정 필요
-        return shopRepository.findById(Long.valueOf(shopId))
+        return shopRepository.findById(shopId)
             .orElseThrow(() -> new BpCustomException(ErrorCode.SH001));
     }
 }

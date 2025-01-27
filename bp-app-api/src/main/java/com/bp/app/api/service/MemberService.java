@@ -45,7 +45,7 @@ public class MemberService {
     }
 
     public static Member createNewSelfAuthMember(final UserRoleMemberRegistrationRequest request) {
-        return Member.createNewMember(request.email(), generateEncryptedDefaultPassword(), request.name(),
+        return Member.newMember(request.email(), generateEncryptedDefaultPassword(), request.name(),
             request.contact(), AuthType.BP, UserRole.USER, MemberStatus.ACTIVE,
             System.currentTimeMillis());
     }

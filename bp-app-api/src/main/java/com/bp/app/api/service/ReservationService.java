@@ -14,7 +14,7 @@ public class ReservationService {
 
     private final ReservationRepository reservationRepository;
 
-    public Reservation findReservationById(final @NotNull String reservationId) {
+    public Reservation findReservationById(final @NotNull Long reservationId) {
         return reservationRepository.findById(reservationId)
             .orElseThrow(() -> new BpCustomException(ErrorCode.RS001));
     }

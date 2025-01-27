@@ -1,7 +1,7 @@
 package com.bp.app.api.response.review;
 
 public record ReviewListFindResult(
-    String id,
+    Long id,
     String rate,
     Long registeredDate,
     String memberName,

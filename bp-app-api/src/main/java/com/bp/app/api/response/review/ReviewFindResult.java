@@ -1,17 +1,17 @@
 package com.bp.app.api.response.review;
 
 public record ReviewFindResult(
-    String id,
+    Long id,
     String rate,
     String content,
     Long reviewRegisteredDate,
     String memberEmail,
     String memberName,
-    String operationId,
+    Long operationId,
     String operationName,
     Long shopId,
     String shopName,
-    String reservationId,
+    Long reservationId,
     Long reservationDate
 ) {
 

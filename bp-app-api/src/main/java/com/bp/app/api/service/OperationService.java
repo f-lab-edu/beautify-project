@@ -15,13 +15,12 @@ public class OperationService {
 
     private final OperationRepository operationRepository;
 
-
-    public List<Operation> findOperationsByIds(final List<String> operationIdsToFind) {
+    public List<Operation> findOperationsByIds(final List<Long> operationIdsToFind) {
         Validator.throwIfNullOrEmpty(operationIdsToFind, new BpCustomException(ErrorCode.BR001));
         return operationRepository.findByIdIn(operationIdsToFind);
     }
 
-    public Operation findOperationById(final String operationId) {
+    public Operation findOperationById(final Long operationId) {
         return operationRepository.findById(operationId).orElseThrow(() -> new BpCustomException(
             ErrorCode.OP001));
     }

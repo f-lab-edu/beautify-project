@@ -21,7 +21,7 @@ public class ShopOperationService {
 
     @Transactional(rollbackFor = Exception.class)
     public List<ShopOperation> registerShopOperations(final Long shopId,
-        final List<String> operationIds) {
+        final List<Long> operationIds) {
 
         final List<Operation> operations = operationService.findOperationsByIds(operationIds);
         final List<ShopOperation> shopOperations = createShopOperationsWithShopIdAndOperations(
@@ -37,7 +37,7 @@ public class ShopOperationService {
 
     private List<ShopOperation> createShopOperationsWithShopIdAndOperations(final Long shopId,
         final List<Operation> operations) {
-        return operations.stream().map(operation -> ShopOperation.of(shopId, operation.getId()))
+        return operations.stream().map(operation -> ShopOperation.newShopOperation(shopId, operation.getId()))
             .toList();
     }
 

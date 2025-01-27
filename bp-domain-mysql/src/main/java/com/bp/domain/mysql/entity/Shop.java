@@ -20,9 +20,10 @@ import lombok.NoArgsConstructor;
 @Table(name = "shop")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Shop {
+public class Shop extends BaseEntity {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "shop_id")
     private Long id;
 
@@ -43,12 +44,6 @@ public class Shop {
 
     @Column(name = "shop_likes")
     private Long likes = 0L;
-
-    @Column(name = "shop_registered_time")
-    private Long registeredTime;
-
-    @Column(name = "shop_updated")
-    private Long updated;
 
     @Column(name = "shop_image_file_ids")
     private List<String> imageFileIds = new ArrayList<>();
@@ -79,10 +74,9 @@ public class Shop {
     @AttributeOverride(name = "offDayOfWeek", column = @Column(name = "shop_off_day_of_week"))
     private BusinessTime businessTime;
 
-
     private Shop(final String name, final String contact, final String url,
-        final String introduction, final String rate, final Long likes, final Long registeredTime,
-        final Long updated, final List<String> imageFileIds, final Address shopAddress,
+        final String introduction, final String rate, final Long likes,
+        final List<String> imageFileIds, final Address shopAddress,
         final BusinessTime businessTime) {
         this.name = name;
         this.contact = contact;
@@ -90,8 +84,6 @@ public class Shop {
         this.introduction = introduction;
         this.rate = rate;
         this.likes = likes;
-        this.registeredTime = registeredTime;
-        this.updated = updated;
         this.imageFileIds = imageFileIds;
         this.shopAddress = shopAddress;
         this.businessTime = businessTime;
@@ -100,9 +92,8 @@ public class Shop {
     public static Shop newShop(final String name, final String contact, final String url,
         final String introduction, final List<String> imageFileIds, Address address,
         BusinessTime businessTime) {
-        long currentTime = System.currentTimeMillis();
-        return new Shop(name, contact, url, introduction, "0.0", 0L, currentTime,
-            currentTime, imageFileIds, address, businessTime);
+        return new Shop(name, contact, url, introduction, "0.0", 0L, imageFileIds, address,
+            businessTime);
     }
 
     public void increaseLikeCount(final int countToIncrease) {
@@ -119,15 +110,14 @@ public class Shop {
     @Override
     public String toString() {
         return "Shop{" +
-            "id='" + id + '\'' +
+            "id=" + id +
             ", name='" + name + '\'' +
             ", contact='" + contact + '\'' +
             ", url='" + url + '\'' +
             ", introduction='" + introduction + '\'' +
             ", rate='" + rate + '\'' +
             ", likes=" + likes +
-            ", registeredTime=" + registeredTime +
-            ", updated=" + updated +
+            ", imageFileIds=" + imageFileIds +
             ", shopAddress=" + shopAddress +
             ", businessTime=" + businessTime +
             '}';

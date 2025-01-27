@@ -19,18 +19,18 @@ public class OperationCategoryService {
     private final OperationCategoryRepository operationCategoryRepository;
     private final CategoryService categoryService;
 
-    public List<Category> findCategoriesWithOperationIds(final List<String> operationIds) {
+    public List<Category> findCategoriesWithOperationIds(final List<Long> operationIds) {
         final List<OperationCategory> operationCategories = findOperationCategoriesWithOperationIds(
             operationIds);
 
-        final List<String> categoryIds = operationCategories.stream()
+        final List<Long> categoryIds = operationCategories.stream()
             .map(operationCategory -> operationCategory.getId().getCategoryId()).toList();
 
         return categoryService.findCategoriesByIds(categoryIds);
     }
 
     public List<OperationCategory> findOperationCategoriesWithOperationIds(
-        final List<String> operationIds) {
+        final List<Long> operationIds) {
         final List<OperationCategory> operationCategories = operationCategoryRepository.findByIdOperationIdIn(
             operationIds);
         Validator.throwIfNullOrEmpty(operationCategories, new BpCustomException(ErrorCode.OC001));

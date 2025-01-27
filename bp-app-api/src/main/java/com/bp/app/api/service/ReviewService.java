@@ -1,17 +1,18 @@
 package com.bp.app.api.service;
 
 import com.bp.app.api.exception.BpCustomException;
+import com.bp.app.api.request.review.FindReviewListRequestParameters;
 import com.bp.app.api.response.ErrorResponseMessage.ErrorCode;
 import com.bp.app.api.response.ResponseMessage;
+import com.bp.app.api.response.review.ReviewFindResult;
+import com.bp.app.api.response.review.ReviewListFindResult;
 import com.bp.domain.mysql.entity.Member;
 import com.bp.domain.mysql.entity.Operation;
 import com.bp.domain.mysql.entity.Reservation;
 import com.bp.domain.mysql.entity.Review;
 import com.bp.domain.mysql.entity.Shop;
 import com.bp.domain.mysql.repository.ReviewRepository;
-import com.bp.app.api.request.review.FindReviewListRequestParameters;
-import com.bp.app.api.response.review.ReviewFindResult;
-import com.bp.app.api.response.review.ReviewListFindResult;
+import java.time.ZoneId;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,7 +46,8 @@ public class ReviewService {
             foundReview.getReservationId());
 
         return ResponseMessage.createResponseMessage(new ReviewFindResult(foundReview.getId(),
-            foundReview.getRate(), foundReview.getContent(), foundReview.getRegisteredTime(),
+            foundReview.getRate(), foundReview.getContent(), foundReview.getCreatedDate().atZone(
+            ZoneId.systemDefault()).toInstant().toEpochMilli(),
             reviewedWriter.getEmail(), reviewedWriter.getName(),
             reviewedOperation.getId(), reviewedOperation.getName(), reviewedShop.getId(),
             reviewedShop.getName(), reviewedReservation.getId(), reviewedReservation.getDate()));
@@ -64,7 +66,7 @@ public class ReviewService {
 
         final List<ReviewListFindResult> result =  foundReviews.stream().map(review ->
                 new ReviewListFindResult(review.getId(),
-                    review.getRate(), review.getRegisteredTime(),
+                    review.getRate(), review.getCreatedDate().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
                     memberService.findMemberByEmailOrElseThrow(review.getMemberEmail()).getName(),
                     operationService.findOperationById(
                         review.getOperationId()).getName(),

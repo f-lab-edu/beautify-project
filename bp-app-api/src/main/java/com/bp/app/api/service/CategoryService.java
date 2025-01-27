@@ -13,7 +13,7 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
 
-    public List<Category> findCategoriesByIds(final List<String> categoryIds) {
+    public List<Category> findCategoriesByIds(final List<Long> categoryIds) {
         if (categoryIds == null || categoryIds.isEmpty()) {
             return new ArrayList<>();
         }

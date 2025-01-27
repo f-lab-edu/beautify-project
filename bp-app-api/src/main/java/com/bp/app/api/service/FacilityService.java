@@ -15,12 +15,12 @@ public class FacilityService {
 
     private final FacilityRepository facilityRepository;
 
-    public List<Facility> findFacilitiesByIds(final List<String> facilityIdsToFind) {
+    public List<Facility> findFacilitiesByIds(final List<Long> facilityIdsToFind) {
         Validator.throwIfNullOrEmpty(facilityIdsToFind, new BpCustomException(ErrorCode.BR001));
         return facilityRepository.findByIdIn(facilityIdsToFind);
     }
 
-    public Facility findFacilityById(final String facilityId) {
+    public Facility findFacilityById(final Long facilityId) {
         return facilityRepository.findById(facilityId)
             .orElseThrow(() -> new BpCustomException(ErrorCode.FA001));
     }
