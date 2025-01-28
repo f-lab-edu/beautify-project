@@ -2,6 +2,7 @@ package com.bp.app.api.exception;
 
 import com.bp.app.api.response.ErrorResponseMessage;
 import com.bp.app.api.response.ErrorResponseMessage.ErrorCode;
+import com.bp.domain.mysql.exception.EnumMismatchException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
@@ -101,6 +102,13 @@ public class GlobalExceptionHandler {
     private ResponseEntity<ErrorResponseMessage> handleMissingPathVariableException(
         final MissingPathVariableException exception
     ) {
+        log.error("", exception);
+        return createResponse(ErrorCode.BR001);
+    }
+
+    @ExceptionHandler(EnumMismatchException.class)
+    private ResponseEntity<ErrorResponseMessage> handleEnumMismatchException(
+        final EnumMismatchException exception) {
         log.error("", exception);
         return createResponse(ErrorCode.BR001);
     }
