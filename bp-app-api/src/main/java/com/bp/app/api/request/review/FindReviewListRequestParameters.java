@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 
 public record FindReviewListRequestParameters(
-    String shopId,
+    Long shopId,
     ReviewSortBy sortBy,
     @Min(0)
     Integer page,

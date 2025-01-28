@@ -11,31 +11,26 @@ import com.bp.domain.mysql.entity.Operation;
 import com.bp.domain.mysql.entity.Reservation;
 import com.bp.domain.mysql.entity.Review;
 import com.bp.domain.mysql.entity.Shop;
-import com.bp.domain.mysql.repository.ReviewRepository;
+import com.bp.domain.mysql.repository.ReviewAdapterRepository;
 import java.time.ZoneId;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class ReviewService {
 
-    private final ReviewRepository reviewRepository;
+    private final ReviewAdapterRepository reviewAdapterRepository;
     private final MemberService memberService;
     private final OperationService operationService;
     private final ShopService shopService;
     private final ReservationService reservationService;
 
-    public ResponseMessage findReview(final String reviewId) {
-        final Review foundReview = reviewRepository.findById(reviewId)
+    public ResponseMessage findReview(final Long reviewId) {
+        final Review foundReview = reviewAdapterRepository.findById(reviewId)
             .orElseThrow(() -> new BpCustomException(ErrorCode.RE001));
 
         final Member reviewedWriter = memberService.findMemberByEmailOrElseThrow(foundReview.getMemberEmail());
@@ -54,12 +49,10 @@ public class ReviewService {
     }
 
     public ResponseMessage findReviewListInShop(final FindReviewListRequestParameters parameters) {
-        // TODO: join 으로 개선 필요
-        Pageable pageable = PageRequest.of(parameters.page(), parameters.count(),
-            Sort.by(Sort.Direction.fromString(parameters.orderType().name()),
-                parameters.sortBy().name()));
+        final List<Review> foundReviews = reviewAdapterRepository.findAll(
+            parameters.sortBy().name(),
+            parameters.page(), parameters.count(), parameters.orderType().name());
 
-        List<Review> foundReviews = reviewRepository.findAll(pageable).getContent();
         if (foundReviews.isEmpty()) {
             throw new BpCustomException(ErrorCode.RE001);
         }
@@ -76,8 +69,7 @@ public class ReviewService {
         return ResponseMessage.createResponseMessage(result);
     }
 
-    @Transactional
-    public void deleteReview(final String reviewId) {
-        reviewRepository.deleteById(reviewId);
+    public void deleteReview(final Long reviewId) {
+        reviewAdapterRepository.deleteById(reviewId);
     }
 }

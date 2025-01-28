@@ -7,7 +7,7 @@ import com.bp.app.api.response.ErrorResponseMessage.ErrorCode;
 import com.bp.app.api.response.ResponseMessage;
 import com.bp.app.api.response.auth.EmailDuplicatedResult;
 import com.bp.domain.mysql.entity.EmailCertification;
-import com.bp.domain.mysql.repository.EmailCertificationRepository;
+import com.bp.domain.mysql.repository.EmailCertificationAdapterRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -15,13 +15,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class AuthService {
 
     private static final Long MINUTE_TO_LONG = 1000L * 60L;
 
     private final MemberService memberService;
-    private final EmailCertificationRepository emailCertificationRepository;
+    private final EmailCertificationAdapterRepository emailCertificationAdapterRepository;
 
     public ResponseMessage checkEmailDuplicated(final EmailDuplicatedRequest emailDuplicatedRequest) {
         if (isEmailCertificationExist(emailDuplicatedRequest.email())) {
@@ -36,7 +35,7 @@ public class AuthService {
 
     @Transactional(rollbackFor = Exception.class)
     public void verifyCertificationEmail(final EmailCertificationVerificationRequest request) {
-        final EmailCertification foundEmailCertification = emailCertificationRepository.findByEmail(
+        final EmailCertification foundEmailCertification = emailCertificationAdapterRepository.findByEmail(
             request.email());
         if (foundEmailCertification == null) {
             throw new BpCustomException(ErrorCode.EC002);
@@ -45,7 +44,7 @@ public class AuthService {
         verifyEmailCertificationRequest(request.certificationNumber(),
             foundEmailCertification.getCertificationNumber());
 
-        emailCertificationRepository.delete(foundEmailCertification);
+        emailCertificationAdapterRepository.delete(foundEmailCertification);
     }
 
     private void verifyEmailCertificationRequest(final String requestedCertificationNumber,

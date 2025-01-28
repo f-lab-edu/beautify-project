@@ -4,6 +4,7 @@ import com.bp.domain.mysql.entity.listener.CustomEntityListener;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
+import java.time.Clock;
 import java.time.LocalDateTime;
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
@@ -21,10 +22,10 @@ public class BaseEntity {
     @LastModifiedDate
     private LocalDateTime lastModifiedDate;
 
-    public void prePersist() {
-        LocalDateTime now = LocalDateTime.now();
-        createdDate = now;
-        lastModifiedDate = now;
+    public void prePersist(Clock clock) {
+        LocalDateTime now = LocalDateTime.now(clock);
+        this.createdDate = now;
+        this.lastModifiedDate = now;
     }
 
     public void preRemove() {

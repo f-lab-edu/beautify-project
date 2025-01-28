@@ -31,7 +31,7 @@ public class ReviewController {
     @GetMapping("/v1/reviews/{id}")
     @ResponseStatus(code = HttpStatus.OK)
     public ResponseMessage findReview(
-        @PathVariable(value = "id") @NotBlank @NotNull final String reviewId) {
+        @PathVariable(value = "id") @NotBlank @NotNull final Long reviewId) {
         return reviewService.findReview(reviewId);
     }
 
@@ -47,7 +47,7 @@ public class ReviewController {
     @GetMapping("/v1/reviews/shops/{id}")
     @ResponseStatus(code = HttpStatus.OK)
     public ResponseMessage findReviewListInShop(
-        @PathVariable(value = "id") @NotBlank final String shopId,
+        @PathVariable(value = "id") @NotBlank final Long shopId,
         @RequestParam(name = "sort", required = false, defaultValue = "reviewRegisteredDate") final String sort,
         @RequestParam(name = "page", required = false, defaultValue = "0") final int page,
         @RequestParam(name = "count", required = false, defaultValue = "10") final int count,
@@ -64,7 +64,7 @@ public class ReviewController {
      */
     @DeleteMapping("/v1/reviews/{id}")
     @ResponseStatus(code = HttpStatus.NO_CONTENT)
-    public void deleteReview(@PathVariable(value = "id") @NotBlank final String reviewId) {
+    public void deleteReview(@PathVariable(value = "id") @NotBlank final Long reviewId) {
         reviewService.deleteReview(reviewId);
     }
 }
