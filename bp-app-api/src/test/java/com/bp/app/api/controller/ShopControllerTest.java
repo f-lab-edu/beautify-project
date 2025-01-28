@@ -1,140 +1,126 @@
-//package com.beautify_project.bp_app_api.controller;
-//
-//import static org.mockito.ArgumentMatchers.any;
-//import static org.mockito.Mockito.when;
-//import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-//import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-//import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-//
-//import com.beautify_project.bp_app_api.response.ResponseMessage;
-//import com.beautify_project.bp_app_api.service.FacilityService;
-//import com.beautify_project.bp_app_api.service.OperationService;
-//import com.beautify_project.bp_app_api.service.ShopService;
-//import com.beautify_project.bp_mysql.entity.Facility;
-//import com.beautify_project.bp_mysql.entity.Operation;
-//import com.beautify_project.bp_mysql.entity.Shop;
-//import com.beautify_project.bp_mysql.repository.ShopRepository;
-//import com.beautify_project.bp_utils.UUIDGenerator;
-//import com.beautify_project.bp_app_api.request.shop.ShopListFindRequestParameters;
-//import com.beautify_project.bp_app_api.response.shop.ShopListFindResult;
-//import com.beautify_project.bp_app_api.request.shop.ShopRegistrationRequest;
-//import com.beautify_project.bp_app_api.request.shop.ShopRegistrationRequest.Address;
-//import com.beautify_project.bp_app_api.request.shop.ShopRegistrationRequest.BusinessTime;
-//import com.beautify_project.bp_app_api.response.shop.ShopRegistrationResult;
-//import com.fasterxml.jackson.databind.ObjectMapper;
-//import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-//import java.time.LocalTime;
-//import java.util.Arrays;
-//import java.util.List;
-//import java.util.stream.Stream;
-//import org.apache.commons.lang3.RandomStringUtils;
-//import org.junit.jupiter.api.DisplayName;
-//import org.junit.jupiter.api.Test;
-//import org.junit.jupiter.params.ParameterizedTest;
-//import org.junit.jupiter.params.provider.Arguments;
-//import org.junit.jupiter.params.provider.MethodSource;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-//import org.springframework.boot.test.mock.mockito.MockBean;
-//import org.springframework.http.MediaType;
-//import org.springframework.test.web.servlet.MockMvc;
-//import org.springframework.test.web.servlet.ResultActions;
-//import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-//
-//@WebMvcTest(controllers = ShopController.class)
-//class ShopControllerTest {
-//
-//    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().registerModule(
-//        new JavaTimeModule());
-//
-//    @Autowired
-//    private MockMvc mockMvc;
-//
-//    @MockBean
-//    private ShopService shopService;
-//
-//    @MockBean
-//    private ShopRepository shopRepository;
-//
-//    @MockBean
-//    private OperationService operationService;
-//
-//    @MockBean
-//    private FacilityService facilityService;
-//
-//    @Test
-//    @DisplayName("Shop 등록 요청 성공시 shopId 를 포함한 ResponseMessage 객체를 응답한다.")
-//    void given_shopRegistrationRequest_when_success_then_getResponseMessageWrappingShopId()
-//        throws Exception {
-//        // given
-//        final List<Operation> mockedOperationEntities = Arrays.asList(
-//            Operation.of("시술1", "시술1 설명"),
-//            Operation.of("시술2", "시술2 설명"));
-//
-//        final List<Facility> mockedFacilityEntities = Arrays.asList(
-//            Facility.withName("시설1"),
-//            Facility.withName("시설2")
-//        );
-//
-//        final List<String> mockedOperationIds = Arrays.asList(
-//            mockedOperationEntities.get(0).getId(), mockedOperationEntities.get(1).getId());
-//        final List<String> mockedFacilityIds = Arrays.asList(
-//            mockedFacilityEntities.get(0).getId(), mockedFacilityEntities.get(1).getId()
-//        );
-//
-//        final ShopRegistrationRequest mockedRequest = new ShopRegistrationRequest(
-//            "미용시술소1",
-//            "010-1234-5678",
-//            "www.naer.com",
-//            "안녕하세요 미용시술소1입니다.",
-//            mockedOperationIds,
-//            mockedFacilityIds,
-//            Arrays.asList("preSigned-url1", "preSigned-url2"),
-//            new BusinessTime(
-//                LocalTime.of(9, 0),
-//                LocalTime.of(18, 0),
-//                LocalTime.of(13, 0),
-//                LocalTime.of(14, 0),
-//                Arrays.asList("monday", "tuesday")),
-//            new Address(
-//                "111",
-//                "서울시",
-//                "마포구",
-//                "상암동",
-//                "481",
-//                "월드컵북로",
-//                "true",
-//                "131",
-//                "707",
-//                "오벨리스크",
-//                "134-070",
-//                "주상복합",
-//                "12345678",
-//                "34",
-//                "90"
-//            )
-//        );
-//
-//        Shop mockedShop = ShopService.createShopEntityFromShopRegistrationRequest(mockedRequest);
-//        when(shopService.registerShop(mockedRequest)).thenReturn(
-//            ResponseMessage.createResponseMessage(new ShopRegistrationResult(mockedShop.getId())));
-//
-//        final String requestBody = OBJECT_MAPPER.writeValueAsString(mockedRequest);
-//
-//        // when
-//        ResultActions resultActions = mockMvc.perform(
-//            MockMvcRequestBuilders.post("/v1/shops").contentType(MediaType.APPLICATION_JSON)
-//                .content(requestBody)
-//        );
-//
-//        // then
-//        resultActions
-//            .andExpect(status().isOk())
-//            .andExpect(jsonPath("$.returnValue").exists())
-//            .andExpect(jsonPath("$.returnValue.shopId").exists())
-//            .andDo(print());
-//    }
-//
+package com.bp.api.controller;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.bp.app.api.controller.ShopController;
+import com.bp.app.api.request.shop.ShopRegistrationRequest;
+import com.bp.app.api.request.shop.ShopRegistrationRequest.Address;
+import com.bp.app.api.request.shop.ShopRegistrationRequest.BusinessTime;
+import com.bp.app.api.response.ResponseMessage;
+import com.bp.app.api.response.shop.ShopRegistrationResult;
+import com.bp.app.api.service.FacilityService;
+import com.bp.app.api.service.OperationService;
+import com.bp.app.api.service.ShopService;
+import com.bp.domain.mysql.entity.Facility;
+import com.bp.domain.mysql.entity.Operation;
+import com.bp.domain.mysql.entity.Shop;
+import com.bp.domain.mysql.repository.ShopAdapterRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import java.time.LocalTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Stream;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
+@WebMvcTest(controllers = ShopController.class)
+class ShopControllerTest {
+
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().registerModule(
+        new JavaTimeModule());
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
+    private ShopService shopService;
+
+    @MockBean
+    private ShopAdapterRepository shopAdapterRepository;
+
+    @MockBean
+    private OperationService operationService;
+
+    @MockBean
+    private FacilityService facilityService;
+
+    @Test
+    @DisplayName("Shop 등록 요청 성공시 shopId 를 포함한 ResponseMessage 객체를 응답한다.")
+    void given_shopRegistrationRequest_when_success_then_getResponseMessageWrappingShopId()
+        throws Exception {
+        // given
+        final List<Long> mockedOperationIds = Arrays.asList(1L, 2L);
+        final List<Long> mockedFacilityIds = Arrays.asList(1L, 2L);
+
+        final ShopRegistrationRequest mockedRequest = new ShopRegistrationRequest(
+            "미용시술소1",
+            "010-1234-5678",
+            "www.naer.com",
+            "안녕하세요 미용시술소1입니다.",
+            mockedOperationIds,
+            mockedFacilityIds,
+            Arrays.asList("preSigned-url1", "preSigned-url2"),
+            new BusinessTime(
+                LocalTime.of(9, 0),
+                LocalTime.of(18, 0),
+                LocalTime.of(13, 0),
+                LocalTime.of(14, 0),
+                Arrays.asList("monday", "tuesday")),
+            new Address(
+                "111",
+                "서울시",
+                "마포구",
+                "상암동",
+                "481",
+                "월드컵북로",
+                "true",
+                "131",
+                "707",
+                "오벨리스크",
+                "134-070",
+                "주상복합",
+                "12345678",
+                "34",
+                "90"
+            )
+        );
+
+        Shop mockedShop = ShopService.createShopEntityFromShopRegistrationRequest(mockedRequest);
+        when(shopService.registerShop(mockedRequest)).thenReturn(
+            ResponseMessage.createResponseMessage(new ShopRegistrationResult(mockedShop.getId())));
+
+        final String requestBody = OBJECT_MAPPER.writeValueAsString(mockedRequest);
+
+        // when
+        ResultActions resultActions = mockMvc.perform(
+            MockMvcRequestBuilders.post("/v1/shops").contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody)
+        );
+
+        // then
+        resultActions
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.returnValue").exists())
+            .andExpect(jsonPath("$.returnValue.shopId").exists())
+            .andDo(print());
+    }
+
 //    @Test
 //    @DisplayName("Shop 등록 요청시 request body 가 없는 경우 errorCode BR002 로 응답을 받는다.")
 //    void given_shopRegistrationRequestWithoutRequestBody_when_failed_then_getErrorCodeBR002()
@@ -413,4 +399,4 @@
 //            Arguments.of("rate", "1", "10", "3")
 //        );
 //    }
-//}
+}
