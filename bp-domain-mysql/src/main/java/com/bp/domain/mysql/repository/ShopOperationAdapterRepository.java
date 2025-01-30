@@ -27,4 +27,7 @@ public class ShopOperationAdapterRepository {
         defaultRepository.delete(shopOperationToDelete);
     }
 
+    public void deleteAllInBatch() {
+        defaultRepository.deleteAllInBatch();
+    }
 }

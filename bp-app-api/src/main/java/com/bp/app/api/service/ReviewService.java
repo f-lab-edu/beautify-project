@@ -13,6 +13,7 @@ import com.bp.domain.mysql.entity.Review;
 import com.bp.domain.mysql.entity.Shop;
 import com.bp.domain.mysql.repository.ReviewAdapterRepository;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,14 +51,14 @@ public class ReviewService {
 
     public ResponseMessage findReviewListInShop(final FindReviewListRequestParameters parameters) {
         final List<Review> foundReviews = reviewAdapterRepository.findAll(
-            parameters.sortBy().name(),
+            parameters.sortBy().getValue(),
             parameters.page(), parameters.count(), parameters.orderType().name());
 
         if (foundReviews.isEmpty()) {
-            throw new BpCustomException(ErrorCode.RE001);
+            return ResponseMessage.createEmptyListResponseMessage();
         }
 
-        final List<ReviewListFindResult> result =  foundReviews.stream().map(review ->
+        final List<ReviewListFindResult> result = foundReviews.stream().map(review ->
                 new ReviewListFindResult(review.getId(),
                     review.getRate(), review.getCreatedDate().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
                     memberService.findMemberByEmailOrElseThrow(review.getMemberEmail()).getName(),

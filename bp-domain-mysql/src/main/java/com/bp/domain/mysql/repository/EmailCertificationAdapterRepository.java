@@ -42,4 +42,13 @@ public class EmailCertificationAdapterRepository {
     public void delete(final EmailCertification emailCertificationToDelete) {
         defaultRepository.delete(emailCertificationToDelete);
     }
+
+    @Transactional
+    public void deleteAllInBatch() {
+        defaultRepository.deleteAllInBatch();
+    }
+
+    public EmailCertification saveAndFlush(final EmailCertification emailCertificationToSave) {
+        return defaultRepository.saveAndFlush(emailCertificationToSave);
+    }
 }

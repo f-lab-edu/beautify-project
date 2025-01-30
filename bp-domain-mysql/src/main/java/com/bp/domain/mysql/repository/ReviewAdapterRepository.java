@@ -26,10 +26,23 @@ public class ReviewAdapterRepository {
         final Integer pageSize, final String orderType) {
         Pageable pageable = PageRequest.of(page, pageSize,
             Sort.by(Sort.Direction.fromString(orderType), searchColumn));
+
         return defaultRepository.findAll(pageable).getContent();
     }
 
     public void deleteById(final Long reviewIdToDelete) {
         defaultRepository.deleteById(reviewIdToDelete);
+    }
+
+    public void deleteAllInBatch() {
+        defaultRepository.deleteAllInBatch();
+    }
+
+    public Review saveAndFlush(final Review reviewToSave) {
+        return defaultRepository.saveAndFlush(reviewToSave);
+    }
+
+    public long count() {
+        return defaultRepository.count();
     }
 }

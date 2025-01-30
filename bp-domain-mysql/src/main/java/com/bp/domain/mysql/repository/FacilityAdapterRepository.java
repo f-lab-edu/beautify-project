@@ -23,4 +23,8 @@ public class FacilityAdapterRepository {
     public List<Facility> saveAll(final List<Facility> facilitiesToSave) {
         return defaultRepository.saveAll(facilitiesToSave);
     }
+
+    public void deleteAllInBatch() {
+        defaultRepository.deleteAllInBatch();
+    }
 }

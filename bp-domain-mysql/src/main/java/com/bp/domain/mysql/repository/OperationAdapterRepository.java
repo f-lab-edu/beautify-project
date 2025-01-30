@@ -25,4 +25,12 @@ public class OperationAdapterRepository {
     public List<Operation> saveAll(final List<Operation> operationsToSave) {
         return defaultRepository.saveAll(operationsToSave);
     }
+
+    public Operation saveAndFlush(final Operation operationToSave) {
+        return defaultRepository.saveAndFlush(operationToSave);
+    }
+
+    public void deleteAllInBatch() {
+        defaultRepository.deleteAllInBatch();
+    }
 }

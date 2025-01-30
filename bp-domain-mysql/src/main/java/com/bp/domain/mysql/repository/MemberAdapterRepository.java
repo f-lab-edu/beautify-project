@@ -5,6 +5,7 @@ import com.bp.domain.mysql.entity.Member;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @RequiredArgsConstructor
@@ -24,5 +25,18 @@ public class MemberAdapterRepository {
 
     public Member save(final Member memberToSave) {
         return defaultRepository.save(memberToSave);
+    }
+
+    @Transactional
+    public void deleteAllInBatch() {
+        defaultRepository.deleteAllInBatch();
+    }
+
+    public Member saveAndFlush(final Member memberToSave) {
+        return defaultRepository.saveAndFlush(memberToSave);
+    }
+
+    public long count() {
+        return defaultRepository.count();
     }
 }

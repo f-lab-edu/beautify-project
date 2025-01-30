@@ -20,6 +20,8 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.junit.jupiter:junit-jupiter-api'
     testImplementation 'commons-io:commons-io:2.18.0'
+    testImplementation 'org.springframework.boot:spring-boot-starter-jdbc'
+
 
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

@@ -27,4 +27,7 @@ public class ShopFacilityAdapterRepository {
         defaultRepository.delete(shopFacilityToDelete);
     }
 
+    public void deleteAllInBatch() {
+        defaultRepository.deleteAllInBatch();
+    }
 }

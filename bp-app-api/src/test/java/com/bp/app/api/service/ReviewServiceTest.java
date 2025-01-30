@@ -1,4 +1,4 @@
-package com.bp.api.service;
+package com.bp.app.api.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -155,7 +155,7 @@ class ReviewServiceTest {
     void given_reviewFindListRequestWithNotExistedShopId_when_failed_then_throwNotFoundException() {
         // given
         final FindReviewListRequestParameters mockedRequestParams = new FindReviewListRequestParameters(
-            1L, ReviewSortBy.REGISTERED_DATE, 0, 10, OrderType.ASC);
+            1L, ReviewSortBy.CREATED_DATE, 0, 10, OrderType.ASC);
 
         when(reviewAdapterRepository.findAll(any(), any(), any(), any()))
             .thenReturn(new ArrayList<>());

@@ -16,10 +16,11 @@ import org.springframework.data.annotation.LastModifiedDate;
 public class BaseEntity {
 
     @CreatedDate
-    @Column(updatable = false)
+    @Column(name = "created_date", updatable = false)
     private LocalDateTime createdDate;
 
     @LastModifiedDate
+    @Column(name = "last_modified_date")
     private LocalDateTime lastModifiedDate;
 
     public void prePersist(Clock clock) {

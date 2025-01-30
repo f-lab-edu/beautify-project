@@ -17,4 +17,11 @@ public class ReservationAdapterRepository {
         return defaultRepository.findById(reservationIdToFind);
     }
 
+    public Reservation saveAndFlush(final Reservation reservationToSave) {
+        return defaultRepository.saveAndFlush(reservationToSave);
+    }
+
+    public void deleteAllInBatch() {
+        defaultRepository.deleteAllInBatch();
+    }
 }

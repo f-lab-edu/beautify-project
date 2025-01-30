@@ -4,8 +4,6 @@ import com.bp.domain.mysql.entity.BaseEntity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.PrePersist;
 import java.time.Clock;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
 @EntityListeners(value = CustomEntityListener.class)
 public class CustomEntityListener {
