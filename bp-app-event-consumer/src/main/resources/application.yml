@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: bp-kafka-event-consumer
+  profiles:
+    active: local

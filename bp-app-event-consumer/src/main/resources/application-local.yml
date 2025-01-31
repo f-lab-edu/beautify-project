@@ -1,0 +1,19 @@
+server:
+  port: 18081
+  tomcat:
+    uri-encoding: UTF-8
+
+spring:
+  config:
+    activate:
+      on-profile: local
+    import:
+      - jasypt.yml
+      - mail.yml
+      - classpath:mysql-config/application-local.yml
+      - classpath:kafka-config/kafka-local.yml
+
+logging:
+  level:
+    com.beautify_project.bp_kafka_event_consumer: debug
+    org.apache.kafka: info

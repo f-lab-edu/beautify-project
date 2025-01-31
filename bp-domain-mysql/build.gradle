@@ -5,15 +5,19 @@ plugins {
 }
 
 dependencies {
-	implementation project(':bp-common')
 	implementation project(':bp-utils')
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5'
 	implementation 'org.apache.commons:commons-lang3:3.14.0'
+	implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.10.0'
 
 	runtimeOnly 'com.mysql:mysql-connector-j:9.1.0'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+bootJar {
+	enabled = false
 }

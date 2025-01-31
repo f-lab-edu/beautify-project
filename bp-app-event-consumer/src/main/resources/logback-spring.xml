@@ -1,0 +1,34 @@
+<configuration scan="true" scanPeriod="30 seconds">
+
+  <property name="LOG_PATH" value="logs/" />
+  <property name ="LOGGING_PATTERN" value="%-5level %d{yyyy-MM-dd HH:mm:ss} [%thread] %-32.32logger{0} %C %M %msg%n" />
+
+  <!-- 파일 설정 -->
+  <!--<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <rollingPolicy
+      class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${LOG_PATH}.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+      <timeBasedFileNamingAndTriggeringPolicy
+        class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+        <maxFileSize>10MB</maxFileSize>
+      </timeBasedFileNamingAndTriggeringPolicy>
+    </rollingPolicy>
+
+    <encoder>
+      <charset>UTF-8</charset>
+      <pattern>${LOGGING_PATTERN}</pattern>
+    </encoder>
+  </appender>-->
+
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <charset>UTF-8</charset>
+      <pattern>${LOGGING_PATTERN}</pattern>
+    </encoder>
+  </appender>
+
+  <root level="INFO">
+    <!--<appender-ref ref="FILE" />-->
+    <appender-ref ref="CONSOLE" />
+  </root>
+</configuration>

@@ -1,4 +1,3 @@
 rootProject.name = 'beautify-project'
-include ':bp-app-api', ':bp-app-batch', ':bp-kafka-event-publisher',
-        ':bp-kafka-event-consumer', ':bp-utils', ':bp-s3-client', ':bp-domain-mysql', ':bp-common',
-        ':bp-security'
+include ':bp-app-api', ':bp-app-batch', ':bp-app-event-consumer', ':bp-utils', ':bp-s3-client',
+        ':bp-domain-mysql', ':bp-common-kafka', 'bp-test-container'

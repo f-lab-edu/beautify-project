@@ -1,0 +1,20 @@
+kafka:
+  broker-url: ENC(GIRh9rIHwl8oUn4Dxv7ATqpqlCFvL4NoVRYSiZgi9zM=)
+  schema-registry-url: ENC(L8AFAz/hgomLZidY4IaixOoFkLKRwpoepcnN2Xs4wWw=)
+  topic:
+    SHOP-LIKE-EVENT:
+      topic-name: shop-like
+      producer:
+      consumer:
+        group-id: shop-like-event-consumer-group
+        batch-size: 100
+        fetch-max-wait: 500
+        thread-count: 3         # partition 개수와 동일하게 설정
+
+    MAIL-SIGN-UP-CERTIFICATION-EVENT:
+      topic-name: sign-up-certification-mail
+      producer:
+      consumer:
+        group-id: sign-up-certification-mail-consumer-group
+        batch-size: 100
+        fetch-max-wait: 500

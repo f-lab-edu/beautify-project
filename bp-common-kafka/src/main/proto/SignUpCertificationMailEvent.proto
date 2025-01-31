@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package com.bp.common.kafka.event;
+
+option java_package = "com.bp.common.kakfa.event";
+option java_outer_classname = "SignUpCertificationMailEvent";
+
+message SignUpCertificationMailEventProto {
+  string member_email = 1;
+}
