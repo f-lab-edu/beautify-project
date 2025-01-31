@@ -93,7 +93,7 @@ class ReviewControllerTest {
         ResultActions resultActions = mockMvc.perform(
             MockMvcRequestBuilders.get("/v1/reviews/shops/" + 1L)
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .param("sort", "registeredDate")
+                .param("sort", "createdDate")
                 .param("page", "0")
                 .param("count", "10")
                 .param("order", "asc")

@@ -151,19 +151,19 @@ class ReviewServiceTest {
     }
 
     @Test
-    @DisplayName("존재하지 않는 shopId 로 Review 리스트 조회시 NotFoundException 을 throw 한다.")
-    void given_reviewFindListRequestWithNotExistedShopId_when_failed_then_throwNotFoundException() {
+    @DisplayName("존재하지 않는 shopId 로 Review 리스트 조회시 empty list 를 응답받는다.")
+    void getEmptyListIfFindReviewListWithNotExistedShopId() {
         // given
         final FindReviewListRequestParameters mockedRequestParams = new FindReviewListRequestParameters(
             1L, ReviewSortBy.CREATED_DATE, 0, 10, OrderType.ASC);
 
-        when(reviewAdapterRepository.findAll(any(), any(), any(), any()))
-            .thenReturn(new ArrayList<>());
+        when(reviewAdapterRepository.findAll(any(), any(), any(), any())).thenReturn(
+            new ArrayList<>());
 
-        // when & then
-        assertThatThrownBy(
-            () -> reviewService.findReviewListInShop(mockedRequestParams))
-            .isInstanceOf(BpCustomException.class);
+        final ResponseMessage responseMessage = reviewService.findReviewListInShop(
+            mockedRequestParams);
+
+        assertThat(responseMessage.getReturnValue()).isInstanceOf(ArrayList.class);
     }
 
     @Test

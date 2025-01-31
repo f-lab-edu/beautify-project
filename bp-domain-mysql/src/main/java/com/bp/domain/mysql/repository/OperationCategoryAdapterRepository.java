@@ -14,4 +14,12 @@ public class OperationCategoryAdapterRepository {
     public List<OperationCategory> findByIdOperationIdIn(final List<Long> operationIds) {
         return defaultRepository.findByIdOperationIdIn(operationIds);
     }
+
+    public List<OperationCategory> saveAll(final List<OperationCategory> operationCategoriesToSave) {
+        return defaultRepository.saveAll(operationCategoriesToSave);
+    }
+
+    public void deleteAllInBatch() {
+        defaultRepository.deleteAllInBatch();
+    }
 }

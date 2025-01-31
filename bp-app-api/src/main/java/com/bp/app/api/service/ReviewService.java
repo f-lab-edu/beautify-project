@@ -13,7 +13,6 @@ import com.bp.domain.mysql.entity.Review;
 import com.bp.domain.mysql.entity.Shop;
 import com.bp.domain.mysql.repository.ReviewAdapterRepository;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

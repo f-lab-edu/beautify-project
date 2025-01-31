@@ -43,6 +43,7 @@ public class ShopService {
     private final ShopCategoryService shopCategoryService;
     private final ImageProvider imageProvider;
     private final IOBoundAsyncThreadPoolConfiguration ioBoundAsyncThreadPoolConfig;
+    private final ShopLikeService shopLikeService;
 
     @Transactional(rollbackFor = Exception.class)
     public ResponseMessage registerShop(final ShopRegistrationRequest shopRegistrationRequest) {
@@ -164,6 +165,7 @@ public class ShopService {
     }
 
     public ResponseMessage findShopList(final ShopListFindRequestParameters parameters) {
+        // FIXME: member email parameter
         final List<Shop> foundShops = shopAdapterRepository.findAll(parameters.searchType().getEntityName(),
             parameters.page(), parameters.count(), parameters.orderType().name());
         return ResponseMessage.createResponseMessage(createShopListFindResults(foundShops));
@@ -181,6 +183,7 @@ public class ShopService {
                 final List<String> facilityNames = facilityNamesByShopId.get(shopId);
                 final String thumbnailFileId = foundShop.getImageFileIds().get(0);
                 final String thumbnailLink = imageProvider.providePreSignedGetUrlByFileId(thumbnailFileId).preSignedUrl();
+//                final boolean likePushed = shopLikeService.isLikePushed(memberEmail, shopId);
 
                 return ShopListFindResult.createShopListFindResult(foundShop, operationNames,
                     facilityNames, thumbnailLink);
