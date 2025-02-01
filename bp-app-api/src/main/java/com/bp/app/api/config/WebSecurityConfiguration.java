@@ -3,19 +3,22 @@ package com.bp.app.api.config;
 import com.bp.app.api.config.properties.OAuth2LoginConfigProperties;
 import com.bp.app.api.filter.JwtAuthenticationFilter;
 import com.bp.app.api.handler.CustomOAuth2SuccessHandler;
+import com.bp.app.api.response.ErrorResponseMessage;
+import com.bp.app.api.response.ErrorResponseMessage.ErrorCode;
 import com.bp.domain.mysql.entity.enumerated.UserRole;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -27,6 +30,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -39,9 +43,13 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class WebSecurityConfiguration {
 
     private static final String[] WHITE_LIST_URLS = new String[]{
-        "/actuator", "/v1/members/user", "/v1/auth/**", "/oauth2/**", "/login/**", "/**"};
-    private static final String[] USER_ROLES_URLS = new String[]{
-        "/v1/shops/**"
+        "/actuator", "/v1/members/user", "/v1/auth/**", "/oauth2/**"
+    };
+    private static final String[] USER_ROLE_URLS = new String[]{
+        "/v1/shops/**", "/v1/reviews/**"
+    };
+    private static final String[] OWNER_ROLE_URLS = new String[] {
+        "/v1/owner/**"
     };
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -70,7 +78,8 @@ public class WebSecurityConfiguration {
             )
             .authorizeHttpRequests(request -> request
                 .requestMatchers(WHITE_LIST_URLS).permitAll() // while_list
-                .requestMatchers(USER_ROLES_URLS).hasAnyRole(UserRole.USER.name()) // 권한으로 접근 제어
+                .requestMatchers(USER_ROLE_URLS).hasAnyRole(UserRole.USER.name(), UserRole.OWNER.name()) // 권한으로 접근 제어
+                .requestMatchers(OWNER_ROLE_URLS).hasAnyRole(UserRole.OWNER.name())
                 .anyRequest().authenticated()
             )
             .oauth2Login(oauth2 -> oauth2
@@ -82,7 +91,9 @@ public class WebSecurityConfiguration {
                 .successHandler(oAuth2SuccessHandler)
             )
             .exceptionHandling(exceptionHandling -> exceptionHandling
-                .authenticationEntryPoint(new FailedAuthenticationEntryPoint()))
+                .authenticationEntryPoint(new FailedAuthenticationEntryPoint())
+                .accessDeniedHandler(new CustomAccessDeniedHandler())
+            )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return httpSecurity.build();
@@ -103,17 +114,12 @@ public class WebSecurityConfiguration {
 
     static class FailedAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
-        private static final String RESPONSE_MESSAGE;
+        private static final String ERROR_RESPONSE_MESSAGE;
 
         static {
-
-            final Map<String, Object> responseBody = Map.of(
-                "errorCode", "UA001",
-                "errorMessage", "인증되지 않은 요청입니다."
-            );
-
             try {
-                RESPONSE_MESSAGE = new ObjectMapper().writeValueAsString(responseBody);
+                ERROR_RESPONSE_MESSAGE = new ObjectMapper().writeValueAsString(
+                    ErrorResponseMessage.createErrorMessage(ErrorCode.UA001));
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }
@@ -125,8 +131,33 @@ public class WebSecurityConfiguration {
             log.error("", authException);
             response.setContentType("application/json");
             response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            response.getWriter().write(ERROR_RESPONSE_MESSAGE);
+        }
+    }
+
+    static class CustomAccessDeniedHandler implements AccessDeniedHandler {
+
+        private static final String ERROR_RESPONSE_MESSAGE;
+
+        static {
+            try {
+                ERROR_RESPONSE_MESSAGE = new ObjectMapper().writeValueAsString(
+                    ErrorResponseMessage.createErrorMessage(ErrorCode.FB001));
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        @Override
+        public void handle(final HttpServletRequest request, final HttpServletResponse response,
+            final AccessDeniedException accessDeniedException)
+            throws IOException, ServletException {
+            log.error("", accessDeniedException);
+            response.setContentType("application/json");
+            response.setCharacterEncoding(StandardCharsets.UTF_8.name());
             response.setStatus(HttpStatus.FORBIDDEN.value());
-            response.getWriter().write(RESPONSE_MESSAGE);
+            response.getWriter().write(ERROR_RESPONSE_MESSAGE);
         }
     }
 }

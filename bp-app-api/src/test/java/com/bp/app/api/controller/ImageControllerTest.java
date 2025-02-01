@@ -6,9 +6,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.bp.app.api.exception.BpCustomException;
+import com.bp.app.api.provider.JwtProvider;
 import com.bp.app.api.provider.image.ImageProvider;
 import com.bp.app.api.response.ErrorResponseMessage.ErrorCode;
 import com.bp.app.api.response.image.PreSignedPutUrlResult;
+import com.bp.domain.mysql.repository.MemberAdapterRepository;
 import com.bp.s3.client.naver.NCPObjectStorageClient;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -35,6 +37,12 @@ class ImageControllerTest {
     @MockBean
     private NCPObjectStorageClient ncpClient;
 
+    @MockBean
+    private JwtProvider jwtProvider;
+
+    @MockBean
+    private MemberAdapterRepository memberAdapterRepository;
+
     @Test
     @DisplayName("PreSignedPutUrl 요청시 성공 후 PreSignedPutUrlResult 를 wrapping 한 ResponseMessage 객체 응답을 받는다.")
     void given_preSignedPutUrlRequest_when_succeed_then_getResponseMessageWrappingPreSignedPutUrlResult()
@@ -45,7 +53,7 @@ class ImageControllerTest {
 
         // when
         ResultActions resultActions = mockMvc.perform(
-            MockMvcRequestBuilders.get("/v1/images/presigned-put-url")
+            MockMvcRequestBuilders.get("/owner/v1/images/presigned-put-url")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
         );
 
@@ -68,7 +76,7 @@ class ImageControllerTest {
 
         // when
         ResultActions resultActions = mockMvc.perform(
-            MockMvcRequestBuilders.get("/v1/images/presigned-put-url")
+            MockMvcRequestBuilders.get("/owner/v1/images/presigned-put-url")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED));
 
         // then

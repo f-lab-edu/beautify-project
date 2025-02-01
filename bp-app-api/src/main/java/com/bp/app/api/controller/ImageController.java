@@ -17,7 +17,7 @@ public class ImageController {
     /**
      * Shop 이미지 등록을 위한 preSignedUrl 발급
      */
-    @GetMapping("/v1/images/presigned-put-url")
+    @GetMapping("/owner/v1/images/presigned-put-url")
     @ResponseStatus(code = HttpStatus.OK)
     ResponseMessage issuePreSignedPutUrl() {
         return ResponseMessage.createResponseMessage(imageProvider.providePreSignedPutUrl());

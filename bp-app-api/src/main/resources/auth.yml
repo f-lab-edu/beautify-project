@@ -37,4 +37,4 @@ spring:
 oauth2-login:
   authorization-endpoint: /v1/auth/oauth2
   redirected-endpoint: /oauth2/callback/*
-  success-redirection-url: http://localhost:8080/v1/auth/test/{token} #client url
+  success-redirection-url: http://localhost:8080/v1/auth/test/{token} #client url 로 지정되어야 함

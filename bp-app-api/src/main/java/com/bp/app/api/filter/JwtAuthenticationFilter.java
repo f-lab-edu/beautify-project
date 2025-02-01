@@ -16,6 +16,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -38,8 +39,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final MemberAdapterRepository memberAdapterRepository;
 
     @Override
-    protected void doFilterInternal(final HttpServletRequest request,
-        final HttpServletResponse response, final FilterChain filterChain)
+    protected void doFilterInternal(@NotNull final HttpServletRequest request,
+        @NotNull final HttpServletResponse response, @NotNull final FilterChain filterChain)
         throws ServletException, IOException {
 
         final String token = extractBearerToken(request);
@@ -57,8 +58,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         final Member member = memberAdapterRepository.findByEmail(userEmail)
-            .orElseThrow(() -> new BpCustomException(
-                ErrorCode.ME001));
+            .orElseThrow(() -> new BpCustomException(ErrorCode.ME001));
         final UserRole role = member.getRole();
 
         final List<GrantedAuthority> authorities = List.of(

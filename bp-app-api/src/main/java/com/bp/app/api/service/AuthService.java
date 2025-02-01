@@ -44,7 +44,6 @@ public class AuthService {
         return memberService.existByMemberMail(email);
     }
 
-    @Transactional(rollbackFor = Exception.class)
     public void verifyCertificationEmail(final EmailCertificationVerificationRequest request) {
         final EmailCertification foundEmailCertification = emailCertificationAdapterRepository.findByEmail(
             request.email());

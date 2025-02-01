@@ -7,12 +7,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.bp.app.api.exception.BpCustomException;
+import com.bp.app.api.provider.JwtProvider;
 import com.bp.app.api.request.review.FindReviewListRequestParameters;
 import com.bp.app.api.response.ErrorResponseMessage.ErrorCode;
 import com.bp.app.api.response.ResponseMessage;
 import com.bp.app.api.response.review.ReviewFindResult;
 import com.bp.app.api.response.review.ReviewListFindResult;
 import com.bp.app.api.service.ReviewService;
+import com.bp.domain.mysql.repository.MemberAdapterRepository;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -35,6 +37,12 @@ class ReviewControllerTest {
 
     @MockBean
     private ReviewService reviewService;
+
+    @MockBean
+    private JwtProvider jwtProvider;
+
+    @MockBean
+    private MemberAdapterRepository memberAdapterRepository;
 
     @Test
     @DisplayName("Review 상세조회 요청 성공시 FindReviewResult 를 wrapping 한 ResponseMessage 객체를 응답받는다.")

@@ -52,12 +52,19 @@ public class AuthController {
         authService.verifyCertificationEmail(request);
     }
 
+    /**
+     * 로그인
+     */
     @PostMapping("/v1/auth/sign-in")
     @ResponseStatus(code = HttpStatus.OK)
     ResponseMessage signIn(@Valid @RequestBody final SignInRequest signInRequest) {
         return authService.signIn(signInRequest);
     }
 
+    /**
+     * oauth2 로그인 성공시 redirect url 테스트용
+     * FIXME: 추후 client 붙으면 삭제
+     */
     @GetMapping("/v1/auth/test/{token}")
     @ResponseStatus(code = HttpStatus.OK)
     ResponseMessage test(@PathVariable(value = "token") final String token) {

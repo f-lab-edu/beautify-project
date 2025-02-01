@@ -1,9 +1,11 @@
 package com.bp.app.api.service;
 
 import com.bp.app.api.exception.BpCustomException;
+import com.bp.app.api.request.member.OwnerRoleMemberRegistrationRequest;
 import com.bp.app.api.request.member.UserRoleMemberRegistrationRequest;
 import com.bp.app.api.response.ErrorResponseMessage.ErrorCode;
 import com.bp.app.api.response.ResponseMessage;
+import com.bp.app.api.response.member.OwnerRoleMemberRegistrationResult;
 import com.bp.app.api.response.member.UserRoleMemberRegistrationResult;
 import com.bp.domain.mysql.entity.Member;
 import com.bp.domain.mysql.entity.enumerated.AuthType;
@@ -41,9 +43,23 @@ public class MemberService {
             new UserRoleMemberRegistrationResult(registeredUserRoleMember.getEmail()));
     }
 
+    public ResponseMessage signUpOwnerRoleMember(final OwnerRoleMemberRegistrationRequest request) {
+        final Member registeredOwnerRoleMember = memberAdapterRepository.save(
+            createOwnerMember(request));
+
+        return ResponseMessage.createResponseMessage(new OwnerRoleMemberRegistrationResult(
+            registeredOwnerRoleMember.getEmail()));
+    }
+
     public static Member createNewSelfAuthMember(final UserRoleMemberRegistrationRequest request) {
-        return Member.newMember(request.email(), generateEncryptedDefaultPassword(), request.name(),
+        return Member.newMember(request.email(), encryptPassword(request.password()), request.name(),
             request.contact(), AuthType.BP, UserRole.USER, MemberStatus.ACTIVE,
+            System.currentTimeMillis());
+    }
+
+    public static Member createOwnerMember(final OwnerRoleMemberRegistrationRequest request) {
+        return Member.newMember(request.email(), encryptPassword(request.password()),
+            request.name(), request.contact(), AuthType.BP, UserRole.OWNER, MemberStatus.ACTIVE,
             System.currentTimeMillis());
     }
 
@@ -51,7 +67,7 @@ public class MemberService {
         return PASSWORD_ENCODER.encode(DEFAULT_PASSWORD);
     }
 
-    public String encryptPassword(final String plainPassword) {
+    public static String encryptPassword(final String plainPassword) {
         return PASSWORD_ENCODER.encode(plainPassword);
     }
 
