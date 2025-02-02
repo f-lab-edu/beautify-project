@@ -1,18 +1,28 @@
 package com.bp.app.api.service;
 
+import com.bp.app.api.dto.AccessTokenDto;
 import com.bp.app.api.exception.BpCustomException;
+import com.bp.app.api.provider.JwtProvider;
 import com.bp.app.api.request.auth.EmailCertificationVerificationRequest;
 import com.bp.app.api.request.auth.EmailDuplicatedRequest;
+import com.bp.app.api.request.auth.SignInRequest;
 import com.bp.app.api.response.ErrorResponseMessage.ErrorCode;
 import com.bp.app.api.response.ResponseMessage;
 import com.bp.app.api.response.auth.EmailDuplicatedResult;
+import com.bp.app.api.response.auth.SignInResult;
+import com.bp.app.api.utils.EncryptionUtils;
 import com.bp.domain.mysql.entity.EmailCertification;
+import com.bp.domain.mysql.entity.Member;
 import com.bp.domain.mysql.repository.EmailCertificationAdapterRepository;
+import com.bp.utils.Validator;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -21,6 +31,7 @@ public class AuthService {
 
     private final MemberService memberService;
     private final EmailCertificationAdapterRepository emailCertificationAdapterRepository;
+    private final JwtProvider jwtProvider;
 
     public ResponseMessage checkEmailDuplicated(final EmailDuplicatedRequest emailDuplicatedRequest) {
         if (isEmailCertificationExist(emailDuplicatedRequest.email())) {
@@ -33,7 +44,6 @@ public class AuthService {
         return memberService.existByMemberMail(email);
     }
 
-    @Transactional(rollbackFor = Exception.class)
     public void verifyCertificationEmail(final EmailCertificationVerificationRequest request) {
         final EmailCertification foundEmailCertification = emailCertificationAdapterRepository.findByEmail(
             request.email());
@@ -55,5 +65,31 @@ public class AuthService {
             return;
         }
         throw new BpCustomException(ErrorCode.EC003);
+    }
+
+    public ResponseMessage signIn(final SignInRequest request) {
+        final String requestedEmail = request.email();
+        final Member foundMember = memberService.findMemberByEmailOrElseThrow(requestedEmail);
+
+        validateSignInRequest(request, foundMember);
+
+        final AccessTokenDto accessTokenDto = jwtProvider.generate(foundMember.getEmail(),
+            Map.of("ROLE", foundMember.getRole().name()));
+
+        return ResponseMessage.createResponseMessage(
+            new SignInResult(accessTokenDto.accessToken(), accessTokenDto.accessTokenExpiresIn(),
+                accessTokenDto.refreshToken(), accessTokenDto.refreshTokenExpiresIn()));
+    }
+
+    private void validateSignInRequest(final SignInRequest request, final Member foundMember) {
+        if (foundMember == null || foundMember.getId() == null) {
+            log.error("Member does not exist");
+            throw new BpCustomException(ErrorCode.SI001);
+        }
+
+        if (!EncryptionUtils.matchesBCrypt(request.password(), foundMember.getPassword())) {
+            log.error("Password does not match");
+            throw new BpCustomException(ErrorCode.SI001);
+        }
     }
 }

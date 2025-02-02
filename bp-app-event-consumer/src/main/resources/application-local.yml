@@ -15,5 +15,5 @@ spring:
 
 logging:
   level:
-    com.beautify_project.bp_kafka_event_consumer: debug
+    com.bp.app.event.consumer: debug
     org.apache.kafka: info

@@ -52,8 +52,9 @@ public class ErrorResponseMessage {
         BR001(HttpStatus.BAD_REQUEST, "BR001", "요청 파라미터가 잘못되었습니다."),
         BR002(HttpStatus.BAD_REQUEST, "BR002", "본문 형식이 맞지 않습니다."),
 
-        UA001(HttpStatus.UNAUTHORIZED, "UA001", "접근 토큰이 존재하지 않습니다."),
-        UA002(HttpStatus.UNAUTHORIZED, "UA002", "접근 토큰이 만료되었습니다. "),
+        UA001(HttpStatus.UNAUTHORIZED, "UA001", "인증되지 않은 요청입니다."),
+        UA002(HttpStatus.UNAUTHORIZED, "UA002", "접근 토큰이 존재하지 않습니다."),
+        UA003(HttpStatus.UNAUTHORIZED, "UA003", "접근 토큰이 만료되었습니다. "),
 
         FB001(HttpStatus.FORBIDDEN, "FB001", "해당 API 사용 권한이 없습니다."),
 
@@ -92,6 +93,10 @@ public class ErrorResponseMessage {
 
         II001(HttpStatus.NOT_FOUND, "II001", "유효하지 않은 식별자 입니다."),
         II002(HttpStatus.BAD_REQUEST, "II002", "이미 처리된 식별자 입니다."),
+
+        SI001(HttpStatus.UNAUTHORIZED, "SI001", "로그인에 실패하였습니다"),
+        SI002(HttpStatus.UNAUTHORIZED, "SI002", "인증 토큰이 유효하지 않습니다"),
+
 
         IS001(HttpStatus.INTERNAL_SERVER_ERROR, "IS001", "시스템 에러가 발생하였습니다. 관리자에게 문의해주세요."),
         IS002(HttpStatus.INTERNAL_SERVER_ERROR, "IS002", "외부 시스템에서 에러가 발생하였습니다.")

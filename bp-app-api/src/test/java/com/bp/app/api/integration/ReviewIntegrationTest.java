@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.bp.app.api.helper.AuthorizationHelper;
 import com.bp.domain.mysql.entity.Member;
 import com.bp.domain.mysql.entity.Operation;
 import com.bp.domain.mysql.entity.Reservation;
@@ -32,7 +33,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 @SpringBootTest
-@AutoConfigureMockMvc(addFilters = false)
+@AutoConfigureMockMvc
 @Tag("integration-test")
 public class ReviewIntegrationTest {
 
@@ -54,6 +55,9 @@ public class ReviewIntegrationTest {
     @Autowired
     private ReservationAdapterRepository reservationAdapterRepository;
 
+    @Autowired
+    private AuthorizationHelper authHelper;
+
     @BeforeEach
     void beforeEach() {
         memberAdapterRepository.deleteAllInBatch();
@@ -68,6 +72,8 @@ public class ReviewIntegrationTest {
     void given_reviewFindRequest_when_succeed_then_getResponseMessageWrappingFindReviewResult()
         throws Exception {
         // given
+        final String userRoleAccessToken = authHelper.provideUserRoleAccessToken("user@bp.com");
+
         memberAdapterRepository.saveAndFlush(
             Member.newMember("dev.sssukho@gmail.com", "password", "임석호",
                 "010-1234-5678", AuthType.BP, UserRole.USER, MemberStatus.ACTIVE,
@@ -91,7 +97,9 @@ public class ReviewIntegrationTest {
 
         ResultActions resultActions = mockMvc.perform(
             MockMvcRequestBuilders.get("/v1/reviews/" + insertedReview.getId())
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED));
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .header("Authorization", "Bearer " + userRoleAccessToken)
+        );
 
         // then
         resultActions.andExpect(status().isOk())
@@ -115,15 +123,18 @@ public class ReviewIntegrationTest {
     @DisplayName("Review 상세조회 요청 실패시 ErrorResponseMessage 객체 응답을 받는다.")
     void given_reviewFindRequest_when_failed_then_getErrorResponseMessage() throws Exception {
         // given
+        final String userRoleAccessToken = authHelper.provideUserRoleAccessToken("user@bp.com");
         final long reviewId = Long.MIN_VALUE;
 
         // when
         ResultActions resultActions = mockMvc.perform(
             MockMvcRequestBuilders.get("/v1/reviews/" + reviewId)
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED));
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .header("Authorization", "Bearer " + userRoleAccessToken)
+        );
 
         // then
-        resultActions.andExpect(status().is4xxClientError())
+        resultActions.andExpect(status().isNotFound())
             .andExpect(jsonPath("$.errorCode").exists())
             .andExpect(jsonPath("$.errorMessage").exists()).andDo(print());
     }
@@ -133,6 +144,8 @@ public class ReviewIntegrationTest {
     void given_reviewListInShopRequest_when_succeed_then_getResponseMessageWrappingFindReviewResultList()
         throws Exception {
         // given
+        final String userRoleAccessToken = authHelper.provideUserRoleAccessToken("user@bp.com");
+
         memberAdapterRepository.saveAndFlush(
             Member.newMember("dev.sssukho@gmail.com", "password", "임석호",
                 "010-1234-5678", AuthType.BP, UserRole.USER, MemberStatus.ACTIVE,
@@ -164,6 +177,7 @@ public class ReviewIntegrationTest {
         ResultActions resultActions = mockMvc.perform(
             MockMvcRequestBuilders.get("/v1/reviews/shops/" + shopId)
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .header("Authorization", "Bearer " + userRoleAccessToken)
                 .param("id", String.valueOf(shopId))
                 .param("sort", sort)
                 .param("count", count).param("page", page)
@@ -184,6 +198,8 @@ public class ReviewIntegrationTest {
     @DisplayName("Shop 에 속한 Review 가 없을 경우 empty list 를 응답으로 받는다.")
     void given_reviewListInShopRequest_when_failed_then_getEmptyListResponseMessage() throws Exception {
         // given
+        final String userRoleAccessToken = authHelper.provideUserRoleAccessToken("user@bp.com");
+
         final Shop insertedMockedShop = shopAdapterRepository.saveAndFlush(
             Shop.newShop("shop이름1", "010-1111-2222", "www.naver.com", "소개글1",
                 Arrays.asList("imageUrl1", "imageUrl2"), null, null));
@@ -193,7 +209,9 @@ public class ReviewIntegrationTest {
         // when
         ResultActions resultActions = mockMvc.perform(
             MockMvcRequestBuilders.get("/v1/reviews/shops/" + shopId)
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED).param("id", shopId)
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .header("Authorization", "Bearer " + userRoleAccessToken)
+                .param("id", shopId)
                 .param("count", "1000"));
 
         resultActions.andExpect(status().isOk())
@@ -204,6 +222,7 @@ public class ReviewIntegrationTest {
     @DisplayName("Review 삭제 요청 성공시 No Content 응답을 받는다.")
     void given_reviewDeleteRequest_when_succeed_then_getNoContent() throws Exception {
         // given
+        final String userRoleAccessToken = authHelper.provideUserRoleAccessToken("user@bp.com");
         final Review insertedReview = reviewAdapterRepository.saveAndFlush(
             Review.newReview("4.5", "리뷰내용", "dev.sssukho@gmail.com",
                 1L, 1L, 1L));
@@ -211,7 +230,9 @@ public class ReviewIntegrationTest {
         // when
         ResultActions resultActions = mockMvc.perform(
             MockMvcRequestBuilders.delete("/v1/reviews/" + insertedReview.getId())
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED));
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .header("Authorization", "Bearer " + userRoleAccessToken)
+        );
 
         // then
         resultActions.andExpect(status().isNoContent())
@@ -224,12 +245,15 @@ public class ReviewIntegrationTest {
     @DisplayName("Review 삭제 요청 실패시 ErrorResponseMessage 객체 응답을 받는다.")
     void given_reviewDeleteRequest_when_failed_then_getErrorResponseMessage() throws Exception {
         // given
+        final String userRoleAccessToken = authHelper.provideUserRoleAccessToken("user@bp.com");
         final String reviewId = "  ";
 
         // when
         ResultActions resultActions = mockMvc.perform(
             MockMvcRequestBuilders.delete("/v1/reviews/" + reviewId)
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED));
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .header("Authorization", "Bearer " + userRoleAccessToken)
+        );
 
         // then
         resultActions.andExpect(status().is4xxClientError())

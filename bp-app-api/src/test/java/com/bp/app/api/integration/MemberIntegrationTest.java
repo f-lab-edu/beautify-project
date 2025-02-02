@@ -26,7 +26,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 @SpringBootTest
 @ActiveProfiles("test")
-@AutoConfigureMockMvc(addFilters = false)
+@AutoConfigureMockMvc
 @Tag("integration-test")
 public class MemberIntegrationTest {
 

@@ -5,7 +5,6 @@ import com.bp.app.api.response.ResponseMessage;
 import com.bp.app.api.service.ReviewService;
 import com.bp.domain.mysql.enums.OrderType;
 import com.bp.domain.mysql.enums.ReviewSortBy;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

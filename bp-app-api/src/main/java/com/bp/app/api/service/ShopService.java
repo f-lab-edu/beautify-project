@@ -165,7 +165,6 @@ public class ShopService {
     }
 
     public ResponseMessage findShopList(final ShopListFindRequestParameters parameters) {
-        // FIXME: member email parameter
         final List<Shop> foundShops = shopAdapterRepository.findAll(parameters.searchType().getEntityName(),
             parameters.page(), parameters.count(), parameters.orderType().name());
         return ResponseMessage.createResponseMessage(createShopListFindResults(foundShops));

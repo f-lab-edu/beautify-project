@@ -1,5 +1,6 @@
-package com.bp.app.api.exception;
+package com.bp.app.api.handler;
 
+import com.bp.app.api.exception.BpCustomException;
 import com.bp.app.api.response.ErrorResponseMessage;
 import com.bp.app.api.response.ErrorResponseMessage.ErrorCode;
 import com.bp.domain.mysql.exception.EnumMismatchException;

@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.bp.app.api.producer.ShopLikeEventProducer;
+import com.bp.app.api.provider.JwtProvider;
 import com.bp.app.api.request.shop.ShopListFindRequestParameters;
 import com.bp.app.api.request.shop.ShopRegistrationRequest;
 import com.bp.app.api.request.shop.ShopRegistrationRequest.Address;
@@ -17,6 +18,7 @@ import com.bp.app.api.response.shop.ShopRegistrationResult;
 import com.bp.app.api.service.FacilityService;
 import com.bp.app.api.service.OperationService;
 import com.bp.app.api.service.ShopService;
+import com.bp.domain.mysql.repository.MemberAdapterRepository;
 import com.bp.domain.mysql.repository.ShopAdapterRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -63,6 +65,12 @@ class ShopControllerTest {
 
     @MockBean
     private FacilityService facilityService;
+
+    @MockBean
+    private JwtProvider jwtProvider;
+
+    @MockBean
+    private MemberAdapterRepository memberAdapterRepository;
 
     @Test
     @DisplayName("Shop 등록 요청 성공시 shopId 를 포함한 ResponseMessage 객체를 응답한다.")
@@ -112,7 +120,7 @@ class ShopControllerTest {
 
         // when
         ResultActions resultActions = mockMvc.perform(
-            MockMvcRequestBuilders.post("/v1/shops")
+            MockMvcRequestBuilders.post("/v1/owner/shops")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody)
         );
@@ -132,7 +140,7 @@ class ShopControllerTest {
 
         // when
         ResultActions resultActions = mockMvc.perform(
-            MockMvcRequestBuilders.post("/v1/shops")
+            MockMvcRequestBuilders.post("/v1/owner/shops")
                 .contentType(MediaType.APPLICATION_JSON)
         );
 
@@ -151,7 +159,7 @@ class ShopControllerTest {
 
         // when
         ResultActions resultActions = mockMvc.perform(
-            MockMvcRequestBuilders.post("/v1/shops").contentType(MediaType.APPLICATION_JSON)
+            MockMvcRequestBuilders.post("/v1/owner/shops").contentType(MediaType.APPLICATION_JSON)
                 .content(OBJECT_MAPPER.writeValueAsString(invalidRequestBody)));
 
         // then

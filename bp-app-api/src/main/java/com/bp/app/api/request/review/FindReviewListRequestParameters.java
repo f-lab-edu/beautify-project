@@ -1,6 +1,5 @@
 package com.bp.app.api.request.review;
 
-
 import com.bp.domain.mysql.enums.OrderType;
 import com.bp.domain.mysql.enums.ReviewSortBy;
 import jakarta.validation.constraints.Max;
