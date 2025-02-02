@@ -9,6 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface OperationCategoryRepository extends JpaRepository<OperationCategory, OperationCategoryId> {
 
-    List<OperationCategory> findByIdOperationIdIn(final List<String> operationIds);
+    List<OperationCategory> findByIdOperationIdIn(final List<Long> operationIds);
 
 }

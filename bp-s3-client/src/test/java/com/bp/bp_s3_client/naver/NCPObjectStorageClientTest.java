@@ -32,7 +32,7 @@ class NCPObjectStorageClientTest {
     }
 
     private static void initNcpConfig() {
-        String filePath = "src/main/resources/naver-cloud-platform-auth.yml";
+        String filePath = "src/main/resources/s3-client-config/naver-cloud-platform-auth.yml";
         Properties properties = new Properties();
 
         try (FileInputStream fileInputStream = new FileInputStream(filePath)) {

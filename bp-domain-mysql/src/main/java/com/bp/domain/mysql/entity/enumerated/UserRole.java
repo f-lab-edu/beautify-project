@@ -5,7 +5,7 @@ import com.bp.domain.mysql.exception.EnumMismatchException;
 public enum UserRole {
     USER, ADMIN, OWNER;
 
-    private static final String PREFIX_FOR_SECURITY_FILTER_CHAIN = "ROILE_";
+    private static final String PREFIX_FOR_SECURITY_FILTER_CHAIN = "ROLE_";
 
     public static UserRole from(final String input) {
         try {

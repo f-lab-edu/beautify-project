@@ -1,8 +1,9 @@
 package com.bp.domain.mysql.entity;
 
-import com.bp.utils.UUIDGenerator;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -13,11 +14,11 @@ import lombok.NoArgsConstructor;
 @Table(name = "operation")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Operation {
+public class Operation extends BaseEntity{
 
-    @Id
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "operation_id")
-    private String id;
+    private Long id;
 
     @Column(name = "operation_name")
     private String name;
@@ -25,18 +26,12 @@ public class Operation {
     @Column(name = "operation_description")
     private String description;
 
-    @Column(name = "operation_registered_time")
-    private Long registeredTime;
-
-    private Operation(final String id, final String name, final String description,
-        final Long registeredTime) {
-        this.id = id;
+    public Operation(final String name, final String description) {
         this.name = name;
         this.description = description;
-        this.registeredTime = registeredTime;
     }
 
-    public static Operation of(final String name, final String description) {
-        return new Operation(UUIDGenerator.generateUUIDForEntity(), name, description, System.currentTimeMillis());
+    public static Operation newOperation(final String name, final String description) {
+        return new Operation(name, description);
     }
 }

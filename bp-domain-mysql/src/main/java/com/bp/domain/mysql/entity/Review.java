@@ -1,8 +1,9 @@
 package com.bp.domain.mysql.entity;
 
-import com.bp.utils.UUIDGenerator;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -13,11 +14,11 @@ import lombok.NoArgsConstructor;
 @Table(name = "review")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Review {
+public class Review extends BaseEntity {
 
-    @Id
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "review_id")
-    private String id;
+    private Long id;
 
     @Column(name = "review_rate")
     private String rate;
@@ -25,37 +26,30 @@ public class Review {
     @Column(name = "review_content")
     private String content;
 
-    @Column(name = "review_registered_time")
-    private Long registeredTime;
-
     @Column(name = "member_email")
     private String memberEmail;
 
     @Column(name = "operation_id")
-    private String operationId;
+    private Long operationId;
 
     @Column(name = "shop_id")
-    private String shopId;
+    private Long shopId;
 
     @Column(name = "reservation_id")
-    private String reservationId;
+    private Long reservationId;
 
-    private Review(final String id, final String rate, final String content,
-        final Long registeredTime, final String memberEmail,
-        final String operationId, final String shopId, final String reservationId) {
-        this.id = id;
+    private Review(final String rate, final String content, final String memberEmail,
+        final Long operationId, final Long shopId, final Long reservationId) {
         this.rate = rate;
         this.content = content;
-        this.registeredTime = registeredTime;
         this.memberEmail = memberEmail;
         this.operationId = operationId;
         this.shopId = shopId;
         this.reservationId = reservationId;
     }
 
-    public static Review of(final String rate, final String content, final String memberEmail,
-        final String operationId, final String shopId, final String reservationId) {
-        return new Review(UUIDGenerator.generateUUIDForEntity(), rate, content, System.currentTimeMillis(),
-            memberEmail, operationId, shopId, reservationId);
+    public static Review newReview(final String rate, final String content, final String memberEmail,
+        final Long operationId, final Long shopId, final Long reservationId) {
+        return new Review(rate, content, memberEmail, operationId, shopId, reservationId);
     }
 }

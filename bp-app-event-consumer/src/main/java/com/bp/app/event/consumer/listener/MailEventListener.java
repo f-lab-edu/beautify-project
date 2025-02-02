@@ -5,6 +5,7 @@ import com.bp.common.kakfa.event.SignUpCertificationMailEvent.SignUpCertificatio
 import com.bp.domain.mysql.entity.EmailCertification;
 import com.bp.domain.mysql.repository.EmailCertificationAdapterRepository;
 import com.bp.utils.UUIDGenerator;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -63,7 +64,8 @@ public class MailEventListener {
         long now = System.currentTimeMillis();
         final List<EmailCertification> emailCertifications =
             certificationNumberByTargetMail.entrySet().stream().map(entrySet -> {
-                return EmailCertification.of(entrySet.getKey(), entrySet.getValue(), now);
+                return EmailCertification.newEmailCertification(entrySet.getKey(),
+                    entrySet.getValue());
             }).toList();
 
         emailCertificationRepository.saveAll(emailCertifications);
@@ -75,7 +77,16 @@ public class MailEventListener {
             emailCertificationRepository.findByEmailsIn(targetsFromEvents);
 
         for (EmailCertification alreadySent : alreadySentEmailCertifications) {
-            if (!isValidTime(now, alreadySent.getRegisteredTime())) {
+            if (!isValidTime(now,
+                alreadySent.getCreatedDate().atZone(ZoneId.systemDefault()).toInstant()
+                    .toEpochMilli())) {
+
+            }
+
+            if (!isValidTime(now,
+                alreadySent.getCreatedDate().atZone(ZoneId.systemDefault()).toInstant()
+                    .toEpochMilli())) {
+
                 targetsFromEvents.remove(alreadySent.getEmail());
             }
         }

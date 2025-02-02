@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface EmailCertificationRepository extends JpaRepository<EmailCertification, String> {
+public interface EmailCertificationRepository extends JpaRepository<EmailCertification, Long> {
 
     EmailCertification findByEmail(final String email);
 

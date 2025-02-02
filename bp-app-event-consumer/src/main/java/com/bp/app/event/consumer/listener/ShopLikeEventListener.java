@@ -98,7 +98,7 @@ public class ShopLikeEventListener {
         final LikeType likeType) {
 
         final List<ShopLikeId> shopLikeIdsToFind = events.stream()
-            .map(event -> ShopLikeId.of(event.getShopId(), event.getMemberEmail()))
+            .map(event -> ShopLikeId.newShopLikeId(event.getShopId(), event.getMemberEmail()))
             .toList();
 
         final List<ShopLike> alreadyInsertedShopLikeEntities = shopLikeRepository.findByShopLikeIdIn(
@@ -113,14 +113,14 @@ public class ShopLikeEventListener {
         if (LikeType.LIKE == likeType) {
             return events.stream()
                 .filter(event -> !alreadyInsertedIds.contains(
-                    ShopLikeId.of(event.getShopId(), event.getMemberEmail())))
+                    ShopLikeId.newShopLikeId(event.getShopId(), event.getMemberEmail())))
                 .toList();
         }
 
         // 이미 처리된 좋아요 취소 == db 상에 존재하지 않음
         return events.stream()
             .filter(event -> alreadyInsertedIds.contains(
-                ShopLikeId.of(event.getShopId(), event.getMemberEmail())))
+                ShopLikeId.newShopLikeId(event.getShopId(), event.getMemberEmail())))
             .toList();
     }
 
@@ -180,7 +180,7 @@ public class ShopLikeEventListener {
 
     private void bulkInsertShopLikeEntity(final List<ShopLikeEventProto> events) {
         List<ShopLike> shopLikesToRegister = events.stream()
-            .map(event -> ShopLike.of(event.getShopId(), event.getMemberEmail()))
+            .map(event -> ShopLike.newShopLike(event.getShopId(), event.getMemberEmail()))
             .toList();
         shopLikeRepository.bulkInsert(shopLikesToRegister);
         log.debug("{} counts of ShopLike entity inserted", shopLikesToRegister.size());
@@ -188,7 +188,7 @@ public class ShopLikeEventListener {
 
     private void removeAllShopLikeEntity(final List<ShopLikeEventProto> events) {
         final List<ShopLikeId> shopLikeIdsToRemove = events.stream()
-            .map(event -> ShopLikeId.of(event.getShopId(), event.getMemberEmail()))
+            .map(event -> ShopLikeId.newShopLikeId(event.getShopId(), event.getMemberEmail()))
             .toList();
         shopLikeRepository.deleteAllByIdInBatch(shopLikeIdsToRemove);
         log.debug("{} counts of ShopLike entity removed", shopLikeIdsToRemove.size());
