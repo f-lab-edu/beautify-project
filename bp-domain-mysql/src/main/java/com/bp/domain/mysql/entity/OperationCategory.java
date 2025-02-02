@@ -6,6 +6,7 @@ import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import java.io.Serializable;
+import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,22 +15,18 @@ import lombok.NoArgsConstructor;
 @Table(name = "operation_category")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class OperationCategory {
+public class OperationCategory extends BaseEntity{
 
     @EmbeddedId
     private OperationCategoryId id;
 
-    @Column(name = "operation_category_registered_time")
-    private Long registeredTime;
-
-    private OperationCategory(final OperationCategoryId id, final Long registeredTime) {
+    private OperationCategory(final OperationCategoryId id) {
         this.id = id;
-        this.registeredTime = registeredTime;
     }
 
-    public static OperationCategory of(final String operationId, final String categoryId) {
-        return new OperationCategory(OperationCategoryId.of(operationId, categoryId),
-            System.currentTimeMillis());
+    public static OperationCategory newOperationCategory(final Long operationId, final Long categoryId) {
+        return new OperationCategory(
+            OperationCategoryId.newOperationCategoryId(operationId, categoryId));
     }
 
     @Embeddable
@@ -38,19 +35,38 @@ public class OperationCategory {
     public static class OperationCategoryId implements Serializable {
 
         @Column(name = "operation_id")
-        private String operationId;
+        private Long operationId;
 
         @Column(name = "category_id")
-        private String categoryId;
+        private Long categoryId;
 
-        private OperationCategoryId(final String operationId, final String categoryId) {
+        private OperationCategoryId(final Long operationId, final Long categoryId) {
             this.operationId = operationId;
             this.categoryId = categoryId;
         }
 
-        public static OperationCategoryId of(final String operationId, final String categoryId) {
+        public static OperationCategoryId newOperationCategoryId(final Long operationId,
+            final Long categoryId) {
             return new OperationCategoryId(operationId, categoryId);
         }
-    }
 
+        @Override
+        public int hashCode() {
+            return Objects.hash(operationId, categoryId);
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null || getClass() != obj.getClass()) {
+                return false;
+            }
+
+            final OperationCategoryId that = (OperationCategoryId) obj;
+            return Objects.equals(operationId, that.categoryId) && Objects.equals(categoryId,
+                that.categoryId);
+        }
+    }
 }

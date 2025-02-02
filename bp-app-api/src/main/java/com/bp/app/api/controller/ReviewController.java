@@ -5,7 +5,6 @@ import com.bp.app.api.response.ResponseMessage;
 import com.bp.app.api.service.ReviewService;
 import com.bp.domain.mysql.enums.OrderType;
 import com.bp.domain.mysql.enums.ReviewSortBy;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -31,7 +30,7 @@ public class ReviewController {
     @GetMapping("/v1/reviews/{id}")
     @ResponseStatus(code = HttpStatus.OK)
     public ResponseMessage findReview(
-        @PathVariable(value = "id") @NotBlank @NotNull final String reviewId) {
+        @PathVariable(value = "id") @NotNull final Long reviewId) {
         return reviewService.findReview(reviewId);
     }
 
@@ -47,8 +46,8 @@ public class ReviewController {
     @GetMapping("/v1/reviews/shops/{id}")
     @ResponseStatus(code = HttpStatus.OK)
     public ResponseMessage findReviewListInShop(
-        @PathVariable(value = "id") @NotBlank final String shopId,
-        @RequestParam(name = "sort", required = false, defaultValue = "reviewRegisteredDate") final String sort,
+        @PathVariable(value = "id") @NotNull final Long shopId,
+        @RequestParam(name = "sort", required = false, defaultValue = "createdDate") final String sort,
         @RequestParam(name = "page", required = false, defaultValue = "0") final int page,
         @RequestParam(name = "count", required = false, defaultValue = "10") final int count,
         @RequestParam(name = "order", required = false, defaultValue = "asc") final String order) {
@@ -64,7 +63,7 @@ public class ReviewController {
      */
     @DeleteMapping("/v1/reviews/{id}")
     @ResponseStatus(code = HttpStatus.NO_CONTENT)
-    public void deleteReview(@PathVariable(value = "id") @NotBlank final String reviewId) {
+    public void deleteReview(@PathVariable(value = "id") @NotNull final Long reviewId) {
         reviewService.deleteReview(reviewId);
     }
 }

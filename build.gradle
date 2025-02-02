@@ -2,6 +2,10 @@ subprojects {
 	group = 'com.bp'
 	version = '0.0.1-SNAPSHOT'
 
+	ext {
+		projectVersion = version;
+	}
+
 	apply plugin: 'java'
 
 	sourceCompatibility = '17'

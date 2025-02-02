@@ -6,8 +6,8 @@ plugins {
 
 dependencies {
     implementation project(':bp-utils')
-    implementation project(':bp-common-kafka')
     implementation project(':bp-domain-mysql')
+    implementation files("$rootDir/bp-common-kafka/build/libs/bp-common-kafka-$projectVersion-fat.jar")
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.kafka:spring-kafka'
     implementation 'org.apache.commons:commons-lang3:3.14.0'
@@ -36,5 +36,13 @@ dependencies {
             showStandardStreams = false // 표준 출력 및 표준 에러 표시
         }
     }
+}
+
+tasks.named('compileJava') {
+    dependsOn ':bp-common-kafka:build'
+}
+
+tasks.named('build') {
+    dependsOn 'compileJava'
 }
 

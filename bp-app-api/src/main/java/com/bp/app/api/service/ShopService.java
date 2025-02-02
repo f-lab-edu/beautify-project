@@ -17,9 +17,8 @@ import com.bp.domain.mysql.entity.ShopFacility;
 import com.bp.domain.mysql.entity.ShopOperation;
 import com.bp.domain.mysql.entity.embedded.Address;
 import com.bp.domain.mysql.entity.embedded.BusinessTime;
-import com.bp.domain.mysql.repository.ShopRepository;
+import com.bp.domain.mysql.repository.ShopAdapterRepository;
 import com.bp.utils.Validator;
-import jakarta.validation.constraints.NotBlank;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -28,36 +27,32 @@ import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class ShopService {
 
-    private final ShopRepository shopRepository;
+    private final ShopAdapterRepository shopAdapterRepository;
     private final ShopOperationService shopOperationService;
     private final OperationService operationService;
     private final ShopFacilityService shopFacilityService;
     private final FacilityService facilityService;
-    private final ShopLikeService shopLikeService;
     private final ShopCategoryService shopCategoryService;
     private final ImageProvider imageProvider;
     private final IOBoundAsyncThreadPoolConfiguration ioBoundAsyncThreadPoolConfig;
+    private final ShopLikeService shopLikeService;
 
     @Transactional(rollbackFor = Exception.class)
     public ResponseMessage registerShop(final ShopRegistrationRequest shopRegistrationRequest) {
 
-        final Shop registeredShop = shopRepository.save(
+        final Shop registeredShop = shopAdapterRepository.save(
             createShopEntityFromShopRegistrationRequest(shopRegistrationRequest));
         final Long registeredShopId = registeredShop.getId();
-        final List<String> operationIds = shopRegistrationRequest.operationIds();
-        final List<String> facilityIds = shopRegistrationRequest.facilityIds();
+        final List<Long> operationIds = shopRegistrationRequest.operationIds();
+        final List<Long> facilityIds = shopRegistrationRequest.facilityIds();
 
         // 시술 ID가 포함되어 있을 경우에만 샵에 포함된 시술과 카테고리로 insert
         if (!Validator.isNullOrEmpty(operationIds)) {
@@ -98,7 +93,7 @@ public class ShopService {
 
         final Shop shopToSave = createShopEntityFromShopRegistrationRequest(request);
         final CompletableFuture<Shop> saveShopAsyncResult = CompletableFuture.supplyAsync(
-            () -> shopRepository.save(shopToSave),
+            () -> shopAdapterRepository.save(shopToSave),
             ioBoundAsyncThreadPoolConfig.getAsyncExecutor());
         completableFutures.add(saveShopAsyncResult);
 
@@ -119,7 +114,7 @@ public class ShopService {
         }
     }
 
-    private void registerShopOperationAndShopCategoriesAsyncIfOperationIdsExist(final List<String> operationIds,
+    private void registerShopOperationAndShopCategoriesAsyncIfOperationIdsExist(final List<Long> operationIds,
         final Shop shopToSave, final List<CompletableFuture<?>> completableFutures) {
 
         if (Validator.isNullOrEmpty(operationIds)) {
@@ -137,7 +132,7 @@ public class ShopService {
         completableFutures.add(saveShopCategoriesResult);
     }
 
-    private void registerShopFacilityAsyncIfFacilityIdsExist(final List<String> facilityIds,
+    private void registerShopFacilityAsyncIfFacilityIdsExist(final List<Long> facilityIds,
         final Shop shopToSave, final List<CompletableFuture<?>> completableFutures) {
 
         if (Validator.isNullOrEmpty(facilityIds)) {
@@ -155,13 +150,13 @@ public class ShopService {
             try {
                 Object object = completableFuture.join();
                 if (object instanceof Shop) {
-                    shopRepository.delete((Shop) object);
+                    shopAdapterRepository.delete((Shop) object);
                 } else if (object instanceof ShopOperation) {
                     shopOperationService.remove((ShopOperation) object);
                 } else if (object instanceof ShopCategory) {
-                    shopCategoryService.remove((ShopCategory) object);
+                    shopCategoryService.delete((ShopCategory) object);
                 } else {
-                    shopFacilityService.remove((ShopFacility) object);
+                    shopFacilityService.delete((ShopFacility) object);
                 }
             } catch (Exception exception) {
                 log.error("Failed to rollback: {}", completableFuture.join(), exception);
@@ -170,12 +165,8 @@ public class ShopService {
     }
 
     public ResponseMessage findShopList(final ShopListFindRequestParameters parameters) {
-        // TODO: jpql 조인 쿼리로 개선 필요
-        final Pageable pageable = PageRequest.of(parameters.page(), parameters.count(),
-            Sort.by(Sort.Direction.fromString(parameters.orderType().name()),
-                parameters.searchType().getEntityName()));
-
-        final List<Shop> foundShops = shopRepository.findAll(pageable).getContent();
+        final List<Shop> foundShops = shopAdapterRepository.findAll(parameters.searchType().getEntityName(),
+            parameters.page(), parameters.count(), parameters.orderType().name());
         return ResponseMessage.createResponseMessage(createShopListFindResults(foundShops));
     }
 
@@ -191,6 +182,7 @@ public class ShopService {
                 final List<String> facilityNames = facilityNamesByShopId.get(shopId);
                 final String thumbnailFileId = foundShop.getImageFileIds().get(0);
                 final String thumbnailLink = imageProvider.providePreSignedGetUrlByFileId(thumbnailFileId).preSignedUrl();
+//                final boolean likePushed = shopLikeService.isLikePushed(memberEmail, shopId);
 
                 return ShopListFindResult.createShopListFindResult(foundShop, operationNames,
                     facilityNames, thumbnailLink);
@@ -202,7 +194,7 @@ public class ShopService {
         final List<ShopOperation> foundShopOperations = shopOperationService.findShopOperationsByShopIds(
             shopIds);
 
-        final Map<Long, List<String>> operationIdsByShopId = foundShopOperations.stream()
+        final Map<Long, List<Long>> operationIdsByShopId = foundShopOperations.stream()
             .collect(Collectors.groupingBy(shopOperation -> shopOperation.getId().getShopId(),
                 Collectors.mapping(shopOperation -> shopOperation.getId().getOperationId(),
                     Collectors.toList())));
@@ -219,7 +211,7 @@ public class ShopService {
         final List<ShopFacility> foundShopFacilities = shopFacilityService.findShopFacilitiesByShopIds(
             shopIds);
 
-        final Map<Long, List<String>> facilityIdsByShopId = foundShopFacilities.stream()
+        final Map<Long, List<Long>> facilityIdsByShopId = foundShopFacilities.stream()
             .collect(Collectors.groupingBy(shopFacility -> shopFacility.getId().getShopId(),
                 Collectors.mapping(shopFacility -> shopFacility.getId().getFacilityId(),
                     Collectors.toList())));
@@ -231,8 +223,8 @@ public class ShopService {
                     .map(Facility::getName).collect(Collectors.toList())));
     }
 
-    public Shop findShopById(final @NotBlank String shopId) {
-        return shopRepository.findById(shopId)
+    public Shop findShopById(final Long shopId) {
+        return shopAdapterRepository.findById(shopId)
             .orElseThrow(() -> new BpCustomException(ErrorCode.SH001));
     }
 }

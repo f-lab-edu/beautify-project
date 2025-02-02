@@ -17,3 +17,7 @@ dependencies {
 
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
+
+bootJar {
+	enabled = false
+}

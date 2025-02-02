@@ -1,40 +1,36 @@
 package com.bp.app.api.service;
 
 import com.bp.app.api.exception.BpCustomException;
+import com.bp.app.api.request.review.FindReviewListRequestParameters;
 import com.bp.app.api.response.ErrorResponseMessage.ErrorCode;
 import com.bp.app.api.response.ResponseMessage;
+import com.bp.app.api.response.review.ReviewFindResult;
+import com.bp.app.api.response.review.ReviewListFindResult;
 import com.bp.domain.mysql.entity.Member;
 import com.bp.domain.mysql.entity.Operation;
 import com.bp.domain.mysql.entity.Reservation;
 import com.bp.domain.mysql.entity.Review;
 import com.bp.domain.mysql.entity.Shop;
-import com.bp.domain.mysql.repository.ReviewRepository;
-import com.bp.app.api.request.review.FindReviewListRequestParameters;
-import com.bp.app.api.response.review.ReviewFindResult;
-import com.bp.app.api.response.review.ReviewListFindResult;
+import com.bp.domain.mysql.repository.ReviewAdapterRepository;
+import java.time.ZoneId;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class ReviewService {
 
-    private final ReviewRepository reviewRepository;
+    private final ReviewAdapterRepository reviewAdapterRepository;
     private final MemberService memberService;
     private final OperationService operationService;
     private final ShopService shopService;
     private final ReservationService reservationService;
 
-    public ResponseMessage findReview(final String reviewId) {
-        final Review foundReview = reviewRepository.findById(reviewId)
+    public ResponseMessage findReview(final Long reviewId) {
+        final Review foundReview = reviewAdapterRepository.findById(reviewId)
             .orElseThrow(() -> new BpCustomException(ErrorCode.RE001));
 
         final Member reviewedWriter = memberService.findMemberByEmailOrElseThrow(foundReview.getMemberEmail());
@@ -45,26 +41,25 @@ public class ReviewService {
             foundReview.getReservationId());
 
         return ResponseMessage.createResponseMessage(new ReviewFindResult(foundReview.getId(),
-            foundReview.getRate(), foundReview.getContent(), foundReview.getRegisteredTime(),
+            foundReview.getRate(), foundReview.getContent(), foundReview.getCreatedDate().atZone(
+            ZoneId.systemDefault()).toInstant().toEpochMilli(),
             reviewedWriter.getEmail(), reviewedWriter.getName(),
             reviewedOperation.getId(), reviewedOperation.getName(), reviewedShop.getId(),
             reviewedShop.getName(), reviewedReservation.getId(), reviewedReservation.getDate()));
     }
 
     public ResponseMessage findReviewListInShop(final FindReviewListRequestParameters parameters) {
-        // TODO: join 으로 개선 필요
-        Pageable pageable = PageRequest.of(parameters.page(), parameters.count(),
-            Sort.by(Sort.Direction.fromString(parameters.orderType().name()),
-                parameters.sortBy().name()));
+        final List<Review> foundReviews = reviewAdapterRepository.findAll(
+            parameters.sortBy().getValue(),
+            parameters.page(), parameters.count(), parameters.orderType().name());
 
-        List<Review> foundReviews = reviewRepository.findAll(pageable).getContent();
         if (foundReviews.isEmpty()) {
-            throw new BpCustomException(ErrorCode.RE001);
+            return ResponseMessage.createEmptyListResponseMessage();
         }
 
-        final List<ReviewListFindResult> result =  foundReviews.stream().map(review ->
+        final List<ReviewListFindResult> result = foundReviews.stream().map(review ->
                 new ReviewListFindResult(review.getId(),
-                    review.getRate(), review.getRegisteredTime(),
+                    review.getRate(), review.getCreatedDate().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
                     memberService.findMemberByEmailOrElseThrow(review.getMemberEmail()).getName(),
                     operationService.findOperationById(
                         review.getOperationId()).getName(),
@@ -74,8 +69,7 @@ public class ReviewService {
         return ResponseMessage.createResponseMessage(result);
     }
 
-    @Transactional
-    public void deleteReview(final String reviewId) {
-        reviewRepository.deleteById(reviewId);
+    public void deleteReview(final Long reviewId) {
+        reviewAdapterRepository.deleteById(reviewId);
     }
 }

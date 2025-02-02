@@ -6,6 +6,7 @@ import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import java.io.Serializable;
+import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,21 +15,17 @@ import lombok.NoArgsConstructor;
 @Table(name = "shop_category")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ShopCategory {
+public class ShopCategory extends BaseEntity{
 
     @EmbeddedId
     private ShopCategoryId id;
 
-    @Column(name = "shop_category_registered_time")
-    private Long registeredTime;
-
-    public ShopCategory(final ShopCategoryId id, final Long registeredTime) {
+    private ShopCategory(final ShopCategoryId id) {
         this.id = id;
-        this.registeredTime = registeredTime;
     }
 
-    public static ShopCategory of(final Long shopId, final String categoryId) {
-        return new ShopCategory(ShopCategoryId.of(shopId, categoryId), System.currentTimeMillis());
+    public static ShopCategory newShopCategory(final Long shopId, final Long categoryId) {
+        return new ShopCategory(ShopCategoryId.newShopCategoryId(shopId, categoryId));
     }
 
     @Embeddable
@@ -40,15 +37,34 @@ public class ShopCategory {
         private Long shopId;
 
         @Column(name = "category_id")
-        private String categoryId;
+        private Long categoryId;
 
-        private ShopCategoryId(final Long shopId, final String categoryId) {
+        private ShopCategoryId(final Long shopId, final Long categoryId) {
             this.shopId = shopId;
             this.categoryId = categoryId;
         }
 
-        public static ShopCategoryId of(final Long shopId, final String categoryId) {
+        public static ShopCategoryId newShopCategoryId(final Long shopId, final Long categoryId) {
             return new ShopCategoryId(shopId, categoryId);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(shopId, categoryId);
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null || getClass() != obj.getClass()) {
+                return false;
+            }
+
+            final ShopCategoryId that = (ShopCategoryId) obj;
+            return Objects.equals(shopId, that.shopId) && Objects.equals(categoryId,
+                that.categoryId);
         }
     }
 }

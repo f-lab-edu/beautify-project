@@ -1,5 +1,6 @@
 package com.bp.app.api.response;
 
+import java.util.ArrayList;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,5 +19,9 @@ public class ResponseMessage {
 
     public static ResponseMessage createResponseMessage(final Object responseBody) {
         return new ResponseMessage(responseBody);
+    }
+
+    public static ResponseMessage createEmptyListResponseMessage() {
+        return new ResponseMessage(new ArrayList<>());
     }
 }

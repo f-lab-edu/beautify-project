@@ -4,24 +4,21 @@ import com.bp.app.api.exception.BpCustomException;
 import com.bp.app.api.response.ErrorResponseMessage.ErrorCode;
 import com.bp.domain.mysql.entity.Facility;
 import com.bp.domain.mysql.entity.ShopFacility;
-import com.bp.domain.mysql.repository.ShopFacilityRepository;
+import com.bp.domain.mysql.repository.ShopFacilityAdapterRepository;
 import com.bp.utils.Validator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class ShopFacilityService {
 
-    private final ShopFacilityRepository shopFacilityRepository;
+    private final ShopFacilityAdapterRepository shopFacilityAdapterRepository;
     private final FacilityService facilityService;
 
-    @Transactional(rollbackFor = Exception.class)
     public List<ShopFacility> registerShopFacilities(final Long shopId,
-        final List<String> facilityIds) {
+        final List<Long> facilityIds) {
 
         final List<Facility> facilities = facilityService.findFacilitiesByIds(facilityIds);
         final List<ShopFacility> shopFacilitiesToRegister = createShopFacilitiesWithShopIdAndFacilities(
@@ -32,22 +29,21 @@ public class ShopFacilityService {
 
     public List<ShopFacility> createShopFacilitiesWithShopIdAndFacilities(final Long shopId,
         final List<Facility> facilities) {
-        return facilities.stream().map(facility -> ShopFacility.of(shopId, facility.getId()))
+        return facilities.stream()
+            .map(facility -> ShopFacility.newShopFacility(shopId, facility.getId()))
             .toList();
     }
 
-    @Transactional(rollbackFor = Exception.class)
     public List<ShopFacility> registerAll(final List<ShopFacility> shopFacilitiesToRegister) {
-        return shopFacilityRepository.saveAll(shopFacilitiesToRegister);
+        return shopFacilityAdapterRepository.saveAll(shopFacilitiesToRegister);
     }
 
     public List<ShopFacility> findShopFacilitiesByShopIds(final List<Long> shopIds) {
         Validator.throwIfNullOrEmpty(shopIds, new BpCustomException(ErrorCode.BR001));
-        return shopFacilityRepository.findByIdShopIdIn(shopIds);
+        return shopFacilityAdapterRepository.findByIdShopIdIn(shopIds);
     }
 
-    @Transactional
-    public void remove(final ShopFacility shopFacilityToRemove) {
-        shopFacilityRepository.delete(shopFacilityToRemove);
+    public void delete(final ShopFacility shopFacilityToDelete) {
+        shopFacilityAdapterRepository.delete(shopFacilityToDelete);
     }
 }

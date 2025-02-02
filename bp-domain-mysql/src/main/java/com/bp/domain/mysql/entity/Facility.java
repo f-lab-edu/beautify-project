@@ -1,8 +1,9 @@
 package com.bp.domain.mysql.entity;
 
-import com.bp.utils.UUIDGenerator;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -13,25 +14,20 @@ import lombok.NoArgsConstructor;
 @Table(name="facility")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Facility {
+public class Facility extends BaseEntity {
 
-    @Id
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "facility_id")
-    private String id;
+    private Long id;
 
     @Column(name = "facility_name")
     private String name;
 
-    @Column(name = "facility_registered_time")
-    private Long registeredTime;
-
-    private Facility(final String id, final String name, final Long registeredTime) {
-        this.id = id;
+    private Facility(final String name) {
         this.name = name;
-        this.registeredTime = registeredTime;
     }
 
-    public static Facility withName(final String name) {
-        return new Facility(UUIDGenerator.generateUUIDForEntity(), name, System.currentTimeMillis());
+    public static Facility newFacility(final String name) {
+        return new Facility(name);
     }
 }
