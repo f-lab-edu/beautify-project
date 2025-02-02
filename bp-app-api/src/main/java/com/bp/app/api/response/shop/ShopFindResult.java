@@ -21,7 +21,7 @@ public record ShopFindResult(
     List<String> facilities,
     @JsonInclude(Include.NON_NULL)
     List<String> imageUrls
-    ) {
+) {
 
     public record BusinessTime (
         LocalTime openTime,

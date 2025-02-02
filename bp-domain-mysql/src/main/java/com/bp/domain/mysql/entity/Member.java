@@ -9,22 +9,26 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.domain.Persistable;
 
 @Entity
 @Table(name = "member")
 @EntityListeners(CustomEntityListener.class)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Member extends BaseEntity implements Persistable<String> {
+public class Member extends BaseEntity{
 
-    @Id
-    @Column(name = "member_email")
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "member_id")
+    private Long id;
+
+    @Column(name = "member_email", unique = true)
     private String email;
 
     @Column(name = "member_password")
@@ -64,22 +68,11 @@ public class Member extends BaseEntity implements Persistable<String> {
         this.registeredTime = registeredTime;
     }
 
-    public static Member createNewMember(final String email, final String password,
+    public static Member newMember(final String email, final String password,
         final String name, final String contact, final AuthType authType, final UserRole userRole,
         final MemberStatus memberStatus, final Long registeredTime) {
 
         return new Member(email, password, name, contact, authType, userRole, memberStatus,
             registeredTime);
     }
-
-    @Override
-    public String getId() {
-        return getEmail();
-    }
-
-    @Override
-    public boolean isNew() {
-        return getCreatedDate() == null;
-    }
-
 }

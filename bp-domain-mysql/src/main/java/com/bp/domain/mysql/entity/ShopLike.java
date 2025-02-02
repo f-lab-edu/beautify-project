@@ -20,16 +20,12 @@ public class ShopLike extends BaseEntity {
     @EmbeddedId
     private ShopLikeId id;
 
-    @Column(name = "shop_like_registered_time")
-    private Long registeredTime;
-
-    private ShopLike(final ShopLikeId id, final Long registeredTime) {
+    private ShopLike(final ShopLikeId id) {
         this.id = id;
-        this.registeredTime = registeredTime;
     }
 
-    public static ShopLike of(final Long shopId, final String memberEmail) {
-        return new ShopLike(new ShopLikeId(shopId, memberEmail), System.currentTimeMillis());
+    public static ShopLike newShopLike(final Long shopId, final String memberEmail) {
+        return new ShopLike(ShopLikeId.newShopLikeId(shopId, memberEmail));
     }
 
     public boolean isEmpty() {
@@ -52,7 +48,7 @@ public class ShopLike extends BaseEntity {
             this.memberEmail = memberEmail;
         }
 
-        public static ShopLikeId of(final Long shopId, final String memberEmail) {
+        public static ShopLikeId newShopLikeId(final Long shopId, final String memberEmail) {
             return new ShopLikeId(shopId, memberEmail);
         }
 

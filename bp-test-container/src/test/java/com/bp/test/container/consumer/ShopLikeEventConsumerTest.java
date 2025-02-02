@@ -24,12 +24,14 @@ import java.util.concurrent.Executors;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 @Slf4j
+@Tag("integration-test")
 public class ShopLikeEventConsumerTest extends TestContainerConfig {
 
     @Autowired
@@ -79,7 +81,7 @@ public class ShopLikeEventConsumerTest extends TestContainerConfig {
                 assertThat(consumedShop.getLikes()).isEqualTo(insertedShop.getLikes() + 1);
 
                 // shop_like 테이블에 row 존재 여부 확인
-                final ShopLikeId shopLikeId = ShopLikeId.of(consumedShop.getId(), givenMemberEmail);
+                final ShopLikeId shopLikeId = ShopLikeId.newShopLikeId(consumedShop.getId(), givenMemberEmail);
                 final List<ShopLike> foundShopLikes = shopLikeRepository.findByShopLikeIdIn(
                     List.of(shopLikeId));
                 assertThat(foundShopLikes.size()).isEqualTo(1);
@@ -133,7 +135,7 @@ public class ShopLikeEventConsumerTest extends TestContainerConfig {
         givenShop.increaseLikeCount(2);
         final Shop insertedShop = shopRepository.saveAndFlush(givenShop);
 
-        final ShopLike givenShopLike = ShopLike.of(insertedShop.getId(), givenMemberEmail);
+        final ShopLike givenShopLike = ShopLike.newShopLike(insertedShop.getId(), givenMemberEmail);
         final ShopLike insertedShopLike = shopLikeRepository.saveAndFlush(givenShopLike);
 
         // when
@@ -151,7 +153,7 @@ public class ShopLikeEventConsumerTest extends TestContainerConfig {
                 assertThat(consumedShop.getLikes()).isEqualTo(1);
 
                 // shop_like 테이블에 row 존재 여부 확인 (삭제되어야 함)
-                final ShopLikeId shopLikeId = ShopLikeId.of(consumedShop.getId(), givenMemberEmail);
+                final ShopLikeId shopLikeId = ShopLikeId.newShopLikeId(consumedShop.getId(), givenMemberEmail);
                 final List<ShopLike> foundShopLikes = shopLikeRepository.findByShopLikeIdIn(
                     List.of(shopLikeId));
                 assertThat(foundShopLikes.size()).isZero();

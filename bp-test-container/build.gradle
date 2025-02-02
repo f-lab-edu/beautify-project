@@ -15,13 +15,21 @@ dependencies {
     testImplementation project(':bp-common-kafka')
     testImplementation 'org.springframework.kafka:spring-kafka'
     testImplementation 'org.awaitility:awaitility:4.2.2'
-    testImplementation 'org.awaitility:awaitility-proxy:4.2.2'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.boot:spring-boot-testcontainers'
     testImplementation 'org.testcontainers:mysql:1.20.4'
     testImplementation 'org.testcontainers:kafka:1.20.4'
     testImplementation 'org.testcontainers:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    test {
+        useJUnitPlatform()
+        testLogging {
+            events 'PASSED', 'FAILED', 'SKIPPED' // 테스트 이벤트 로그
+            showStandardStreams = false // 표준 출력 및 표준 에러 표시
+        }
+        systemProperty 'org.slf4j.simpleLogger.defaultLogLevel', 'WARN'
+    }
 }
 
 tasks.named('test') {

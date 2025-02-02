@@ -6,6 +6,7 @@ import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import java.io.Serializable;
+import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,22 +15,17 @@ import lombok.NoArgsConstructor;
 @Table(name = "shop_operation")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ShopOperation {
+public class ShopOperation extends BaseEntity {
 
     @EmbeddedId
     private ShopOperationId id;
 
-    @Column(name = "shop_operation_registered_time")
-    private Long registeredTime;
-
-    private ShopOperation(final ShopOperationId id, final Long registeredTime) {
+    private ShopOperation(final ShopOperationId id) {
         this.id = id;
-        this.registeredTime = registeredTime;
     }
 
-    public static ShopOperation of(final Long shopId, final String operationId) {
-        return new ShopOperation(ShopOperationId.of(shopId, operationId),
-            System.currentTimeMillis());
+    public static ShopOperation newShopOperation(final Long shopId, final Long operationId) {
+        return new ShopOperation(ShopOperationId.newShopOperationId(shopId, operationId));
     }
 
     @Embeddable
@@ -41,15 +37,34 @@ public class ShopOperation {
         private Long shopId;
 
         @Column(name = "operation_id")
-        private String operationId;
+        private Long operationId;
 
-        private ShopOperationId(final Long shopId, final String operationId) {
+        private ShopOperationId(final Long shopId, final Long operationId) {
             this.shopId = shopId;
             this.operationId = operationId;
         }
 
-        public static ShopOperationId of(final Long shopId, final String operationId) {
+        public static ShopOperationId newShopOperationId(final Long shopId, final Long operationId) {
             return new ShopOperationId(shopId, operationId);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(shopId, operationId);
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null || getClass() != obj.getClass()) {
+                return false;
+            }
+
+            final ShopOperationId that = (ShopOperationId) obj;
+            return Objects.equals(shopId, that.shopId) && Objects.equals(operationId,
+                that.operationId);
         }
     }
 }

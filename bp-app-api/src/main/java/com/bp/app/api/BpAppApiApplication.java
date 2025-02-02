@@ -8,8 +8,8 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 @ConfigurationPropertiesScan("com.bp.app.api.config")
 public class BpAppApiApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(BpAppApiApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(BpAppApiApplication.class, args);
+    }
 
 }

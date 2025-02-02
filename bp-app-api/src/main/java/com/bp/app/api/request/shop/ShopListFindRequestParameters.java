@@ -1,6 +1,5 @@
 package com.bp.app.api.request.shop;
 
-
 import com.bp.app.api.enumeration.ShopSearchType;
 import com.bp.domain.mysql.enums.OrderType;
 import jakarta.validation.constraints.Max;

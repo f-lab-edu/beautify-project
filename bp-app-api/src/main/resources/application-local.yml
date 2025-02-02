@@ -1,5 +1,5 @@
 server:
-  port: 18080
+  port: 8080
   tomcat:
     uri-encoding: UTF-8
   shutdown: graceful
@@ -24,5 +24,5 @@ thread-pool:
 
 logging:
   level:
-    com.beautify_project.bp_app_api: debug
+    com.bp.app.api: debug
     org.apache.kafka: debug

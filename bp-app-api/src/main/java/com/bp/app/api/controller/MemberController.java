@@ -1,5 +1,6 @@
 package com.bp.app.api.controller;
 
+import com.bp.app.api.request.member.OwnerRoleMemberRegistrationRequest;
 import com.bp.app.api.request.member.UserRoleMemberRegistrationRequest;
 import com.bp.app.api.response.ResponseMessage;
 import com.bp.app.api.service.MemberService;
@@ -21,5 +22,11 @@ public class MemberController {
     @ResponseStatus(code = HttpStatus.OK)
     ResponseMessage signUpUserRoleMember(@Valid @RequestBody final UserRoleMemberRegistrationRequest request) {
         return memberService.signUpUserRoleMember(request);
+    }
+
+    @PostMapping("/v1/members/owner")
+    @ResponseStatus(code = HttpStatus.OK)
+    ResponseMessage signUpOwnerRoleMember(@Valid @RequestBody final OwnerRoleMemberRegistrationRequest request) {
+        return memberService.signUpOwnerRoleMember(request);
     }
 }
