@@ -1,4 +1,4 @@
-package com.bp.app.api.controller;
+package com.bp.app.api.unit.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.bp.app.api.controller.ReviewController;
 import com.bp.app.api.exception.BpCustomException;
 import com.bp.app.api.provider.JwtProvider;
 import com.bp.app.api.request.review.FindReviewListRequestParameters;

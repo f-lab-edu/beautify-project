@@ -1,4 +1,4 @@
-package com.bp.test.container.config;
+package com.bp.app.event.consumer.config;
 
 import java.time.Duration;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -11,6 +11,7 @@ import org.testcontainers.kafka.ConfluentKafkaContainer;
 import org.testcontainers.utility.DockerImageName;
 
 public class TestContainerConfig {
+
     private static final String CONFLUENT_KAFKA_IMAGE_NAME = "confluentinc/cp-kafka";
     private static final String CONFLUENT_SCHEMA_REGISTRY_CONTAINER_IMAGE_NAME = "confluentinc/cp-schema-registry";
 

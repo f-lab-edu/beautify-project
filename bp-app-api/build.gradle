@@ -25,6 +25,10 @@ dependencies {
     testImplementation 'commons-io:commons-io:2.18.0'
     testImplementation 'org.springframework.boot:spring-boot-starter-jdbc'
     testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation 'org.awaitility:awaitility:4.2.2'
+    testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+    testImplementation 'org.testcontainers:mysql:1.20.4'
+    testImplementation 'org.testcontainers:kafka:1.20.4'
 
 
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
@@ -32,15 +36,15 @@ dependencies {
 
     test {
         useJUnitPlatform()
-        doFirst {
-            // build 시에는 integration-test 를 제외하고 test 를 수행한다.
-            // 개별 테스트 수행 시에는 integration-test 도 포함하여 수행한다.
-            if (filter.commandLineIncludePatterns.empty) {
-                useJUnitPlatform {
-                    excludeTags("integration-test")
-                }
-            }
-        }
+//        doFirst {
+//            // build 시에는 integration-test 를 제외하고 test 를 수행한다.
+//            // 개별 테스트 수행 시에는 integration-test 도 포함하여 수행한다.
+//            if (filter.commandLineIncludePatterns.empty) {
+//                useJUnitPlatform {
+//                    excludeTags("integration-test")
+//                }
+//            }
+//        }
 
         testLogging {
             events 'PASSED', 'FAILED', 'SKIPPED' // 테스트 이벤트 로그

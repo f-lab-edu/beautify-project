@@ -5,7 +5,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.bp.app.api.helper.AuthorizationHelper;
+import com.bp.app.api.AuthorizationHelper;
+import com.bp.app.api.integration.config.TestContainerConfig;
 import com.bp.domain.mysql.entity.Member;
 import com.bp.domain.mysql.entity.Operation;
 import com.bp.domain.mysql.entity.Reservation;
@@ -35,7 +36,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 @SpringBootTest
 @AutoConfigureMockMvc
 @Tag("integration-test")
-public class ReviewIntegrationTest {
+public class ReviewIntegrationTest extends TestContainerConfig {
 
     @Autowired
     private MockMvc mockMvc;

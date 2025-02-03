@@ -5,7 +5,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.bp.app.api.helper.AuthorizationHelper;
+import com.bp.app.api.AuthorizationHelper;
+import com.bp.app.api.integration.config.TestContainerConfig;
 import com.bp.app.api.request.shop.ShopRegistrationRequest;
 import com.bp.app.api.request.shop.ShopRegistrationRequest.Address;
 import com.bp.app.api.request.shop.ShopRegistrationRequest.BusinessTime;
@@ -42,17 +43,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 @SpringBootTest
-//@AutoConfigureMockMvc(addFilters = false)
 @AutoConfigureMockMvc
-@ActiveProfiles("local")
 @Tag("integration-test")
-class ShopIntegrationTest {
+class ShopIntegrationTest extends TestContainerConfig {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().registerModule(
         new JavaTimeModule());

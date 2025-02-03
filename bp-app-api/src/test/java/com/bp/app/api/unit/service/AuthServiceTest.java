@@ -1,4 +1,4 @@
-package com.bp.app.api.service;
+package com.bp.app.api.unit.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -14,6 +14,8 @@ import com.bp.app.api.request.auth.SignInRequest;
 import com.bp.app.api.response.ResponseMessage;
 import com.bp.app.api.response.auth.EmailDuplicatedResult;
 import com.bp.app.api.response.auth.SignInResult;
+import com.bp.app.api.service.AuthService;
+import com.bp.app.api.service.MemberService;
 import com.bp.app.api.utils.EncryptionUtils;
 import com.bp.domain.mysql.entity.Member;
 import com.bp.domain.mysql.entity.enumerated.AuthType;

@@ -1,4 +1,4 @@
-package com.bp.app.api.helper;
+package com.bp.app.api;
 
 import com.bp.app.api.provider.JwtProvider;
 import com.bp.domain.mysql.entity.Member;

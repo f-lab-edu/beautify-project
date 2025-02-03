@@ -1,10 +1,12 @@
-package com.bp.test.container.consumer;
+package com.bp.app.event.consumer.listener;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
-import com.bp.app.api.producer.ShopLikeEventProducer;
+import com.bp.app.event.consumer.config.TestContainerConfig;
+import com.bp.common.kafka.config.properties.KafkaConfigurationProperties;
+import com.bp.common.kakfa.event.ShopLikeEvent.ShopLikeEventProto;
 import com.bp.common.kakfa.event.ShopLikeEvent.ShopLikeEventProto.LikeType;
 import com.bp.domain.mysql.entity.Shop;
 import com.bp.domain.mysql.entity.ShopLike;
@@ -13,7 +15,6 @@ import com.bp.domain.mysql.entity.embedded.Address;
 import com.bp.domain.mysql.entity.embedded.BusinessTime;
 import com.bp.domain.mysql.repository.ShopAdapterRepository;
 import com.bp.domain.mysql.repository.ShopLikeAdapterRepository;
-import com.bp.test.container.config.TestContainerConfig;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,11 +29,14 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.kafka.core.KafkaTemplate;
 
 @SpringBootTest
 @Slf4j
 @Tag("integration-test")
-public class ShopLikeEventConsumerTest extends TestContainerConfig {
+class ShopLikeEventListenerTest extends TestContainerConfig {
+
+    private static final String TOPIC_CONFIG_NAME_SHOP_LIKE_EVENT = "SHOP-LIKE-EVENT";
 
     @Autowired
     private ShopAdapterRepository shopRepository;
@@ -41,7 +45,10 @@ public class ShopLikeEventConsumerTest extends TestContainerConfig {
     private ShopLikeAdapterRepository shopLikeRepository;
 
     @Autowired
-    private ShopLikeEventProducer shopLikeEventProducer;
+    private KafkaTemplate<Long, ShopLikeEventProto> shopLikeEventProtoKafkaTemplate;
+
+    @Autowired
+    private KafkaConfigurationProperties kafkaConfigurationProperties;
 
     @BeforeEach
     void beforeEach() {
@@ -67,8 +74,7 @@ public class ShopLikeEventConsumerTest extends TestContainerConfig {
         final Shop insertedShop = shopRepository.saveAndFlush(givenShop);
 
         // when
-        shopLikeEventProducer.publishShopLikeEvent(insertedShop.getId(), givenMemberEmail,
-            LikeType.LIKE);
+        produceShopLikeEvent(insertedShop.getId(), givenMemberEmail,LikeType.LIKE);
 
         // then
         await()
@@ -99,7 +105,7 @@ public class ShopLikeEventConsumerTest extends TestContainerConfig {
         final long allShopLikeCountBeforeProduceEvent = shopLikeRepository.count();
 
         // when
-        shopLikeEventProducer.publishShopLikeEvent(notExistedShopId, notExistedMemberEmail, LikeType.LIKE);
+        produceShopLikeEvent(notExistedShopId, notExistedMemberEmail, LikeType.LIKE);
 
         // then
         int countToTest = 5;
@@ -139,8 +145,7 @@ public class ShopLikeEventConsumerTest extends TestContainerConfig {
         final ShopLike insertedShopLike = shopLikeRepository.saveAndFlush(givenShopLike);
 
         // when
-        shopLikeEventProducer.publishShopLikeEvent(insertedShop.getId(), givenMemberEmail,
-            LikeType.LIKE_CANCEL);
+        produceShopLikeEvent(insertedShop.getId(),givenMemberEmail,LikeType.LIKE_CANCEL);
 
         // then
         await()
@@ -171,8 +176,7 @@ public class ShopLikeEventConsumerTest extends TestContainerConfig {
         final long allShopLikeCountBeforeProducedEvent = shopLikeRepository.count();
 
         // when
-        shopLikeEventProducer.publishShopLikeEvent(notExistedShopId, notExistedMemberEmail,
-            LikeType.LIKE_CANCEL);
+        produceShopLikeEvent(notExistedShopId,notExistedMemberEmail,LikeType.LIKE_CANCEL);
 
         // then
         int countToTest = 5;
@@ -212,8 +216,7 @@ public class ShopLikeEventConsumerTest extends TestContainerConfig {
         for (int i = 1; i <= 100; i++) {
             final String memberEmail = "dev.sssukho@gmail.com" + i;
             CompletableFuture<Void> completableFuture = CompletableFuture.supplyAsync(() -> {
-                shopLikeEventProducer.publishShopLikeEvent(targetShopId, memberEmail,
-                    LikeType.LIKE);
+                produceShopLikeEvent(targetShopId, memberEmail, LikeType.LIKE);
                 return null;
             }, executorService);
             completableFutures.add(completableFuture);
@@ -229,5 +232,23 @@ public class ShopLikeEventConsumerTest extends TestContainerConfig {
             });
 
         executorService.shutdown();
+    }
+
+    private void produceShopLikeEvent(final Long shopId, final String memberEmail,
+        final LikeType likeType) {
+        final ShopLikeEventProto shopLikeEventProto = ShopLikeEventProto.newBuilder()
+            .setShopId(shopId)
+            .setMemberEmail(memberEmail)
+            .setType(likeType)
+            .build();
+
+        shopLikeEventProtoKafkaTemplate.send(
+            kafkaConfigurationProperties.getTopic().get(TOPIC_CONFIG_NAME_SHOP_LIKE_EVENT).getTopicName(),
+            shopId,
+            shopLikeEventProto
+        ).exceptionally(exception -> {
+            log.error("Failed to publish event: {}", shopLikeEventProto, exception);
+            return null;
+        });
     }
 }

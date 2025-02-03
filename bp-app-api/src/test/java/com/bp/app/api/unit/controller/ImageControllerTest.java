@@ -1,10 +1,11 @@
-package com.bp.app.api.controller;
+package com.bp.app.api.unit.controller;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.bp.app.api.controller.ImageController;
 import com.bp.app.api.exception.BpCustomException;
 import com.bp.app.api.provider.JwtProvider;
 import com.bp.app.api.provider.image.ImageProvider;

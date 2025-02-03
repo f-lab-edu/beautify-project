@@ -1,4 +1,4 @@
-package com.bp.app.api.service;
+package com.bp.app.api.unit.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
