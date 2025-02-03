@@ -1,5 +1,4 @@
 plugins {
-    id 'org.springframework.boot' version '3.3.5'
     id 'io.spring.dependency-management' version '1.1.6'
     id 'io.freefair.lombok' version '8.11'
     id 'com.google.protobuf' version '0.9.4'
@@ -8,8 +7,8 @@ plugins {
 
 dependencies {
     implementation project(':bp-utils')
-    implementation 'org.springframework.kafka:spring-kafka'
-    implementation 'org.springframework.boot:spring-boot:3.3.5'
+    implementation "org.springframework.kafka:spring-kafka:${springKafkaVersion}"
+    implementation "org.springframework.boot:spring-boot:${springBootVersion}"
 
     implementation 'org.slf4j:slf4j-api:2.0.16'
 
@@ -35,10 +34,6 @@ jar {
 
 shadowJar {
     archiveClassifier.set('fat')
-}
-
-bootJar {
-    enabled = false
 }
 
 tasks.named('build') {
