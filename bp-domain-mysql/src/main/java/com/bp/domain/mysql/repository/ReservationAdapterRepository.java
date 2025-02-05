@@ -24,4 +24,8 @@ public class ReservationAdapterRepository {
     public void deleteAllInBatch() {
         defaultRepository.deleteAllInBatch();
     }
+
+    public Reservation save(final Reservation reservation) {
+        return defaultRepository.save(reservation);
+    }
 }

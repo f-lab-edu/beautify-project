@@ -3,7 +3,7 @@ package com.bp.domain.mysql.entity.enumerated;
 import com.bp.domain.mysql.exception.EnumMismatchException;
 
 public enum UserRole {
-    USER, ADMIN, OWNER;
+    USER, ADMIN, OWNER, OPERATOR;
 
     private static final String PREFIX_FOR_SECURITY_FILTER_CHAIN = "ROLE_";
 

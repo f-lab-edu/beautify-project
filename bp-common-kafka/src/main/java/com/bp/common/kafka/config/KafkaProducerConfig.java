@@ -2,6 +2,7 @@ package com.bp.common.kafka.config;
 
 import com.bp.common.kafka.config.properties.KafkaConfigurationProperties;
 import com.bp.common.kafka.partitioner.ShopLikeEventCustomPartitioner;
+import com.bp.common.kakfa.event.ReservationEvent.ReservationEventProto;
 import com.bp.common.kakfa.event.ShopLikeEvent.ShopLikeEventProto;
 import com.bp.common.kakfa.event.SignUpCertificationMailEvent;
 import io.confluent.kafka.serializers.protobuf.KafkaProtobufSerializer;
@@ -31,7 +32,6 @@ public class KafkaProducerConfig {
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaProtobufSerializer.class);
         props.put(SCHEMA_REGISTRY_URL_KEY, kafkaConfig.getSchemaRegistryUrl());
-
         return props;
     }
 
@@ -60,5 +60,15 @@ public class KafkaProducerConfig {
     @Bean
     public KafkaTemplate<String, SignUpCertificationMailEvent.SignUpCertificationMailEventProto> signUpCertificationMailEventKafkaTemplate() {
         return new KafkaTemplate<>(signUpCertificationMailEventProducerFactory());
+    }
+
+    @Bean
+    public ProducerFactory<String, ReservationEventProto> reservationRegistrationEventProtoProducerFactory() {
+        return new DefaultKafkaProducerFactory<>(commonProtobufProducerConfigProps());
+    }
+
+    @Bean
+    public KafkaTemplate<String, ReservationEventProto> reservationRegistrationEventKafkaTemplate() {
+        return new KafkaTemplate<>(reservationRegistrationEventProtoProducerFactory());
     }
 }

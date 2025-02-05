@@ -18,3 +18,11 @@ kafka:
         group-id: sign-up-certification-mail-consumer-group
         batch-size: 100
         fetch-max-wait: 500
+
+    RESERVATION-REGISTRATION-EVENT:
+      topic-name: reservation-registration
+      producer:
+      consumer:
+        group-id: reservation-registration-consumer-group
+        batch-size: 100
+        fetch-max-wait: 500
