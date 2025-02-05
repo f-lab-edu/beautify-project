@@ -55,8 +55,8 @@ public class KafkaConsumerConfig {
             KEY_SCHEMA_REGISTRY_URL, kafkaConfigProperties.getSchemaRegistryUrl(),
             KEY_SPECIFIC_PROTOBUF_VALUE_TYPE, ShopLikeEventProto.class.getName(),
 
-            ConsumerConfig.MAX_POLL_RECORDS_CONFIG,
-            shopLikeEventTopicConfig.getConsumer().getBatchSize()
+            ConsumerConfig.MAX_POLL_RECORDS_CONFIG, shopLikeEventTopicConfig.getConsumer().getBatchSize(),
+            ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"
         );
     }
 
@@ -97,7 +97,8 @@ public class KafkaConsumerConfig {
             KEY_SCHEMA_REGISTRY_URL, kafkaConfigProperties.getSchemaRegistryUrl(),
             KEY_SPECIFIC_PROTOBUF_VALUE_TYPE, SignUpCertificationMailEventProto.class.getName(),
 
-            ConsumerConfig.MAX_POLL_RECORDS_CONFIG, signUpCertificationMailEventTopicConfig.getConsumer().getBatchSize()
+            ConsumerConfig.MAX_POLL_RECORDS_CONFIG, signUpCertificationMailEventTopicConfig.getConsumer().getBatchSize(),
+            ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"
         );
     }
 
@@ -134,7 +135,8 @@ public class KafkaConsumerConfig {
             KEY_SCHEMA_REGISTRY_URL, kafkaConfigProperties.getSchemaRegistryUrl(),
             KEY_SPECIFIC_PROTOBUF_VALUE_TYPE, ReservationEventProto.class.getName(),
 
-            ConsumerConfig.MAX_POLL_RECORDS_CONFIG, reservationEventTopicConfig.getConsumer().getBatchSize()
+            ConsumerConfig.MAX_POLL_RECORDS_CONFIG, reservationEventTopicConfig.getConsumer().getBatchSize(),
+            ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"
         );
     }
 

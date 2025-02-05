@@ -48,7 +48,7 @@ public class ReservationService {
 
     public Reservation createReservationEntityFromRegistrationRequest(
         final ReservationRegistrationRequest request, final String requestedMemberEmail) {
-        final Operator foundOperator = operatorService.findOperatorByEmail(requestedMemberEmail);
+        final Operator foundOperator = operatorService.findOperatorByEmail(request.operatorEmail());
         return Reservation.newReservation(request.startDate(), request.endDate(), requestedMemberEmail,
             request.shopId(), request.operationId(), foundOperator.getId());
     }

@@ -19,4 +19,11 @@ public class OperatorAdaptorRepository {
         return defaultRepository.findByEmail(operatorEmailToFind);
     }
 
+    public Operator saveAndFlush(final Operator operatorToSave) {
+        return defaultRepository.saveAndFlush(operatorToSave);
+    }
+
+    public void deleteAllInBatch() {
+        defaultRepository.deleteAllInBatch();
+    }
 }

@@ -12,7 +12,6 @@ services:
       TZ: Asia/Seoul
     volumes:
       - ./data/mysql:/var/lib/mysql
-      - ./data/mysql/init:/docker-entrypoint-initdb.d
     platform: linux/arm64/v8
     deploy:
       resources:

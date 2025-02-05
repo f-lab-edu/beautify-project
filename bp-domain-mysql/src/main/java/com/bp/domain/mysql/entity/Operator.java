@@ -42,8 +42,8 @@ public class Operator extends BaseEntity {
         this.contact = contact;
     }
 
-    public static Operator newOperator(final String operatorMail, final String password,
+    public static Operator newOperator(final String operatorMail, final String encryptedPassword,
         final String name, final String contact) {
-        return new Operator(operatorMail, password, name, contact);
+        return new Operator(operatorMail, encryptedPassword, name, contact);
     }
 }
