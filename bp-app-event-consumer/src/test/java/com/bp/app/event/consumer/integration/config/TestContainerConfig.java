@@ -1,4 +1,4 @@
-package com.bp.app.event.consumer.config;
+package com.bp.app.event.consumer.integration.config;
 
 import java.time.Duration;
 import org.springframework.test.context.DynamicPropertyRegistry;

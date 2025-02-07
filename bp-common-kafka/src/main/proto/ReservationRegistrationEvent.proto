@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package com.bp.common.kafka.event;
+
+option java_package = "com.bp.common.kakfa.event";
+option java_outer_classname = "ReservationEvent";
+
+message ReservationEventProto {
+  int64 start_date = 1;
+  int64 end_date = 2;
+  int64 reservation_id = 3;
+  int64 shop_id = 4;
+  int64 operation_id = 5;
+  int64 operator_id = 6;
+  string requested_member_email = 7;
+  ReservationType reservationType = 8;
+
+  enum ReservationType {
+    CREATE = 0;
+    CANCEL = 1;
+  }
+}

@@ -32,6 +32,7 @@ public class ShopLikeEventListener {
     @Transactional
     public void listenShopLikeEvent(final List<ShopLikeEventProto> eventsIncludingLikeAndCancel) {
         log.debug("{} counts of event consumed", eventsIncludingLikeAndCancel.size());
+        // FIXME: 같은 샵에 한해서는 시간 순으로 정렬 후 처리 필요
         batchShopLikeEvents(eventsIncludingLikeAndCancel);
         batchShopLikeCancelEvents(eventsIncludingLikeAndCancel);
     }

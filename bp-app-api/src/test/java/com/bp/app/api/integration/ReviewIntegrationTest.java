@@ -87,9 +87,10 @@ public class ReviewIntegrationTest extends TestContainerConfig {
             Shop.newShop("shop이름1", "010-1111-2222", "www.naver.com", "소개글1",
                 Arrays.asList("imageUrl1", "imageUrl2"), null, null));
 
-        final Reservation insertedMockedReservation = reservationAdapterRepository.saveAndFlush(Reservation.newReservation(System.currentTimeMillis(),
-            "dev.sssukho@gmail.com", insertedMockedShop.getId(),
-            insertedMockedOperation.getId()));
+        final Reservation insertedMockedReservation = reservationAdapterRepository.saveAndFlush(
+            Reservation.newReservation(System.currentTimeMillis(), System.currentTimeMillis(),
+                "dev.sssukho@gmail.com", insertedMockedShop.getId(),
+                insertedMockedOperation.getId(), 1L));
 
         final Review insertedReview = reviewAdapterRepository.saveAndFlush(
             Review.newReview("4.5", "리뷰내용", "dev.sssukho@gmail.com",
@@ -159,9 +160,10 @@ public class ReviewIntegrationTest extends TestContainerConfig {
             Shop.newShop("shop이름1", "010-1111-2222", "www.naver.com", "소개글1",
                 Arrays.asList("imageUrl1", "imageUrl2"), null, null));
 
-        final Reservation insertedMockedReservation = reservationAdapterRepository.saveAndFlush(Reservation.newReservation(System.currentTimeMillis(),
-            "dev.sssukho@gmail.com", insertedMockedShop.getId(),
-            insertedMockedOperation.getId()));
+        final Reservation insertedMockedReservation = reservationAdapterRepository.saveAndFlush(
+            Reservation.newReservation(System.currentTimeMillis(), System.currentTimeMillis(),
+                "dev.sssukho@gmail.com", insertedMockedShop.getId(),
+                insertedMockedOperation.getId(), 1L));
 
         final Review insertedReview = reviewAdapterRepository.saveAndFlush(
             Review.newReview("4.5", "리뷰내용", "dev.sssukho@gmail.com",

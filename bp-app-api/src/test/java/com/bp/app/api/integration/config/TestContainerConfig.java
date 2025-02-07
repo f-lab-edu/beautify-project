@@ -31,9 +31,9 @@ public class TestContainerConfig {
             DockerImageName.parse("mysql:" + MYSQL_VERSION))
             .withDatabaseName("beautify-project-test")
             .withUsername("root")
-            .withPassword("root");
+            .withPassword("root")
+            .withNetwork(NETWORK);
         MYSQL_CONTAINER.start();
-
 
         KAFKA_CONTAINER = new ConfluentKafkaContainer(
             DockerImageName.parse(CONFLUENT_KAFKA_IMAGE_NAME)

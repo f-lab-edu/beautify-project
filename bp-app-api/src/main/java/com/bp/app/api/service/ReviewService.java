@@ -45,7 +45,7 @@ public class ReviewService {
             ZoneId.systemDefault()).toInstant().toEpochMilli(),
             reviewedWriter.getEmail(), reviewedWriter.getName(),
             reviewedOperation.getId(), reviewedOperation.getName(), reviewedShop.getId(),
-            reviewedShop.getName(), reviewedReservation.getId(), reviewedReservation.getDate()));
+            reviewedShop.getName(), reviewedReservation.getId(), reviewedReservation.getStartDate()));
     }
 
     public ResponseMessage findReviewListInShop(final FindReviewListRequestParameters parameters) {
@@ -63,7 +63,7 @@ public class ReviewService {
                     memberService.findMemberByEmailOrElseThrow(review.getMemberEmail()).getName(),
                     operationService.findOperationById(
                         review.getOperationId()).getName(),
-                    reservationService.findReservationById(review.getReservationId()).getDate()))
+                    reservationService.findReservationById(review.getReservationId()).getStartDate()))
             .toList();
 
         return ResponseMessage.createResponseMessage(result);

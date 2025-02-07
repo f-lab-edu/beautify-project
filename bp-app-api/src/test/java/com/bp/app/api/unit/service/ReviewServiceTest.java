@@ -76,8 +76,8 @@ class ReviewServiceTest {
         final Operation mockedOperation = Operation.newOperation("시술1", "시술1설명");
         final Shop mockedShop = Shop.newShop("샵이름", "010-1234-5678", "www.naver.com",
             "소개글", Arrays.asList("image_id1", "image_id2"), null, null);
-        final Reservation mockedReservation = Reservation.newReservation(System.currentTimeMillis(),
-            "dev.sssukho@gmail.com", 1L, 1L);
+        final Reservation mockedReservation = Reservation.newReservation(System.currentTimeMillis(), System.currentTimeMillis(),
+            "dev.sssukho@gmail.com", 1L, 1L, 1L);
 
         when(reviewAdapterRepository.findById(any())).thenReturn(
             Optional.of(mockedReview));
@@ -129,7 +129,7 @@ class ReviewServiceTest {
             System.currentTimeMillis());
         final Operation mockedOperation = Operation.newOperation("시술1", "시술1설명");
         final Reservation mockedReservation = Reservation.newReservation(System.currentTimeMillis(),
-            "dev.sssukho@gmail.com", 1L, 1L);
+            System.currentTimeMillis(), "dev.sssukho@gmail.com", 1L, 1L, 1L);
 
         when(reviewAdapterRepository.findAll(
             any(), any(), any(), any())).thenReturn(mockedReviews);

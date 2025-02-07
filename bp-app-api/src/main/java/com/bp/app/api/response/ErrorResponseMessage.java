@@ -71,6 +71,7 @@ public class ErrorResponseMessage {
         RE001(HttpStatus.NOT_FOUND, "RE001", "등록되지 않은 리뷰입니다."),
 
         OP001(HttpStatus.NOT_FOUND, "OP001", "등록되지 않은 시술입니다."),
+        OP002(HttpStatus.NOT_FOUND, "OP002", "등록되지 않은 시술 선생님입니다."),
 
         ME001(HttpStatus.NOT_FOUND, "ME001", "등록되지 않은 회원입니다."),
         ME002(HttpStatus.BAD_REQUEST, "SH003", "이미 등록된 회원입니다."),

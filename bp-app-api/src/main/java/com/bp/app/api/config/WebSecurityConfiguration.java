@@ -46,7 +46,7 @@ public class WebSecurityConfiguration {
         "/actuator", "/v1/members/user", "/v1/auth/**", "/oauth2/**"
     };
     private static final String[] USER_ROLE_URLS = new String[]{
-        "/v1/shops/**", "/v1/reviews/**"
+        "/v1/shops/**", "/v1/reviews/**", "/v1/user/**"
     };
     private static final String[] OWNER_ROLE_URLS = new String[] {
         "/v1/owner/**"

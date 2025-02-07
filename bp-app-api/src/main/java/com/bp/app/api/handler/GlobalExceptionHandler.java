@@ -114,6 +114,13 @@ public class GlobalExceptionHandler {
         return createResponse(ErrorCode.BR001);
     }
 
+    @ExceptionHandler(RuntimeException.class)
+    private ResponseEntity<ErrorResponseMessage> handleRuntimeException(
+        final RuntimeException exception) {
+        log.error("", exception);
+        return createResponse(ErrorCode.IS001);
+    }
+
     private static ResponseEntity<ErrorResponseMessage> createResponse(final ErrorCode errorCode) {
         ErrorResponseMessage errorResponseMessage = ErrorResponseMessage.createErrorMessage(
             errorCode);

@@ -2,6 +2,7 @@ package com.bp.common.kafka.config;
 
 import com.bp.common.kafka.config.properties.KafkaConfigurationProperties;
 import com.bp.common.kafka.config.properties.KafkaConfigurationProperties.TopicConfigurationProperties;
+import com.bp.common.kakfa.event.ReservationEvent.ReservationEventProto;
 import com.bp.common.kakfa.event.ShopLikeEvent.ShopLikeEventProto;
 import com.bp.common.kakfa.event.SignUpCertificationMailEvent.SignUpCertificationMailEventProto;
 import io.confluent.kafka.serializers.protobuf.KafkaProtobufDeserializer;
@@ -28,6 +29,7 @@ public class KafkaConsumerConfig {
 
     private static final String TOPIC_CONFIG_NAME_SHOP_LIKE_EVENT = "SHOP-LIKE-EVENT";
     private static final String TOPIC_CONFIG_NAME_SIGNUP_CERTIFICATION_MAIL_EVENT = "MAIL-SIGN-UP-CERTIFICATION-EVENT";
+    private static final String TOPIC_CONFIG_NAME_RESERVATION_EVENT = "RESERVATION-REGISTRATION-EVENT";
 
     private static final String KEY_SPECIFIC_PROTOBUF_VALUE_TYPE = "specific.protobuf.value.type";
     private static final String KEY_SCHEMA_REGISTRY_URL = "schema.registry.url";
@@ -53,8 +55,8 @@ public class KafkaConsumerConfig {
             KEY_SCHEMA_REGISTRY_URL, kafkaConfigProperties.getSchemaRegistryUrl(),
             KEY_SPECIFIC_PROTOBUF_VALUE_TYPE, ShopLikeEventProto.class.getName(),
 
-            ConsumerConfig.MAX_POLL_RECORDS_CONFIG,
-            shopLikeEventTopicConfig.getConsumer().getBatchSize()
+            ConsumerConfig.MAX_POLL_RECORDS_CONFIG, shopLikeEventTopicConfig.getConsumer().getBatchSize(),
+            ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"
         );
     }
 
@@ -95,7 +97,8 @@ public class KafkaConsumerConfig {
             KEY_SCHEMA_REGISTRY_URL, kafkaConfigProperties.getSchemaRegistryUrl(),
             KEY_SPECIFIC_PROTOBUF_VALUE_TYPE, SignUpCertificationMailEventProto.class.getName(),
 
-            ConsumerConfig.MAX_POLL_RECORDS_CONFIG, signUpCertificationMailEventTopicConfig.getConsumer().getBatchSize()
+            ConsumerConfig.MAX_POLL_RECORDS_CONFIG, signUpCertificationMailEventTopicConfig.getConsumer().getBatchSize(),
+            ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"
         );
     }
 
@@ -110,6 +113,44 @@ public class KafkaConsumerConfig {
         factory.setConsumerFactory(signUpCertificationMailEventConsumerFactory());
         factory.setBatchListener(true);
         factory.setCommonErrorHandler(listenerDefaultErrorHandler(kafkaProducerConfig.signUpCertificationMailEventKafkaTemplate()));
+        return factory;
+    }
+
+    @Bean("reservationEventConsumerConfig")
+    public Map<String, Object> reservationEventConsumerConfig() {
+
+        final TopicConfigurationProperties reservationEventTopicConfig = kafkaConfigProperties.getTopic()
+            .get(TOPIC_CONFIG_NAME_RESERVATION_EVENT);
+
+        return Map.of(
+            ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConfigProperties.getBrokerUrl(),
+            ConsumerConfig.GROUP_ID_CONFIG, reservationEventTopicConfig.getConsumer().getGroupId(),
+
+            ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
+            ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS, ErrorHandlingDeserializer.class,
+
+            ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaProtobufDeserializer.class,
+            ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, ErrorHandlingDeserializer.class,
+
+            KEY_SCHEMA_REGISTRY_URL, kafkaConfigProperties.getSchemaRegistryUrl(),
+            KEY_SPECIFIC_PROTOBUF_VALUE_TYPE, ReservationEventProto.class.getName(),
+
+            ConsumerConfig.MAX_POLL_RECORDS_CONFIG, reservationEventTopicConfig.getConsumer().getBatchSize(),
+            ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"
+        );
+    }
+
+    @Bean
+    public ConsumerFactory<String, ReservationEventProto> reservationEventProtoConsumerFactory() {
+        return new DefaultKafkaConsumerFactory<>(reservationEventConsumerConfig());
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, ReservationEventProto> reservationEventProtoConcurrentKafkaListenerContainerFactory() {
+        final ConcurrentKafkaListenerContainerFactory<String, ReservationEventProto> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(reservationEventProtoConsumerFactory());
+        factory.setBatchListener(true);
+        factory.setCommonErrorHandler(listenerDefaultErrorHandler(kafkaProducerConfig.reservationRegistrationEventKafkaTemplate()));
         return factory;
     }
 
