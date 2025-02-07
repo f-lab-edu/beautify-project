@@ -32,7 +32,7 @@ public class ReservationEventListener {
     public static final String KEY_REQUESTED_MEMBER_EMAIL = "requestedMemberEmail";
     public static final String KEY_REQUESTED_MEMBER_CONTACT = "requestedMemberContact";
     public static final String KEY_REQUESTED_MEMBER_NAME = "requestedMemberName";
-    private static SimpleDateFormat DATE_FORMATTER;
+    private static final SimpleDateFormat DATE_FORMATTER;
 
     static {
         DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -44,61 +44,54 @@ public class ReservationEventListener {
     private final MemberAdapterRepository memberAdapterRepository;
     private final EmailNotification emailNotification;
 
-    @KafkaListener(
-        topics = "#{kafkaConfigurationProperties.topic['RESERVATION-REGISTRATION-EVENT'].topicName}",
-        groupId = "#{kafkaConfigurationProperties.topic['RESERVATION-REGISTRATION-EVENT'].consumer.groupId}",
-        containerFactory = "reservationEventProtoConcurrentKafkaListenerContainerFactory")
+    @KafkaListener(topics = "#{kafkaConfigurationProperties.topic['RESERVATION-REGISTRATION-EVENT'].topicName}", groupId = "#{kafkaConfigurationProperties.topic['RESERVATION-REGISTRATION-EVENT'].consumer.groupId}", containerFactory = "reservationEventProtoConcurrentKafkaListenerContainerFactory")
     public void listenReservationEvent(final List<ReservationEventProto> events) {
         log.debug("{} counts of event consumed", events.size());
-        sendReservationNotification(events);
-    }
 
-    private void sendReservationNotification(final List<ReservationEventProto> events) {
         final List<Map<String, ?>> dataListToSend = new ArrayList<>();
-
-        events.forEach(event -> {
-
-            final String reservationStartTime = DATE_FORMATTER.format(new Date(event.getStartDate()));
-            final String reservationEndTime = DATE_FORMATTER.format(new Date(event.getEndDate()));
-
-            final Operation foundOperation = operationAdapterRepository.findById(
-                event.getOperationId()).orElseThrow();
-            final String operationName = foundOperation.getName();
-
-            final Long operatorId = event.getOperatorId();
-            final Operator foundOperator = operatorAdaptorRepository.findById(operatorId)
-                .orElseThrow();
-            final String operatorEmail = foundOperator.getEmail();
-            final String operatorContact = foundOperator.getContact();
-
-            final String requestedMemberEmail = event.getRequestedMemberEmail();
-            final Member foundMember = memberAdapterRepository.findByEmail(requestedMemberEmail)
-                .orElseThrow();
-            final String requestedMemberContact = foundMember.getContact();
-            final String requestedMemberName = foundMember.getName();
-
-
-            dataListToSend.add(Map.of(
-                Notification.KEY_NOTIFICATION_TYPE, NotificationType.RESERVATION_CREATE,
-                Notification.KEY_TARGET_MAIL, operatorEmail,
-                Notification.KEY_TARGET_CONTACT, operatorContact,
-                KEY_OPERATION_NAME, operationName,
-                KEY_RESERVATION_START_TIME, reservationStartTime,
-                KEY_RESERVATION_END_TIME, reservationEndTime,
-                KEY_REQUESTED_MEMBER_EMAIL, requestedMemberEmail,
-                KEY_REQUESTED_MEMBER_CONTACT, requestedMemberContact,
-                KEY_REQUESTED_MEMBER_NAME, requestedMemberName
-            ));
-        });
+        for (final ReservationEventProto event : events) {
+            dataListToSend.add(createDataMapForNotification(event));
+        }
 
         boolean sendResult = emailNotification.sendAll(dataListToSend);
-        if (!sendResult) {
-            processAfterFailed(dataListToSend);
-        }
+        postProcessIfSendResultFailed(sendResult);
     }
 
-    private void processAfterFailed(final List<Map<String, ?>> dataListToSend) {
+    private Map<String, ?> createDataMapForNotification(final ReservationEventProto event) {
+        final String reservationStartTime = DATE_FORMATTER.format(new Date(event.getStartDate()));
+        final String reservationEndTime = DATE_FORMATTER.format(new Date(event.getEndDate()));
+
+        final Operation foundOperation = operationAdapterRepository.findById(event.getOperationId())
+            .orElseThrow();
+        final String operationName = foundOperation.getName();
+
+        final Long operatorId = event.getOperatorId();
+        final Operator foundOperator = operatorAdaptorRepository.findById(operatorId).orElseThrow();
+        final String operatorEmail = foundOperator.getEmail();
+        final String operatorContact = foundOperator.getContact();
+
+        final String requestedMemberEmail = event.getRequestedMemberEmail();
+        final Member foundMember = memberAdapterRepository.findByEmail(requestedMemberEmail)
+            .orElseThrow();
+        final String requestedMemberContact = foundMember.getContact();
+        final String requestedMemberName = foundMember.getName();
+
+        return Map.of(
+            Notification.KEY_NOTIFICATION_TYPE, NotificationType.RESERVATION_CREATE,
+            Notification.KEY_TARGET_MAIL, operatorEmail,
+            Notification.KEY_TARGET_CONTACT, operatorContact,
+            KEY_OPERATION_NAME, operationName,
+            KEY_RESERVATION_START_TIME, reservationStartTime,
+            KEY_RESERVATION_END_TIME, reservationEndTime,
+            KEY_REQUESTED_MEMBER_EMAIL, requestedMemberEmail,
+            KEY_REQUESTED_MEMBER_CONTACT, requestedMemberContact,
+            KEY_REQUESTED_MEMBER_NAME, requestedMemberName);
+    }
+
+    private void postProcessIfSendResultFailed(final boolean sendResult) {
+        if (sendResult) {
+            return;
+        }
         // TODO: implementation
     }
-
 }
