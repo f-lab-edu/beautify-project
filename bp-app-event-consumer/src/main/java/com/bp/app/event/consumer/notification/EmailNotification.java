@@ -108,12 +108,12 @@ public class EmailNotification implements Notification {
         final String reservationEnd = (String) dataToSend.get(ReservationEventListener.KEY_RESERVATION_END_TIME);
         final String requestedMemberEmail = (String) dataToSend.get(ReservationEventListener.KEY_REQUESTED_MEMBER_EMAIL);
         final String requestedMemberContact = (String) dataToSend.get(ReservationEventListener.KEY_REQUESTED_MEMBER_CONTACT);
-        final String requestedMemberName = (String) dataToSend.get(ReservationEventListener.KEY_REQUEDSTED_MEMBER_NAME);
+        final String requestedMemberName = (String) dataToSend.get(ReservationEventListener.KEY_REQUESTED_MEMBER_NAME);
 
         String content = StringUtils.replace(RESERVATION_CREATE_CONTENT_FORMAT, "${operationName}", operationName);
         content = StringUtils.replace(content, "${reservationStart}", reservationStart);
         content = StringUtils.replace(content, "${reservationEnd}", reservationEnd);
-        content = StringUtils.replace(content, "{requestedMemberEmail}", requestedMemberEmail);
+        content = StringUtils.replace(content, "${requestedMemberEmail}", requestedMemberEmail);
         content = StringUtils.replace(content, "${requestedMemberContact}", requestedMemberContact);
         content = StringUtils.replace(content, "${requestedMemberName}", requestedMemberName);
 

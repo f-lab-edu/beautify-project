@@ -31,7 +31,7 @@ public class ReservationEventListener {
     public static final String KEY_RESERVATION_END_TIME = "reservationEnd";
     public static final String KEY_REQUESTED_MEMBER_EMAIL = "requestedMemberEmail";
     public static final String KEY_REQUESTED_MEMBER_CONTACT = "requestedMemberContact";
-    public static final String KEY_REQUEDSTED_MEMBER_NAME = "requestedMemberName";
+    public static final String KEY_REQUESTED_MEMBER_NAME = "requestedMemberName";
     private static SimpleDateFormat DATE_FORMATTER;
 
     static {
@@ -87,7 +87,7 @@ public class ReservationEventListener {
                 KEY_RESERVATION_END_TIME, reservationEndTime,
                 KEY_REQUESTED_MEMBER_EMAIL, requestedMemberEmail,
                 KEY_REQUESTED_MEMBER_CONTACT, requestedMemberContact,
-                KEY_REQUEDSTED_MEMBER_NAME, requestedMemberName
+                KEY_REQUESTED_MEMBER_NAME, requestedMemberName
             ));
         });
 

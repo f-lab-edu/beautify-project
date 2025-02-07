@@ -1,10 +1,10 @@
-package com.bp.app.event.consumer.listener;
+package com.bp.app.event.consumer.integration;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
-import com.bp.app.event.consumer.config.TestContainerConfig;
+import com.bp.app.event.consumer.integration.config.TestContainerConfig;
 import com.bp.common.kafka.config.properties.KafkaConfigurationProperties;
 import com.bp.common.kakfa.event.ShopLikeEvent.ShopLikeEventProto;
 import com.bp.common.kakfa.event.ShopLikeEvent.ShopLikeEventProto.LikeType;
@@ -34,7 +34,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 @SpringBootTest
 @Slf4j
 @Tag("integration-test")
-class ShopLikeEventListenerTest extends TestContainerConfig {
+class ShopLikeEventListenerIntegrationTest extends TestContainerConfig {
 
     private static final String TOPIC_CONFIG_NAME_SHOP_LIKE_EVENT = "SHOP-LIKE-EVENT";
 
