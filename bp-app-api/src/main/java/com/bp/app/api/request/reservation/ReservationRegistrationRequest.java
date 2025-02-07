@@ -1,7 +1,6 @@
 package com.bp.app.api.request.reservation;
 
 import com.bp.utils.FutureOrPresentLong;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record ReservationRegistrationRequest(
@@ -13,5 +12,5 @@ public record ReservationRegistrationRequest(
     Long shopId,
     @NotNull
     Long operationId,
-    @NotBlank
-    String operatorEmail) { }
+    @NotNull
+    Long operatorId) { }

@@ -99,7 +99,7 @@ public class ReservationServiceIntegrationTest extends TestContainerConfig {
             currentTime + DAY_TO_LONG + HOUR_TO_LONG,
             mockedShop.getId(),
             mockedOperation.getId(),
-            mockedOperator.getEmail());
+            mockedOperator.getId());
 
         final String requestedMemberEmail = "dev.sssukho@gmail.com";
 
@@ -161,12 +161,12 @@ public class ReservationServiceIntegrationTest extends TestContainerConfig {
             currentTime + DAY_TO_LONG + HOUR_TO_LONG,
             mockedShop.getId(),
             mockedOperation.getId(),
-            mockedOperator.getEmail());
+            mockedOperator.getId());
 
         final String requestedMemberEmail = "dev.sssukho@gmail.com";
 
         doThrow(new RuntimeException("강제 예외 발생")).when(reservationEventProducer)
-            .produceReservationEvent(any(), any());
+            .publishReservationEvent(any(), any());
 
         // when
         assertThatThrownBy(

@@ -40,7 +40,7 @@ public class ReservationService {
         final Reservation registeredAsPendingReservation = reservationAdapterRepository.save(
             createReservationEntityFromRegistrationRequest(registrationRequest, requestedMemberEmail));
 
-        eventProducer.produceReservationEvent(registeredAsPendingReservation,requestedMemberEmail);
+        eventProducer.publishReservationEvent(registeredAsPendingReservation, requestedMemberEmail);
 
         return ResponseMessage.createResponseMessage(
             new ReservationRegistrationResult(registeredAsPendingReservation.getId()));
@@ -48,9 +48,8 @@ public class ReservationService {
 
     public Reservation createReservationEntityFromRegistrationRequest(
         final ReservationRegistrationRequest request, final String requestedMemberEmail) {
-        final Operator foundOperator = operatorService.findOperatorByEmail(request.operatorEmail());
         return Reservation.newReservation(request.startDate(), request.endDate(), requestedMemberEmail,
-            request.shopId(), request.operationId(), foundOperator.getId());
+            request.shopId(), request.operationId(), request.operatorId());
     }
 
     public ResponseMessage confirm(final Long reservationId) {

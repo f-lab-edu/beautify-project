@@ -1,6 +1,8 @@
 package com.bp.app.event.consumer.listener;
 
-import com.bp.app.event.consumer.provider.EmailSender;
+import com.bp.app.event.consumer.notification.EmailNotification;
+import com.bp.app.event.consumer.notification.Notification;
+import com.bp.app.event.consumer.notification.NotificationType;
 import com.bp.common.kakfa.event.SignUpCertificationMailEvent.SignUpCertificationMailEventProto;
 import com.bp.domain.mysql.entity.EmailCertification;
 import com.bp.domain.mysql.repository.EmailCertificationAdapterRepository;
@@ -20,12 +22,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class MailEventListener {
+public class SignUpCertificationEventListener {
 
     private static final Long MINUTE_TO_LONG = 1000 * 60L;
     private static final Long CERTIFICATION_EMAIL_VALID_TIME = 3 * MINUTE_TO_LONG;
 
-    private final EmailSender emailSender;
+    private final EmailNotification emailNotification;
     private final EmailCertificationAdapterRepository emailCertificationRepository;
 
     @KafkaListener(
@@ -40,7 +42,7 @@ public class MailEventListener {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    private void sendCertificationMail(final List<SignUpCertificationMailEventProto> events) throws Exception{
+    private void sendCertificationMail(final List<SignUpCertificationMailEventProto> events) throws Exception {
 
         final Set<String> filteredDuplicatedEvents = events.stream()
             .distinct()
@@ -52,21 +54,24 @@ public class MailEventListener {
 
         log.debug("{} counts of certification mails will be sent", validTargets.size());
 
-        final Map<String, String> certificationNumberByTargetMail = validTargets.stream()
-            .collect(
-                Collectors.toMap(
-                    targetMail -> targetMail,
-                    targetMail -> UUIDGenerator.generateEmailCertificationNumber()
-            ));
+        // 바로 dataListToSend 생성
+        final List<Map<String, ?>> dataListToSend = validTargets.stream()
+            .<Map<String, ?>>map(targetMail -> Map.of(
+                Notification.KEY_TARGET_MAIL, targetMail,
+                Notification.KEY_CONTENT, UUIDGenerator.generateEmailCertificationNumber(),
+                Notification.KEY_NOTIFICATION_TYPE, NotificationType.SIGNUP_CERTIFICATION
+            ))
+            .toList();
 
-        emailSender.sendAllSignUpCertificationMail(certificationNumberByTargetMail);
+        emailNotification.sendAll(dataListToSend);
 
-        long now = System.currentTimeMillis();
-        final List<EmailCertification> emailCertifications =
-            certificationNumberByTargetMail.entrySet().stream().map(entrySet -> {
-                return EmailCertification.newEmailCertification(entrySet.getKey(),
-                    entrySet.getValue());
-            }).toList();
+        // EmailCertification 객체 리스트 생성 후 저장
+        final List<EmailCertification> emailCertifications = dataListToSend.stream()
+            .map(data -> EmailCertification.newEmailCertification(
+                (String) data.get(Notification.KEY_TARGET_MAIL),
+                (String) data.get(Notification.KEY_CONTENT)
+            ))
+            .toList();
 
         emailCertificationRepository.saveAll(emailCertifications);
     }

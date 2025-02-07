@@ -1,6 +1,7 @@
 package com.bp.app.api.unit.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -8,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.bp.app.api.controller.ReservationController;
+import com.bp.app.api.producer.ReservationEventProducer;
 import com.bp.app.api.provider.JwtProvider;
 import com.bp.app.api.request.reservation.ReservationRegistrationRequest;
 import com.bp.app.api.response.ResponseMessage;
@@ -59,6 +61,8 @@ class ReservationControllerTest {
     @MockBean
     private MemberAdapterRepository memberAdapterRepository;
 
+    @MockBean
+    private ReservationEventProducer reservationEventProducer;
 
     @Test
     @DisplayName("사용자의 예약 등록 요청시 reservationId 를 포함한 ResponseMessage 객체를 응답받는다.")
@@ -71,7 +75,7 @@ class ReservationControllerTest {
             System.currentTimeMillis() + DAY_TO_LONG + HOUR_TO_LONG,
             1L,
             1L,
-            "operator@bp.com"
+            1L
         );
 
         when(reservationService.registerReservationAndProduceEvent(any(), any()))
@@ -95,6 +99,41 @@ class ReservationControllerTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.returnValue").exists())
             .andExpect(jsonPath("$.returnValue.reservationId").exists())
+            .andDo(print());
+    }
+
+    @Test
+    @DisplayName("사용자의 예약 등록 요청시 서비스에서 예외 발생시 500 에러를 응답 받는다.")
+    void get500ErrorResponseWhenReservationRegistrationRequestIfServiceThrowsException() throws Exception {
+        // given
+        final ReservationRegistrationRequest mockedRequest = new ReservationRegistrationRequest(
+            System.currentTimeMillis() + DAY_TO_LONG,
+            System.currentTimeMillis() + DAY_TO_LONG + HOUR_TO_LONG,
+            1L,
+            1L,
+            1L
+        );
+
+        when(reservationService.registerReservationAndProduceEvent(any(), any()))
+            .thenThrow(new RuntimeException("강제 예외 발생"));
+
+        final String requestBody = OBJECT_MAPPER.writeValueAsString(mockedRequest);
+
+        setUserRoleMockedAuthentication();
+
+        // when
+        final ResultActions resultActions = mockMvc.perform(
+            MockMvcRequestBuilders.post("/v1/user/reservations")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody)
+                .with(csrf())
+        );
+
+        // then
+        resultActions
+            .andExpect(status().isInternalServerError())
+            .andExpect(jsonPath("$.errorCode").exists())
+            .andExpect(jsonPath("$.errorMessage").exists())
             .andDo(print());
     }
 
@@ -133,27 +172,22 @@ class ReservationControllerTest {
         ReservationRegistrationRequest pastStartDateRequest = new ReservationRegistrationRequest(
             System.currentTimeMillis() - DAY_TO_LONG,
             System.currentTimeMillis() + DAY_TO_LONG,
-            1L, 1L, "operator@bp.com");
+            1L, 1L, 1L);
 
         ReservationRegistrationRequest pastEndDateRequest = new ReservationRegistrationRequest(
             System.currentTimeMillis() + HOUR_TO_LONG,
             System.currentTimeMillis() - DAY_TO_LONG,
-            1L, 1L, "operator@bp.com");
+            1L, 1L, 1L);
 
         ReservationRegistrationRequest shopIdNullRequest = new ReservationRegistrationRequest(
             System.currentTimeMillis() + HOUR_TO_LONG,
             System.currentTimeMillis() + DAY_TO_LONG,
-            null, 1L, "operator@bp.com");
+            null, 1L, 1L);
 
         ReservationRegistrationRequest operationIdNullRequest = new ReservationRegistrationRequest(
             System.currentTimeMillis() + HOUR_TO_LONG,
             System.currentTimeMillis() + DAY_TO_LONG,
-            1L, null, "operator@bp.com");
-
-        ReservationRegistrationRequest operatorEmailEmptyRequest = new ReservationRegistrationRequest(
-            System.currentTimeMillis() + HOUR_TO_LONG,
-            System.currentTimeMillis() + DAY_TO_LONG,
-            1L, 1L, "   ");
+            1L, null, 1L);
 
         ReservationRegistrationRequest operatorEmailNullRequest = new ReservationRegistrationRequest(
             System.currentTimeMillis() + HOUR_TO_LONG,
@@ -166,7 +200,6 @@ class ReservationControllerTest {
             Arguments.of(pastEndDateRequest),
             Arguments.of(shopIdNullRequest),
             Arguments.of(operationIdNullRequest),
-            Arguments.of(operatorEmailEmptyRequest),
             Arguments.of(operatorEmailNullRequest)
         );
     }

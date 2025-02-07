@@ -1,7 +1,7 @@
 package com.bp.common.kafka.config;
 
 import com.bp.common.kafka.config.properties.KafkaConfigurationProperties;
-import com.bp.common.kafka.partitioner.ShopLikeEventCustomPartitioner;
+import com.bp.common.kafka.partitioner.longKeyCustomPartitioner;
 import com.bp.common.kakfa.event.ReservationEvent.ReservationEventProto;
 import com.bp.common.kakfa.event.ShopLikeEvent.ShopLikeEventProto;
 import com.bp.common.kakfa.event.SignUpCertificationMailEvent;
@@ -35,16 +35,16 @@ public class KafkaProducerConfig {
         return props;
     }
 
-    public Map<String, Object> shopLikeEventProducerConfigProps() {
+    public Map<String, Object> longKeyProducerConfigProps() {
         final Map<String, Object> protobufProps = commonProtobufProducerConfigProps();
         protobufProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, LongSerializer.class);
-        protobufProps.put(ProducerConfig.PARTITIONER_CLASS_CONFIG, ShopLikeEventCustomPartitioner.class);
+        protobufProps.put(ProducerConfig.PARTITIONER_CLASS_CONFIG, longKeyCustomPartitioner.class);
         return protobufProps;
     }
 
     @Bean
     public ProducerFactory<Long, ShopLikeEventProto> shopLikeEventProducerFactory() {
-        return new DefaultKafkaProducerFactory<>(shopLikeEventProducerConfigProps());
+        return new DefaultKafkaProducerFactory<>(longKeyProducerConfigProps());
     }
 
     @Bean
@@ -63,12 +63,12 @@ public class KafkaProducerConfig {
     }
 
     @Bean
-    public ProducerFactory<String, ReservationEventProto> reservationRegistrationEventProtoProducerFactory() {
-        return new DefaultKafkaProducerFactory<>(commonProtobufProducerConfigProps());
+    public ProducerFactory<Long, ReservationEventProto> reservationRegistrationEventProtoProducerFactory() {
+        return new DefaultKafkaProducerFactory<>(longKeyProducerConfigProps());
     }
 
     @Bean
-    public KafkaTemplate<String, ReservationEventProto> reservationRegistrationEventKafkaTemplate() {
+    public KafkaTemplate<Long, ReservationEventProto> reservationRegistrationEventKafkaTemplate() {
         return new KafkaTemplate<>(reservationRegistrationEventProtoProducerFactory());
     }
 }
