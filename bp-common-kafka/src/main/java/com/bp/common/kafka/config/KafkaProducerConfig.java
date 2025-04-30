@@ -1,7 +1,7 @@
 package com.bp.common.kafka.config;
 
 import com.bp.common.kafka.config.properties.KafkaConfigurationProperties;
-import com.bp.common.kafka.partitioner.longKeyCustomPartitioner;
+import com.bp.common.kafka.partitioner.LongKeyCustomPartitioner;
 import com.bp.common.kakfa.event.ReservationEvent.ReservationEventProto;
 import com.bp.common.kakfa.event.ShopLikeEvent.ShopLikeEventProto;
 import com.bp.common.kakfa.event.SignUpCertificationMailEvent;
@@ -38,7 +38,7 @@ public class KafkaProducerConfig {
     public Map<String, Object> longKeyProducerConfigProps() {
         final Map<String, Object> protobufProps = commonProtobufProducerConfigProps();
         protobufProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, LongSerializer.class);
-        protobufProps.put(ProducerConfig.PARTITIONER_CLASS_CONFIG, longKeyCustomPartitioner.class);
+        protobufProps.put(ProducerConfig.PARTITIONER_CLASS_CONFIG, LongKeyCustomPartitioner.class);
         return protobufProps;
     }
 
