@@ -13,4 +13,5 @@ dependencies {
 	testImplementation "org.springframework.boot:spring-boot-testcontainers:${springBootVersion}"
 	testImplementation 'com.redis:testcontainers-redis:2.2.4'
 	testImplementation 'org.testcontainers:junit-jupiter:1.21.0'
+	testImplementation 'org.jfree:jfreechart:1.5.4'
 }
