@@ -1,0 +1,11 @@
+cache:
+  redis:
+    enabled: true
+    host: localhost
+    port: 6379
+    password: 12341234
+    timeout: 5s
+    configs-by-name:
+      default:
+        compression-threshold-bytes: 1024
+        ttl: 1h

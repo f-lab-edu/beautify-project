@@ -5,7 +5,7 @@ import org.apache.kafka.clients.producer.Partitioner;
 import org.apache.kafka.common.Cluster;
 import org.apache.kafka.common.InvalidRecordException;
 
-public class longKeyCustomPartitioner implements Partitioner {
+public class LongKeyCustomPartitioner implements Partitioner {
 
     @Override
     public int partition(final String topic, final Object key, final byte[] keyBytes, final Object value,

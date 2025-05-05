@@ -30,3 +30,5 @@ data/*
 Images/*
 META-INF/*
 redis/*
+
+bp-cache-extension/github.properties
