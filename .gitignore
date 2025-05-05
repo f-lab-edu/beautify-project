@@ -31,4 +31,4 @@ Images/*
 META-INF/*
 redis/*
 
-bp-cache-extension/github.properties
+github.properties
