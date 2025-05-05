@@ -3,6 +3,14 @@ plugins {
 	id 'maven-publish'
 }
 
+ext {
+	props = new Properties()
+	def propsFile = file("$rootDir/github.properties")
+	if (propsFile.exists()) {
+		props.load(new FileInputStream(propsFile))
+	}
+}
+
 dependencies {
 	implementation "org.springframework.boot:spring-boot-starter-data-redis:${springBootVersion}"
 	implementation "org.springframework.boot:spring-boot-starter-cache:${springBootVersion}"
@@ -14,4 +22,37 @@ dependencies {
 	testImplementation 'com.redis:testcontainers-redis:2.2.4'
 	testImplementation 'org.testcontainers:junit-jupiter:1.21.0'
 	testImplementation 'org.jfree:jfreechart:1.5.4'
+}
+
+tasks.withType(Test).configureEach {test -> {
+	if (project.hasProperty('runIntegrationTest')) {
+		test.jvmArgs += "-Djunit.jupiter.conditions.deactivate=org.junit.*DisabledCondition"
+
+		test.testLogging {
+			events 'PASSED', 'FAILED', 'SKIPPED' // 테스트 이벤트 로그
+			showStandardStreams = true // 표준 출력 및 표준 에러 표시
+		}
+	}
+}}
+
+publishing {
+	publications {
+		mavenJava(MavenPublication) {
+			from components.java
+
+
+		}
+	}
+
+	repositories {
+		maven {
+			name = "GitHubPackages"
+			url = uri("https://maven.pkg.github.com/f-lab-edu/beautify-project")
+
+			credentials {
+				username = props.getProperty("username")
+				password = props.getProperty("token")
+			}
+		}
+	}
 }
