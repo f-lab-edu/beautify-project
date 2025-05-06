@@ -20,9 +20,11 @@ public class TestContainerConfig {
 
     private static final Network NETWORK;
 
-    public static final MySQLContainer<?> MYSQL_CONTAINER;
-    public static final ConfluentKafkaContainer KAFKA_CONTAINER;
-    public static final GenericContainer<?> SCHEMA_REGISTRY_CONTAINER;
+    private static final MySQLContainer<?> MYSQL_CONTAINER;
+    private static final ConfluentKafkaContainer KAFKA_CONTAINER;
+    private static final GenericContainer<?> SCHEMA_REGISTRY_CONTAINER;
+
+    private static final GenericContainer<?> REDIS_CONTAINER;
 
     static {
         NETWORK = Network.newNetwork();
@@ -58,22 +60,46 @@ public class TestContainerConfig {
             .waitingFor(Wait.forHttp("/subjects").forStatusCode(200))
             .withStartupTimeout(Duration.ofSeconds(60));
         SCHEMA_REGISTRY_CONTAINER.start();
+
+        REDIS_CONTAINER = new GenericContainer<>("redis:7-alpine").withExposedPorts(6379);
+        REDIS_CONTAINER.start();
     }
 
     @DynamicPropertySource
     public static void overrideProps(DynamicPropertyRegistry dynamicPropertyRegistry) {
+        overrideDatasourceProps(dynamicPropertyRegistry);
+        overrideKafkaProps(dynamicPropertyRegistry);
+        overrideMailProps(dynamicPropertyRegistry);
+        overrideCacheProps(dynamicPropertyRegistry);
+    }
+
+    private static void overrideCacheProps(final DynamicPropertyRegistry dynamicPropertyRegistry) {
+        dynamicPropertyRegistry.add("cache.redis.enabled", () -> "true");
+        dynamicPropertyRegistry.add("cache.redis.host", REDIS_CONTAINER::getHost);
+        dynamicPropertyRegistry.add("cache.redis.port", () -> REDIS_CONTAINER.getMappedPort(6379));
+        dynamicPropertyRegistry.add("cache.redis.password", () -> "");
+        dynamicPropertyRegistry.add("cache.redis.timeout", () -> "5s");
+        dynamicPropertyRegistry.add("cache.redis.configs-by-name.shopList.ttl", () -> "1m");
+        dynamicPropertyRegistry.add("cache.redis.configs-by-name.shopList.compression-threshold-bytes", () -> "512");
+    }
+
+    private static void overrideDatasourceProps(final DynamicPropertyRegistry dynamicPropertyRegistry) {
         final String datasourceUrlFromContainer = MYSQL_CONTAINER.getJdbcUrl();
         final String datasourceParams = "?serverTimezone=Asia/Seoul&useUniCode=true&characterEncoding=UTF-8&rewriteBatchedStatements=true";
         dynamicPropertyRegistry.add("spring.datasource.url", () -> datasourceUrlFromContainer + datasourceParams);
         dynamicPropertyRegistry.add("spring.datasource.driver-class-name",() -> "com.mysql.cj.jdbc.Driver");
         dynamicPropertyRegistry.add("spring.datasource.username", () -> "root");
         dynamicPropertyRegistry.add("spring.datasource.password", () -> "root");
+    }
 
+    private static void overrideKafkaProps(final DynamicPropertyRegistry dynamicPropertyRegistry) {
         final String kafkaBrokerUrl = "http://" + KAFKA_CONTAINER.getBootstrapServers();
         final String schemaRegistryUrl = "http://localhost:" + SCHEMA_REGISTRY_CONTAINER.getMappedPort(29095);
         dynamicPropertyRegistry.add("kafka.broker-url", () -> kafkaBrokerUrl);
         dynamicPropertyRegistry.add("kafka.schema-registry-url", () -> schemaRegistryUrl);
+    }
 
+    private static void overrideMailProps(final DynamicPropertyRegistry dynamicPropertyRegistry) {
         dynamicPropertyRegistry.add("spring.mail.host", () -> "smtp.gmail.com");
         dynamicPropertyRegistry.add("spring.mail.port", () -> 587);
         dynamicPropertyRegistry.add("spring.mail.username", () -> "dev.mail.dp@gmail.com");
