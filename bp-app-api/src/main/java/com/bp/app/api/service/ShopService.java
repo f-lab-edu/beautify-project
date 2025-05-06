@@ -27,6 +27,7 @@ import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -164,6 +165,11 @@ public class ShopService {
         }
     }
 
+    @Cacheable(
+        value = "shopList",
+        key = "#a0.searchType",
+        condition = "#a0.searchType == T(com.bp.app.api.enumeration.ShopSearchType).LOCATION"
+    )
     public ResponseMessage findShopList(final ShopListFindRequestParameters parameters) {
         final List<Shop> foundShops = shopAdapterRepository.findAll(parameters.searchType().getEntityName(),
             parameters.page(), parameters.count(), parameters.orderType().name());
