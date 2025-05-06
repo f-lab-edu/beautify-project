@@ -14,6 +14,7 @@ spring:
       - classpath:mysql-config/application-local.yml
       - classpath:s3-client-config/application-local.yml
       - classpath:kafka-config/kafka-local.yml
+      - classpath:cache-test.yml
 
 thread-pool:
   async:

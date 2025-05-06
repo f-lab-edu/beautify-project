@@ -3,6 +3,7 @@ package com.bp.cache;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.bp.cache.IntegrationTest.TestRedisCacheConfig;
@@ -196,6 +197,31 @@ public class IntegrationTest {
         }
     }
 
+    @Test
+    @DisplayName("TTL 이 지난 캐시 데이터는 삭제되어야 한다.")
+    void deletedIfCachedDataExceedsTTL() throws Exception {
+        // given
+        String shortTtlKey = "shortTtlKey";
+        String shortTtlValue = "123";
+
+        Cache shortTtlCache = cacheManager.getCache(TestRedisCacheConfig.SHORT_TTL_CACHE_NAME);
+
+        assertNotNull(shortTtlCache);
+
+        // when
+        shortTtlCache.put(shortTtlKey, shortTtlValue);
+
+        Thread.sleep(1000); // ttl 1초
+
+        // then
+        try (RedisConnection connection = connectionFactory.getConnection()) {
+            byte[] shortTtlRawValue = connection.get(
+                (TestRedisCacheConfig.SHORT_TTL_CACHE_NAME + "::" + shortTtlKey).getBytes(
+                    StandardCharsets.UTF_8));
+            assertNull(shortTtlRawValue);
+        }
+    }
+
     private boolean isCompressed(byte[] bytes) {
         return bytes != null && bytes.length >= 2 && isGzipHeader(bytes);
     }
@@ -212,6 +238,7 @@ public class IntegrationTest {
         static final String DEFAULT_CACHE_NAME = "testCache";
         static final String BIG_CACHE_NAME = "bigCache";
         static final String SMALL_CACHE_NAME = "smallCache";
+        static final String SHORT_TTL_CACHE_NAME = "shortTtlCache";
 
         @Bean
         RedisConnectionFactory redisConnectionFactory() {
@@ -254,6 +281,9 @@ public class IntegrationTest {
             configsByName.put(BIG_CACHE_NAME, bigThresholdCacheConfig);
             CacheConfig smallThresholdCacheConfig = new CacheConfig(100, Duration.ofHours(1));
             configsByName.put(SMALL_CACHE_NAME, smallThresholdCacheConfig);
+            CacheConfig shortTtlCacheConfig = new CacheConfig(DEFAULT_COMPRESSION_THRESHOLD_BYTES,
+                Duration.ofSeconds(1));
+            configsByName.put(SHORT_TTL_CACHE_NAME, shortTtlCacheConfig);
 
             return new RedisConfigurationProperties(REDIS_CONTAINER.getHost(),
                 REDIS_CONTAINER.getMappedPort(REDIS_PORT), "password", Duration.ofSeconds(5),
