@@ -17,13 +17,12 @@ public class TestContainerFactory {
     private static final String CONFLUENT_PLATFORM_VERSION = "7.4.0";
     private static final String MYSQL_VERSION = "9.1";
 
-    public static MySQLContainer<?> createMySQLContainer(Network network) {
+    public static MySQLContainer<?> createMySQLContainer() {
         return new MySQLContainer<>(
             DockerImageName.parse("mysql:" + MYSQL_VERSION))
             .withDatabaseName("beautify-project-test")
             .withUsername("root")
-            .withPassword("root")
-            .withNetwork(network);
+            .withPassword("root");
     }
 
     public static GenericContainer<?> createRedisContainer() {

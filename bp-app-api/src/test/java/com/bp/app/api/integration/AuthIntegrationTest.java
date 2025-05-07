@@ -5,12 +5,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.bp.app.api.integration.config.TestContainerConfig;
 import com.bp.app.api.request.auth.EmailCertificationRequest;
 import com.bp.app.api.request.auth.EmailCertificationVerificationRequest;
 import com.bp.app.api.request.auth.EmailDuplicatedRequest;
 import com.bp.app.api.request.member.UserRoleMemberRegistrationRequest;
 import com.bp.app.api.service.MemberService;
+import com.bp.app.api.testcontainers.TestContainerFactory;
 import com.bp.domain.mysql.entity.EmailCertification;
 import com.bp.domain.mysql.repository.EmailCertificationAdapterRepository;
 import com.bp.domain.mysql.repository.MemberAdapterRepository;
@@ -28,18 +28,27 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Testcontainers
 @Tag("integration-test")
-public class AuthIntegrationTest extends TestContainerConfig {
+public class AuthIntegrationTest {
 
     private static final String AUTH_EMAIL_DUPLICATED_URL = "/v1/auth/email/duplicated";
     private static final String AUTH_EMAIL_CERTIFICATION_URL = "/v1/auth/email/certification";
     private static final String AUTH_EMAIL_CERTIFICATION_VERIFICATION_URL = "/v1/auth/email/certification/verification";
+
+    @Container
+    private static final MySQLContainer<?> MYSQL_CONTAINER = TestContainerFactory.createMySQLContainer();
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -55,6 +64,11 @@ public class AuthIntegrationTest extends TestContainerConfig {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @DynamicPropertySource
+    static void registerProperties(DynamicPropertyRegistry registry) {
+        TestContainerFactory.overrideDatasourceProps(registry, MYSQL_CONTAINER);
+    }
 
     @BeforeEach
     void beforeEach() {
@@ -272,4 +286,6 @@ public class AuthIntegrationTest extends TestContainerConfig {
             .andExpect(jsonPath("$.errorCode").value("EC003"))
             .andDo(print());
     }
+
+
 }

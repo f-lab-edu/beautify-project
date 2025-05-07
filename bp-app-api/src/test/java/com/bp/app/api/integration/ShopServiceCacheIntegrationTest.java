@@ -56,6 +56,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
     @MockBean(IOBoundAsyncThreadPoolConfiguration.class),
     @MockBean(ShopLikeService.class)
 })
+@SuppressWarnings({"unchecked"})
 public class ShopServiceCacheIntegrationTest {
 
     @Container
@@ -95,12 +96,12 @@ public class ShopServiceCacheIntegrationTest {
             BusinessTime.of(LocalTime.now(), LocalTime.now(), LocalTime.now(), LocalTime.now(),
                 List.of("monday")));
 
-        List<Shop> mockedCachedShopList = Arrays.asList(mockedShop);
+        List<Shop> mockedCachedShopList = List.of(mockedShop);
         when(mockedShopAdapterRepository.findAll(any(), any(), any(), any())).thenReturn(mockedCachedShopList);
         when(mockedShopOperationService.findShopOperationsByShopIds(any())).thenReturn(
-            Arrays.asList(ShopOperation.newShopOperation(1L, 1L)));
+            List.of(ShopOperation.newShopOperation(1L, 1L)));
         when(mockedShopFacilityService.findShopFacilitiesByShopIds(any())).thenReturn(
-            Arrays.asList(ShopFacility.newShopFacility(1L, 1L)));
+            List.of(ShopFacility.newShopFacility(1L, 1L)));
         when(mockedImageProvider.providePreSignedGetUrlByFileId(any())).thenReturn(
             new PreSignedGetUrlResult("thumbnail link"));
 
@@ -136,13 +137,13 @@ public class ShopServiceCacheIntegrationTest {
             BusinessTime.of(LocalTime.now(), LocalTime.now(), LocalTime.now(), LocalTime.now(),
                 List.of("monday")));
 
-        List<Shop> mockedCachedShopList = Arrays.asList(mockedShop);
+        List<Shop> mockedCachedShopList = List.of(mockedShop);
         when(mockedShopAdapterRepository.findAll(any(), any(), any(), any())).thenReturn(
             mockedCachedShopList);
         when(mockedShopOperationService.findShopOperationsByShopIds(any())).thenReturn(
-            Arrays.asList(ShopOperation.newShopOperation(1L, 1L)));
+            List.of(ShopOperation.newShopOperation(1L, 1L)));
         when(mockedShopFacilityService.findShopFacilitiesByShopIds(any())).thenReturn(
-            Arrays.asList(ShopFacility.newShopFacility(1L, 1L)));
+            List.of(ShopFacility.newShopFacility(1L, 1L)));
         when(mockedImageProvider.providePreSignedGetUrlByFileId(any())).thenReturn(
             new PreSignedGetUrlResult("thumbnail link"));
 
