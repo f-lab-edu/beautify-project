@@ -5,12 +5,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 
-import com.bp.app.api.integration.config.TestContainerConfig;
 import com.bp.app.api.producer.ReservationEventProducer;
 import com.bp.app.api.request.reservation.ReservationRegistrationRequest;
 import com.bp.app.api.response.ResponseMessage;
 import com.bp.app.api.response.reservation.ReservationRegistrationResult;
 import com.bp.app.api.service.ReservationService;
+import com.bp.app.api.testcontainers.TestContainerFactory;
 import com.bp.common.kafka.config.KafkaConsumerConfig;
 import com.bp.common.kafka.config.properties.KafkaConfigurationProperties;
 import com.bp.common.kakfa.event.ReservationEvent.ReservationEventProto;
@@ -37,14 +37,34 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.containers.Network;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.kafka.ConfluentKafkaContainer;
 
 @SpringBootTest
+@Testcontainers
 @Tag("integration-test")
-public class ReservationServiceIntegrationTest extends TestContainerConfig {
+public class ReservationServiceIntegrationTest {
 
     private static final Long HOUR_TO_LONG = 1000L * 60 * 60;
     private static final Long DAY_TO_LONG = 24 * HOUR_TO_LONG;
-    public static final String RESERVATION_EVENT_KAFKA_CONFIG_KEY = "RESERVATION-REGISTRATION-EVENT";
+    private static final String RESERVATION_EVENT_KAFKA_CONFIG_KEY = "RESERVATION-REGISTRATION-EVENT";
+    private static final Network CONTAINER_NETWORK = Network.newNetwork();
+
+    @Container
+    static final MySQLContainer<?> MYSQL_CONTAINER = TestContainerFactory.createMySQLContainer();
+
+    @Container
+    static final ConfluentKafkaContainer KAFKA_CONTAINER = TestContainerFactory.createKafkaContainer(CONTAINER_NETWORK);
+
+    @Container
+    static final GenericContainer<?> SCHEMA_REGISTRY_CONTAINER = TestContainerFactory.createSchemaRegistryContainer(
+        CONTAINER_NETWORK, KAFKA_CONTAINER);
 
     @Autowired
     private ReservationService reservationService;
@@ -69,6 +89,13 @@ public class ReservationServiceIntegrationTest extends TestContainerConfig {
 
     @SpyBean
     private ReservationEventProducer reservationEventProducer;
+
+    @DynamicPropertySource
+    static void registerProperties(DynamicPropertyRegistry registry) {
+        TestContainerFactory.overrideDatasourceProps(registry, MYSQL_CONTAINER);
+        TestContainerFactory.overrideKafkaProps(registry, KAFKA_CONTAINER,
+            SCHEMA_REGISTRY_CONTAINER);
+    }
 
     @BeforeEach
     void beforeEach() {

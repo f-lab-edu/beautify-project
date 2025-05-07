@@ -12,7 +12,7 @@ import org.testcontainers.utility.DockerImageName;
 @SuppressWarnings("resource")
 public class TestContainerFactory {
 
-    private static final String CONFLUENT_KAFKA_IMAGE_NAME = "confluentic/cp-kafka";
+    private static final String CONFLUENT_KAFKA_IMAGE_NAME = "confluentinc/cp-kafka";
     private static final String CONFLUENT_SCHEMA_REGISTRY_CONTAINER_IMAGE_NAME = "confluentinc/cp-schema-registry";
     private static final String CONFLUENT_PLATFORM_VERSION = "7.4.0";
     private static final String MYSQL_VERSION = "9.1";
@@ -37,10 +37,11 @@ public class TestContainerFactory {
             .withListener("tc-kafka:29093")
             .withNetwork(network)
             .withNetworkAliases("tc-kafka")
-            .withReuse(true);
+            .withReuse(true)
+            .waitingFor(Wait.forListeningPort());
     }
 
-    public static GenericContainer<?> createSchemaRegistryContainer(Network network) {
+    public static GenericContainer<?> createSchemaRegistryContainer(Network network, ConfluentKafkaContainer kafkaContainer) {
         return new GenericContainer<>(
             DockerImageName.parse(CONFLUENT_SCHEMA_REGISTRY_CONTAINER_IMAGE_NAME)
                 .withTag(CONFLUENT_PLATFORM_VERSION))
@@ -53,7 +54,8 @@ public class TestContainerFactory {
             .withEnv("SCHEMA_REGISTRY_HOST_NAME", "schemaregistry")
             .withEnv("SCHEMA_REGISTRY_KAFKASTORE_SECURITY_PROTOCOL", "PLAINTEXT")
             .waitingFor(Wait.forHttp("/subjects").forStatusCode(200))
-            .withStartupTimeout(Duration.ofSeconds(60));
+            .withStartupTimeout(Duration.ofSeconds(60))
+            .dependsOn(kafkaContainer);
     }
 
     public static void overrideCacheProps(DynamicPropertyRegistry dynamicPropertyRegistry, GenericContainer<?> redisContainer) {
