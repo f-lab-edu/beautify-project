@@ -21,6 +21,7 @@ dependencies {
     testImplementation 'org.testcontainers:mysql:1.20.4'
     testImplementation 'org.testcontainers:kafka:1.20.4'
     testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testImplementation 'org.testcontainers:junit-jupiter:1.21.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 

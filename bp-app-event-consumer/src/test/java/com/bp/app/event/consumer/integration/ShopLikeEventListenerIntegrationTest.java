@@ -4,7 +4,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
-import com.bp.app.event.consumer.integration.config.TestContainerConfig;
+import com.bp.app.event.consumer.testcontainers.TestContainerFactory;
 import com.bp.common.kafka.config.properties.KafkaConfigurationProperties;
 import com.bp.common.kakfa.event.ShopLikeEvent.ShopLikeEventProto;
 import com.bp.common.kakfa.event.ShopLikeEvent.ShopLikeEventProto.LikeType;
@@ -30,13 +30,35 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.containers.Network;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.kafka.ConfluentKafkaContainer;
 
-@SpringBootTest
 @Slf4j
+@SpringBootTest
+@Testcontainers
 @Tag("integration-test")
-class ShopLikeEventListenerIntegrationTest extends TestContainerConfig {
+public class ShopLikeEventListenerIntegrationTest {
 
     private static final String TOPIC_CONFIG_NAME_SHOP_LIKE_EVENT = "SHOP-LIKE-EVENT";
+
+    private static final Network CONTAINER_NETWORK = Network.newNetwork();
+
+    @Container
+    static final MySQLContainer<?> MYSQL_CONTAINER = TestContainerFactory.createMySQLContainer();
+
+    @Container
+    static final ConfluentKafkaContainer KAFKA_CONTAINER = TestContainerFactory.createKafkaContainer(
+        CONTAINER_NETWORK);
+
+    @Container
+    static final GenericContainer<?> SCHEMA_REGISTRY_CONTAINER = TestContainerFactory.createSchemaRegistryContainer(
+        CONTAINER_NETWORK, KAFKA_CONTAINER);
 
     @Autowired
     private ShopAdapterRepository shopRepository;
@@ -49,6 +71,13 @@ class ShopLikeEventListenerIntegrationTest extends TestContainerConfig {
 
     @Autowired
     private KafkaConfigurationProperties kafkaConfigurationProperties;
+
+    @DynamicPropertySource
+    static void registerProperties(DynamicPropertyRegistry registry) {
+        TestContainerFactory.overrideDatasourceProps(registry, MYSQL_CONTAINER);
+        TestContainerFactory.overrideKafkaProps(registry, KAFKA_CONTAINER,
+            SCHEMA_REGISTRY_CONTAINER);
+    }
 
     @BeforeEach
     void beforeEach() {
@@ -74,7 +103,7 @@ class ShopLikeEventListenerIntegrationTest extends TestContainerConfig {
         final Shop insertedShop = shopRepository.saveAndFlush(givenShop);
 
         // when
-        produceShopLikeEvent(insertedShop.getId(), givenMemberEmail,LikeType.LIKE);
+        produceShopLikeEvent(insertedShop.getId(), givenMemberEmail, LikeType.LIKE);
 
         // then
         await()

@@ -83,11 +83,4 @@ public class TestContainerFactory {
         dynamicPropertyRegistry.add("kafka.broker-url", () -> kafkaBrokerUrl);
         dynamicPropertyRegistry.add("kafka.schema-registry-url", () -> schemaRegistryUrl);
     }
-
-    public static void overrideMailProps(final DynamicPropertyRegistry dynamicPropertyRegistry) {
-        dynamicPropertyRegistry.add("spring.mail.host", () -> "smtp.gmail.com");
-        dynamicPropertyRegistry.add("spring.mail.port", () -> 587);
-        dynamicPropertyRegistry.add("spring.mail.username", () -> "dev.mail.dp@gmail.com");
-        dynamicPropertyRegistry.add("spring.mail.password", () -> "");
-    }
 }
