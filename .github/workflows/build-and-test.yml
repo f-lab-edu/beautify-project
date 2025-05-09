@@ -1,36 +1,42 @@
-name: BP Test and Deploy
+name: BP Test and Build
 
 on:
-  push:
-    branches: [main]
   pull_request:
-    branches: [main]
+    types: [opened, synchronize, reopened]
 
 jobs:
-  build:
+  bp-build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: 레파지토리 체크아웃
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: JDK(17) 세팅
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Grant execute permission for gradlew
+      - name: gradlew 명령어 실행 권한 획득
         run: chmod +x gradlew
 
-      - name: Build with Gradle
+      - name: Gradle 빌드
         run: ./gradlew build
 
-      - name: Run tests
-        run: ./gradlew test
-
-      - name: Set up Gradle
+      - name: Gradle 설정
         uses: gradle/actions/setup-gradle@v3
         with:
           cache-read-only: false
+          build-scan-publish: true
 
+      - name: 빌드 시작 시간 기록
+        run: echo "BUILD_START=$(date +%s)" >> $GITHUB_ENV
+
+      - name: Gradle 빌드 (Build Scan 포함)
+        run: ./gradlew build --scan
+
+      - name: 빌드 시간 출력
+        run: |
+          END=$(date +%s)
+          echo "Build duration: $((END - $BUILD_START)) seconds"
