@@ -8,7 +8,7 @@ spring:
     activate:
       on-profile: local
     import:
-      - jasypt.yml
+      - optional:jasypt.yml
       - mail.yml
       - classpath:mysql-config/application-local.yml
       - classpath:kafka-config/kafka-local.yml
