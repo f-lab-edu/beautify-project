@@ -6,12 +6,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.bp.app.api.AuthorizationHelper;
-import com.bp.app.api.integration.config.TestContainerConfig;
 import com.bp.app.api.request.shop.ShopRegistrationRequest;
 import com.bp.app.api.request.shop.ShopRegistrationRequest.Address;
 import com.bp.app.api.request.shop.ShopRegistrationRequest.BusinessTime;
 import com.bp.app.api.response.ResponseMessage;
 import com.bp.app.api.service.ShopService;
+import com.bp.app.api.testcontainers.TestContainerFactory;
 import com.bp.domain.mysql.entity.Category;
 import com.bp.domain.mysql.entity.Facility;
 import com.bp.domain.mysql.entity.Operation;
@@ -43,18 +43,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
-@SpringBootTest
-@AutoConfigureMockMvc
 @Tag("integration-test")
-class ShopIntegrationTest extends TestContainerConfig {
+@SpringBootTest
+@Testcontainers
+@AutoConfigureMockMvc
+public class ShopIntegrationTest {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().registerModule(
         new JavaTimeModule());
     public static final String SHOP_REGISTRATION_URI = "/v1/owner/shops";
+
+    @Container
+    static final MySQLContainer<?> MYSQL_CONTAINER = TestContainerFactory.createMySQLContainer();
 
     @Autowired
     private MockMvc mockMvc;
@@ -88,6 +97,11 @@ class ShopIntegrationTest extends TestContainerConfig {
 
     @Autowired
     private AuthorizationHelper authHelper;
+
+    @DynamicPropertySource
+    static void registerProperties(DynamicPropertyRegistry registry) {
+        TestContainerFactory.overrideDatasourceProps(registry, MYSQL_CONTAINER);
+    }
 
     @BeforeEach
     void beforeEach() {
@@ -177,7 +191,7 @@ class ShopIntegrationTest extends TestContainerConfig {
 
         // then
         // response 검증
-         resultActions
+        resultActions
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.returnValue").exists())
             .andExpect(jsonPath("$.returnValue.shopId").exists())

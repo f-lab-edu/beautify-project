@@ -21,8 +21,9 @@ jobs:
       - name: gradlew 명령어 실행 권한 획득
         run: chmod +x gradlew
 
-      - name: Gradle 빌드
-        run: ./gradlew build
+      # Docker 설정 - TestContainers 사용을 위해 필요
+      - name: Docker 설정
+        uses: docker/setup-buildx-action@v3
 
       - name: Gradle 설정
         uses: gradle/actions/setup-gradle@v3
@@ -30,13 +31,43 @@ jobs:
           cache-read-only: false
           build-scan-publish: true
 
+      - name: jaspyt.yml 파일 생성
+        run: |
+          mkdir -p bp-app-api/src/main/resources
+          mkdir -p bp-app-event-consumer/src/main/resources
+          echo "${{ secrets.JASYPT_YML }}" > bp-app-api/src/main/resources/jasypt.yml
+          echo "${{ secrets.JASYPT_YML }}" > bp-app-event-consumer/src/main/resources/jasypt.yml
+
       - name: 빌드 시작 시간 기록
         run: echo "BUILD_START=$(date +%s)" >> $GITHUB_ENV
 
-      - name: Gradle 빌드 (Build Scan 포함)
-        run: ./gradlew build --scan
+      # 통합 테스트만 실행 및 플래그로 TestContainer 환경변수 설정
+      - name: 통합 테스트 실행
+        run: ./gradlew test --tests "*IntegrationTest" -Dtestcontainers.reuse.enable=true
+        env: 
+          DOCKER_HOST: unix:///var/run/docker.sock
+          TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE: /var/run/docker.sock
+
+      # 전체 빌드 (통합 테스트 제외)
+      - name: Gradle 빌드 및 단위 테스트 실행
+        run: ./gradlew build -x integrationTest --scan
 
       - name: 빌드 시간 출력
         run: |
           END=$(date +%s)
           echo "Build duration: $((END - $BUILD_START)) seconds"
+          
+      # 테스트 결과 리포트
+      - name: 테스트 결과 업로드
+        uses: actions/upload-artifact@v4
+        if: always()  # 테스트 실패해도 결과 업로드
+        with:
+          name: test-results
+          path: |
+            **/build/reports/tests/
+            **/build/test-results/
+
+      - name: 테스트 실패 시 세부 로그
+        if: failure()
+        run: |
+          find . -type f -name "*.xml" -exec cat {} \; || true

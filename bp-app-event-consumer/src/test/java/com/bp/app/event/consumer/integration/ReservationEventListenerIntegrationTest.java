@@ -5,9 +5,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import com.bp.app.event.consumer.integration.config.TestContainerConfig;
 import com.bp.app.event.consumer.listener.ReservationEventListener;
 import com.bp.app.event.consumer.notification.EmailNotification;
+import com.bp.app.event.consumer.testcontainers.TestContainerFactory;
 import com.bp.common.kafka.config.properties.KafkaConfigurationProperties;
 import com.bp.common.kakfa.event.ReservationEvent.ReservationEventProto;
 import com.bp.common.kakfa.event.ReservationEvent.ReservationEventProto.ReservationType;
@@ -23,7 +23,6 @@ import com.bp.domain.mysql.repository.OperationAdapterRepository;
 import com.bp.domain.mysql.repository.OperatorAdaptorRepository;
 import com.bp.domain.mysql.repository.ReservationAdapterRepository;
 import java.util.concurrent.TimeUnit;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -32,15 +31,36 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.containers.Network;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.kafka.ConfluentKafkaContainer;
 
-@SpringBootTest
-@Slf4j
 @Tag("integration-test")
-class ReservationEventListenerIntegrationTest extends TestContainerConfig {
+@SpringBootTest
+@Testcontainers
+public class ReservationEventListenerIntegrationTest {
 
     private static final String TOPIC_CONFIG_NAME_RESERVATION_EVENT = "RESERVATION-REGISTRATION-EVENT";
     private static final Long HOUR_TO_LONG = 1000L * 60 * 60;
     private static final Long DAY_TO_LONG = 24 * HOUR_TO_LONG;
+
+    private static final Network CONTAINER_NETWORK = Network.newNetwork();
+
+    @Container
+    static final MySQLContainer<?> MYSQL_CONTAINER = TestContainerFactory.createMySQLContainer();
+
+    @Container
+    static final ConfluentKafkaContainer KAFKA_CONTAINER = TestContainerFactory.createKafkaContainer(
+        CONTAINER_NETWORK);
+
+    @Container
+    static final GenericContainer<?> SCHEMA_REGISTRY_CONTAINER = TestContainerFactory.createSchemaRegistryContainer(
+        CONTAINER_NETWORK, KAFKA_CONTAINER);
 
     @Autowired
     private KafkaTemplate<Long, ReservationEventProto> reservationEventProtoKafkaTemplate;
@@ -65,6 +85,13 @@ class ReservationEventListenerIntegrationTest extends TestContainerConfig {
 
     @SpyBean
     private EmailNotification emailNotification;
+
+    @DynamicPropertySource
+    static void registerProperties(DynamicPropertyRegistry registry) {
+        TestContainerFactory.overrideDatasourceProps(registry, MYSQL_CONTAINER);
+        TestContainerFactory.overrideKafkaProps(registry, KAFKA_CONTAINER, SCHEMA_REGISTRY_CONTAINER);
+        TestContainerFactory.overrideMailProps(registry);
+    }
 
     @BeforeEach
     void beforeEach() {

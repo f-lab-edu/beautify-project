@@ -6,16 +6,22 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.bp.app.api.config.IOBoundAsyncThreadPoolConfiguration;
 import com.bp.app.api.enumeration.ShopSearchType;
-import com.bp.app.api.integration.config.TestContainerConfig;
 import com.bp.app.api.provider.image.ImageProvider;
 import com.bp.app.api.request.shop.ShopListFindRequestParameters;
 import com.bp.app.api.response.ResponseMessage;
 import com.bp.app.api.response.image.PreSignedGetUrlResult;
 import com.bp.app.api.response.shop.ShopListFindResult;
+import com.bp.app.api.service.FacilityService;
+import com.bp.app.api.service.OperationService;
+import com.bp.app.api.service.ShopCategoryService;
 import com.bp.app.api.service.ShopFacilityService;
+import com.bp.app.api.service.ShopLikeService;
 import com.bp.app.api.service.ShopOperationService;
 import com.bp.app.api.service.ShopService;
+import com.bp.app.api.testcontainers.TestContainerFactory;
+import com.bp.cache.config.RedisAutoConfiguration;
 import com.bp.domain.mysql.entity.Shop;
 import com.bp.domain.mysql.entity.ShopFacility;
 import com.bp.domain.mysql.entity.ShopOperation;
@@ -27,16 +33,38 @@ import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.boot.test.mock.mockito.MockBeans;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
-@SpringBootTest
-@SuppressWarnings("unchecked")
-public class ShopServiceCacheIntegrationTest extends TestContainerConfig {
+@Tag("integration-test")
+@ExtendWith(SpringExtension.class)
+@Testcontainers
+@Import({RedisAutoConfiguration.class, ShopService.class})
+@MockBeans({
+    @MockBean(OperationService.class),
+    @MockBean(FacilityService.class),
+    @MockBean(ShopCategoryService.class),
+    @MockBean(IOBoundAsyncThreadPoolConfiguration.class),
+    @MockBean(ShopLikeService.class)
+})
+@SuppressWarnings({"unchecked"})
+public class ShopServiceCacheIntegrationTest {
 
-    @SpyBean
+    @Container
+    private static final GenericContainer<?> REDIS_CONTAINER = TestContainerFactory.createRedisContainer();
+
+    @Autowired
     ShopService shopService;
 
     @MockBean
@@ -49,7 +77,12 @@ public class ShopServiceCacheIntegrationTest extends TestContainerConfig {
     ShopFacilityService mockedShopFacilityService;
 
     @MockBean
-    ImageProvider imageProvider;
+    ImageProvider mockedImageProvider;
+
+    @DynamicPropertySource
+    static void registerProperties(DynamicPropertyRegistry registry) {
+        TestContainerFactory.overrideCacheProps(registry, REDIS_CONTAINER);
+    }
 
     @Test
     @DisplayName("location 기준 샵 목록 조회시 캐시에서 데이터를 가져온다.")
@@ -65,13 +98,13 @@ public class ShopServiceCacheIntegrationTest extends TestContainerConfig {
             BusinessTime.of(LocalTime.now(), LocalTime.now(), LocalTime.now(), LocalTime.now(),
                 List.of("monday")));
 
-        List<Shop> mockedCachedShopList = Arrays.asList(mockedShop);
+        List<Shop> mockedCachedShopList = List.of(mockedShop);
         when(mockedShopAdapterRepository.findAll(any(), any(), any(), any())).thenReturn(mockedCachedShopList);
         when(mockedShopOperationService.findShopOperationsByShopIds(any())).thenReturn(
-            Arrays.asList(ShopOperation.newShopOperation(1L, 1L)));
+            List.of(ShopOperation.newShopOperation(1L, 1L)));
         when(mockedShopFacilityService.findShopFacilitiesByShopIds(any())).thenReturn(
-            Arrays.asList(ShopFacility.newShopFacility(1L, 1L)));
-        when(imageProvider.providePreSignedGetUrlByFileId(any())).thenReturn(
+            List.of(ShopFacility.newShopFacility(1L, 1L)));
+        when(mockedImageProvider.providePreSignedGetUrlByFileId(any())).thenReturn(
             new PreSignedGetUrlResult("thumbnail link"));
 
         ShopListFindRequestParameters mockedRequestParams = new ShopListFindRequestParameters(
@@ -106,14 +139,14 @@ public class ShopServiceCacheIntegrationTest extends TestContainerConfig {
             BusinessTime.of(LocalTime.now(), LocalTime.now(), LocalTime.now(), LocalTime.now(),
                 List.of("monday")));
 
-        List<Shop> mockedCachedShopList = Arrays.asList(mockedShop);
+        List<Shop> mockedCachedShopList = List.of(mockedShop);
         when(mockedShopAdapterRepository.findAll(any(), any(), any(), any())).thenReturn(
             mockedCachedShopList);
         when(mockedShopOperationService.findShopOperationsByShopIds(any())).thenReturn(
-            Arrays.asList(ShopOperation.newShopOperation(1L, 1L)));
+            List.of(ShopOperation.newShopOperation(1L, 1L)));
         when(mockedShopFacilityService.findShopFacilitiesByShopIds(any())).thenReturn(
-            Arrays.asList(ShopFacility.newShopFacility(1L, 1L)));
-        when(imageProvider.providePreSignedGetUrlByFileId(any())).thenReturn(
+            List.of(ShopFacility.newShopFacility(1L, 1L)));
+        when(mockedImageProvider.providePreSignedGetUrlByFileId(any())).thenReturn(
             new PreSignedGetUrlResult("thumbnail link"));
 
         ShopListFindRequestParameters mockedRequestParams = new ShopListFindRequestParameters(

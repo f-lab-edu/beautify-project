@@ -9,7 +9,7 @@ spring:
     activate:
       on-profile: test
     import:
-      - jasypt.yml
+      - optional:jasypt.yml
       - auth.yml
       - classpath:mysql-config/application-local.yml
       - classpath:s3-client-config/application-local.yml

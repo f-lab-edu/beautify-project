@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.bp.app.api.integration.config.TestContainerConfig;
 import com.bp.app.api.request.member.UserRoleMemberRegistrationRequest;
+import com.bp.app.api.testcontainers.TestContainerFactory;
 import com.bp.domain.mysql.repository.MemberAdapterRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.stream.Stream;
@@ -20,16 +20,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
+@Tag("integration-test")
 @SpringBootTest
 @AutoConfigureMockMvc
-@Tag("integration-test")
-public class MemberIntegrationTest extends TestContainerConfig {
+@Testcontainers
+public class MemberIntegrationTest {
 
     private static final String MEMBER_SING_UP_URL = "/v1/members/user";
+
+    @Container
+    private static final MySQLContainer<?> MYSQL_CONTAINER = TestContainerFactory.createMySQLContainer();
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -39,6 +48,11 @@ public class MemberIntegrationTest extends TestContainerConfig {
 
     @Autowired
     private MemberAdapterRepository memberAdapterRepository;
+
+    @DynamicPropertySource
+    static void registerProperties(DynamicPropertyRegistry registry) {
+        TestContainerFactory.overrideDatasourceProps(registry, MYSQL_CONTAINER);
+    }
 
     @BeforeEach
     void beforeEach() {
