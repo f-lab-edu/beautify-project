@@ -37,7 +37,8 @@ jobs:
       # 통합 테스트만 실행 및 플래그로 TestContainer 환경변수 설정
       - name: 통합 테스트 실행
         run: ./gradlew test --tests "*IntegrationTest" -Dtestcontainers.reuse.enable=true
-        env:
+        env: 
+          DOCKER_HOST: unix:///var/run/docker.sock
           TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE: /var/run/docker.sock
 
       # 전체 빌드 (통합 테스트 제외)
@@ -58,3 +59,8 @@ jobs:
           path: |
             **/build/reports/tests/
             **/build/test-results/
+
+      - name: 테스트 실패 시 세부 로그
+        if: failure()
+        run: |
+          find . -type f -name "*.xml" -exec cat {} \; || true
