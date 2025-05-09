@@ -31,6 +31,11 @@ jobs:
           cache-read-only: false
           build-scan-publish: true
 
+      - name: jaspyt.yml 파일 생성
+        run: |
+          mkdir -p src/main/resources
+          echo "${{ secrets.JASYPT_YML }}" > src/main/resources/jasypt.yml
+
       - name: 빌드 시작 시간 기록
         run: echo "BUILD_START=$(date +%s)" >> $GITHUB_ENV
 
