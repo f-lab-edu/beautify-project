@@ -29,9 +29,9 @@ import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+@Tag("integration-test")
 @SpringBootTest
 @AutoConfigureMockMvc
-@Tag("integration-test")
 @Testcontainers
 public class MemberIntegrationTest {
 

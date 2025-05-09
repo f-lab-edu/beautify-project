@@ -37,10 +37,10 @@ import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+@Tag("integration-test")
 @SpringBootTest
 @AutoConfigureMockMvc
 @Testcontainers
-@Tag("integration-test")
 public class AuthIntegrationTest {
 
     private static final String AUTH_EMAIL_DUPLICATED_URL = "/v1/auth/email/duplicated";

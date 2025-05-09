@@ -46,9 +46,9 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.kafka.ConfluentKafkaContainer;
 
+@Tag("integration-test")
 @SpringBootTest
 @Testcontainers
-@Tag("integration-test")
 public class ReservationServiceIntegrationTest {
 
     private static final Long HOUR_TO_LONG = 1000L * 60 * 60;

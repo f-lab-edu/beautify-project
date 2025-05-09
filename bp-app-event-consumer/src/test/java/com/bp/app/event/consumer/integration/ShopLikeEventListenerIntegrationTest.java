@@ -39,10 +39,10 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.kafka.ConfluentKafkaContainer;
 
+@Tag("integration-test")
 @Slf4j
 @SpringBootTest
 @Testcontainers
-@Tag("integration-test")
 public class ShopLikeEventListenerIntegrationTest {
 
     private static final String TOPIC_CONFIG_NAME_SHOP_LIKE_EVENT = "SHOP-LIKE-EVENT";

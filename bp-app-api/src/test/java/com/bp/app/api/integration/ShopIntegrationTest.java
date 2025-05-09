@@ -52,10 +52,10 @@ import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+@Tag("integration-test")
 @SpringBootTest
 @Testcontainers
 @AutoConfigureMockMvc
-@Tag("integration-test")
 public class ShopIntegrationTest {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().registerModule(

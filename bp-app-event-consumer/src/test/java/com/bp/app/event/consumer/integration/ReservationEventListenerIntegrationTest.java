@@ -40,9 +40,9 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.kafka.ConfluentKafkaContainer;
 
+@Tag("integration-test")
 @SpringBootTest
 @Testcontainers
-@Tag("integration-test")
 public class ReservationEventListenerIntegrationTest {
 
     private static final String TOPIC_CONFIG_NAME_RESERVATION_EVENT = "RESERVATION-REGISTRATION-EVENT";
